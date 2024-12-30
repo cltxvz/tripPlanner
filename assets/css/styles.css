@@ -24,80 +24,34 @@ header .tagline {
 
 /* 🚀 Main Section */
 main {
-  max-width: 1200px; /* Match faveLib's main width */
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
   box-sizing: border-box;
 }
 
 /* ============================= */
-/* 📅 Trip Setup Form (Index Page) */
-/* ============================= */
-#trip-setup {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-#trip-setup h2 {
-  font-size: 20px;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-#trip-setup form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-}
-
-#trip-setup label {
-  flex: 1 1 200px;
-  display: flex;
-  flex-direction: column;
-  font-size: 14px;
-}
-
-#trip-setup input[type="text"],
-#trip-setup input[type="number"] {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  margin-top: 5px;
-  box-sizing: border-box;
-}
-
-#trip-setup button {
-  margin-top: 15px;
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  font-size: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#trip-setup button:hover {
-  background-color: #388E3C;
-}
-
-/* ============================= */
 /* 📅 Calendar Section (Calendar Page) */
 /* ============================= */
+
+/* Trip Page Layout */
+#trip-page {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Two-column layout: 2/3 for calendar, 1/3 for activities */
+  gap: 20px;
+  margin-top: 20px;
+  align-items: flex-start;
+}
+
+/* 🌟 Trip Plan (Days) */
 #calendar-container {
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
-  margin-top: 30px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  max-height: 600px;
 }
 
 #calendar-container h2 {
@@ -107,137 +61,113 @@ main {
 }
 
 #calendar {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-top: 20px;
 }
 
+/* Day Card */
 .day {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 15px;
-  text-align: center;
+  text-align: left;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .day h3 {
   font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.day p {
-  font-size: 14px;
-  margin: 5px 0;
-}
-
-/* ============================= */
-/* 📋 Activity List (Activities Page) */
-/* ============================= */
-#activity-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-/* 🌟 Actions Section */
-#activity-actions {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-#add-activity-btn {
-  padding: 10px 20px;
-  font-size: 14px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#add-activity-btn:hover {
-  background-color: #388E3C;
-}
-
-/* 🌟 Activity List Section */
-#activity-list-section {
-  width: 100%;
-  margin-top: 20px;
-  box-sizing: border-box;
-}
-
-/* 🌟 Activity List Grid */
-#activity-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Flexible grid layout */
-  gap: 20px; /* Space between cards */
-  justify-content: start; /* Align items to the left */
-  align-items: stretch;
-  margin-top: 20px;
-  padding: 0;
-}
-
-/* 🌟 Activity Item Styling */
-.activity-item {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 200px;
-}
-
-.activity-item:hover {
-  transform: translateY(-5px);
-}
-
-.activity-item h3 {
-  font-size: 18px;
   margin-bottom: 5px;
-}
-
-.activity-item p {
-  font-size: 14px;
-  margin: 5px 0;
-}
-
-.activity-item p strong {
+  text-align: center;
   font-weight: bold;
 }
 
-.activity-actions {
+/* Day Activities */
+.day-activities {
+  overflow-y: auto;
+  max-height: 150px;
+  border: 1px dashed #ccc;
+  padding: 5px;
+  border-radius: 4px;
+  background-color: #fdfdfd;
+}
+
+.day-cost {
   margin-top: 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+/* 🌟 Available Activities Section */
+#available-activities {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+#available-activities h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+#activity-pool {
   display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
-.activity-actions button {
-  padding: 5px 10px;
-  font-size: 12px;
-  border: none;
+/* Activity Item in Pool */
+.activity-item {
+  background-color: #f9fafc;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  cursor: pointer;
+  padding: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+  text-align: left;
+  font-size: 14px;
 }
 
-.activity-actions button:first-of-type {
-  background-color: #008CBA;
-  color: white;
+.activity-item:hover {
+  background-color: #f1f1f1;
 }
 
-.activity-actions button:last-of-type {
-  background-color: #f44336;
-  color: white;
+/* Dragged Activity Placeholder */
+.day-activities .activity-assigned {
+  background: #f9fafc;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px 8px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.activity-actions button:hover {
-  opacity: 0.9;
+.day-activities .activity-assigned:last-child {
+  margin-bottom: 0;
 }
+
+.day-cost {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
 
 /* 📦 Modal */
 .modal {
@@ -250,16 +180,6 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.3s ease-in-out;
 }
 
 /* 📝 Footer */
@@ -275,19 +195,15 @@ footer {
 
 /* 📱 Responsive Design */
 @media (max-width: 768px) {
-  #activity-list {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  #trip-page {
+    grid-template-columns: 1fr;
   }
-}
 
-/* 🎬 Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
+  #available-activities {
+    max-height: none;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  #calendar {
+    gap: 15px;
   }
 }

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Activities</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+  <!-- 📌 Header -->
+  <header>
+    <h1>Plan Activities</h1>
+    <p class="tagline">Add and organize your activities for the perfect trip itinerary.</p>
+  </header>
+
+  <!-- 🚀 Actions -->
+  <section id="activity-actions">
+    <button id="add-activity-btn">Add New Activity</button>
+  </section>
+
+  <!-- 📋 Activity List -->
+  <section id="activity-list-section">
+    <h2>Activity Pool</h2>
+    <div id="activity-list"></div>
+  </section>
+
+  <!-- 📦 Modal for Adding/Editing an Activity -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close-modal">&times;</span>
+      <h2>Add a New Activity</h2>
+      <form id="activity-form">
+        <input type="text" id="activity-title" placeholder="Activity Title" required>
+        <textarea id="activity-description" placeholder="Description"></textarea>
+        <input type="number" id="activity-duration" placeholder="Duration (hours)" min="0.5" step="0.5" required>
+        <input type="number" id="activity-cost" placeholder="Cost ($)" min="0" step="0.01">
+        <button type="submit">Add Activity</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 📝 Footer -->
+  <footer>
+    <p>Created by <a href="https://github.com/cltxvz" target="_blank">Carlos A. Cárdenas</a></p>
+  </footer>
+
+  <script src="assets/js/activities.js"></script>
+</body>
+</html>

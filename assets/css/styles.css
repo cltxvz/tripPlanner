@@ -24,53 +24,162 @@ header .tagline {
 
 /* 🚀 Main Section */
 main {
-  margin: 20px auto;
-  max-width: 600px;
-  padding: 0 15px;
+  max-width: 1200px; /* Match faveLib's main width */
+  margin: 0 auto;
+  padding: 0 20px;
   box-sizing: border-box;
 }
 
-/* 📦 Activity Actions */
-.activity-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-  justify-content: space-between;
+/* ============================= */
+/* 📅 Trip Setup Form (Index Page) */
+/* ============================= */
+#trip-setup {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.activity-actions button {
-  flex: 1;
-  padding: 8px;
-  font-size: 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+#trip-setup h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
   text-align: center;
 }
 
-.activity-actions button:first-of-type {
-  background-color: #008CBA; /* Edit Button */
+#trip-setup form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+#trip-setup label {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+#trip-setup input[type="text"],
+#trip-setup input[type="number"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+#trip-setup button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
   color: white;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.activity-actions button:last-of-type {
-  background-color: #f44336; /* Delete Button */
-  color: white;
+#trip-setup button:hover {
+  background-color: #388E3C;
 }
 
-.activity-actions button:hover {
-  opacity: 0.9;
+/* ============================= */
+/* 📅 Calendar Section (Calendar Page) */
+/* ============================= */
+#calendar-container {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 📋 Activity List */
-#activity-list {
+#calendar-container h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+#calendar {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.day {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.day h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.day p {
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+/* ============================= */
+/* 📋 Activity List (Activities Page) */
+/* ============================= */
+#activity-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 🌟 Actions Section */
+#activity-actions {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#add-activity-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#add-activity-btn:hover {
+  background-color: #388E3C;
+}
+
+/* 🌟 Activity List Section */
+#activity-list-section {
+  width: 100%;
+  margin-top: 20px;
+  box-sizing: border-box;
+}
+
+/* 🌟 Activity List Grid */
+#activity-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Flexible grid layout */
+  gap: 20px; /* Space between cards */
+  justify-content: start; /* Align items to the left */
+  align-items: stretch;
   margin-top: 20px;
   padding: 0;
 }
 
+/* 🌟 Activity Item Styling */
 .activity-item {
   background-color: #fff;
   border: 1px solid #ddd;
@@ -102,6 +211,34 @@ main {
   font-weight: bold;
 }
 
+.activity-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.activity-actions button {
+  padding: 5px 10px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.activity-actions button:first-of-type {
+  background-color: #008CBA;
+  color: white;
+}
+
+.activity-actions button:last-of-type {
+  background-color: #f44336;
+  color: white;
+}
+
+.activity-actions button:hover {
+  opacity: 0.9;
+}
+
 /* 📦 Modal */
 .modal {
   display: none;
@@ -110,67 +247,19 @@ main {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-content {
   background-color: #fff;
-  margin: 10% auto;
   padding: 20px;
   border-radius: 8px;
   width: 90%;
   max-width: 400px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.3s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.modal-content h2 {
-  text-align: center;
-  margin-bottom: 15px;
-  font-size: 18px;
-}
-
-/* 📋 Modal Form Styling */
-.modal-content input[type="text"],
-.modal-content input[type="number"],
-.modal-content textarea {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-.modal-content button {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background-color: #4CAF50;
-  color: white;
-  margin-top: 10px;
-}
-
-.modal-content button:hover {
-  background-color: #388E3C;
-}
-
-.close {
-  color: #aaa;
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: right;
-}
-
-.close:hover {
-  color: #000;
 }
 
 /* 📝 Footer */
@@ -184,32 +273,10 @@ footer {
   border-top: 1px solid #ddd;
 }
 
-footer a {
-  color: #4CAF50;
-  text-decoration: none;
-}
-
-footer a:hover {
-  text-decoration: underline;
-}
-
 /* 📱 Responsive Design */
 @media (max-width: 768px) {
   #activity-list {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
-
-  .activity-actions {
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .modal-content {
-    width: 95%;
-  }
-
-  .activity-item {
-    padding: 10px;
   }
 }
 

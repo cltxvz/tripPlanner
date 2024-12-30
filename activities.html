@@ -14,16 +14,20 @@
     <p class="tagline">Add and organize your activities for the perfect trip itinerary.</p>
   </header>
 
-  <!-- 🚀 Actions -->
-  <section id="activity-actions">
-    <button id="add-activity-btn">Add New Activity</button>
-  </section>
+  <!-- 🚀 Actions Section -->
+  <main id="activity-page">
+    <section id="activity-actions">
+      <button id="add-activity-btn">Add New Activity</button>
+    </section>
 
-  <!-- 📋 Activity List -->
-  <section id="activity-list-section">
-    <h2>Activity Pool</h2>
-    <div id="activity-list"></div>
-  </section>
+    <!-- 📋 Activity List -->
+    <section id="activity-list-section">
+      <h2>Activity Pool</h2>
+      <div id="activity-list-container">
+        <div id="activity-list"></div>
+      </div>
+    </section>
+  </main>
 
   <!-- 📦 Modal for Adding/Editing an Activity -->
   <div id="modal" class="modal">
@@ -31,10 +35,22 @@
       <span class="close" id="close-modal">&times;</span>
       <h2>Add a New Activity</h2>
       <form id="activity-form">
-        <input type="text" id="activity-title" placeholder="Activity Title" required>
-        <textarea id="activity-description" placeholder="Description"></textarea>
-        <input type="number" id="activity-duration" placeholder="Duration (hours)" min="0.5" step="0.5" required>
-        <input type="number" id="activity-cost" placeholder="Cost ($)" min="0" step="0.01">
+        <div class="form-group">
+          <label for="activity-title">Activity Title:</label>
+          <input type="text" id="activity-title" placeholder="Activity Title" required>
+        </div>
+        <div class="form-group">
+          <label for="activity-description">Description:</label>
+          <textarea id="activity-description" placeholder="Description"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="activity-duration">Duration (hours):</label>
+          <input type="number" id="activity-duration" placeholder="Duration (hours)" min="0.5" step="0.5" required>
+        </div>
+        <div class="form-group">
+          <label for="activity-cost">Cost ($):</label>
+          <input type="number" id="activity-cost" placeholder="Cost ($)" min="0" step="0.01">
+        </div>
         <button type="submit">Add Activity</button>
       </form>
     </div>

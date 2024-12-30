@@ -8,24 +8,41 @@ const closeModal = document.getElementById('close-modal');
 // 📚 Activity Array
 let activities = [];
 
+// 🛡️ Ensure Modal is Hidden on Page Load
+window.addEventListener('DOMContentLoaded', () => {
+    modal.style.display = 'none';
+  });
+  
+// 🚀 Show Modal Function
+function showModal(title = 'Add a New Activity') {
+  document.querySelector('.modal-content h2').innerText = title;
+  document.querySelector('#activity-form button').innerText = title.includes('Edit') ? 'Edit Activity' : 'Add Activity';
+
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'center'; // Ensure vertical centering
+  modal.style.justifyContent = 'center'; // Ensure horizontal centering
+  modal.scrollTop = 0; // Reset scroll position
+}
+
+// ❌ Close Modal Function
+function closeModalHandler() {
+  modal.style.display = 'none';
+}
+
 // Open Modal for Adding a New Activity
 addActivityBtn.addEventListener('click', () => {
   activityForm.reset();
   delete activityForm.dataset.editingId;
-  document.querySelector('.modal-content h2').innerText = 'Add a New Activity';
-  document.querySelector('#activity-form button').innerText = 'Add Activity';
-  modal.style.display = 'block';
+  showModal('Add a New Activity');
 });
 
 // Close Modal
-closeModal.addEventListener('click', () => {
-  modal.style.display = 'none';
-});
+closeModal.addEventListener('click', closeModalHandler);
 
 // Close Modal on Outside Click
 window.addEventListener('click', (e) => {
   if (e.target === modal) {
-    modal.style.display = 'none';
+    closeModalHandler();
   }
 });
 
@@ -68,7 +85,7 @@ activityForm.addEventListener('submit', (e) => {
   saveActivities();
   displayActivities();
   activityForm.reset();
-  modal.style.display = 'none';
+  closeModalHandler();
 });
 
 // 📋 Display Activities
@@ -103,9 +120,7 @@ function editActivity(id) {
 
     activityForm.dataset.editingId = id;
 
-    document.querySelector('.modal-content h2').innerText = 'Edit Activity';
-    document.querySelector('#activity-form button').innerText = 'Edit Activity';
-    modal.style.display = 'block';
+    showModal('Edit Activity');
   }
 }
 

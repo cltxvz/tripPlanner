@@ -1,22 +1,22 @@
 // 📌 DOM Elements
 const daysGrid = document.getElementById('days-grid');
-const manageDaysBtn = document.getElementById('manage-days-btn');
+const goBackBtn = document.getElementById('go-back-btn');
 const manageActivitiesBtn = document.getElementById('manage-activities-btn');
 const importTripBtn = document.getElementById('import-trip-btn');
 const exportTripBtn = document.getElementById('export-trip-btn');
 
-// 🚀 Load Trip Details
+// 🚀 Load Trip Days on Page Load
 document.addEventListener('DOMContentLoaded', () => {
   loadTripDays();
 });
 
-// 🗓️ Load Days into Grid
+// 🗓️ Load Trip Days into Grid
 function loadTripDays() {
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
   daysGrid.innerHTML = '';
 
   if (!tripDetails.days || tripDetails.days <= 0) {
-    daysGrid.innerHTML = '<p>No days planned yet. Start by planning your trip on the index page.</p>';
+    daysGrid.innerHTML = '<p>No days planned yet. Start by planning your trip on the home page.</p>';
     return;
   }
 
@@ -31,13 +31,12 @@ function loadTripDays() {
   }
 }
 
-// 📅 Navigate to Plan a Specific Day
-function goToDay(dayNumber) {
-  localStorage.setItem('selectedDay', dayNumber);
-  window.location.href = 'calendar.html';
-}
+// 🏠 Navigate Back to Home Page
+goBackBtn.addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
 
-// 📋 Manage Activities
+// 📋 Navigate to Activities Page
 manageActivitiesBtn.addEventListener('click', () => {
   window.location.href = 'activities.html';
 });
@@ -51,7 +50,24 @@ importTripBtn.addEventListener('click', () => {
   input.click();
 });
 
-// Handle Trip Import
+// 📤 Export Trip Data
+exportTripBtn.addEventListener('click', () => {
+  const tripDetails = localStorage.getItem('tripDetails');
+  if (!tripDetails) {
+    alert('No trip data to export.');
+    return;
+  }
+
+  const blob = new Blob([tripDetails], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'trip-data.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+// 📥 Handle Import Trip Data
 function handleTripImport(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -70,19 +86,8 @@ function handleTripImport(event) {
   reader.readAsText(file);
 }
 
-// 📤 Export Trip Data
-exportTripBtn.addEventListener('click', () => {
-  const tripDetails = localStorage.getItem('tripDetails');
-  if (!tripDetails) {
-    alert('No trip data to export.');
-    return;
-  }
-
-  const blob = new Blob([tripDetails], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'trip-data.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-});
+// 📅 Navigate to Calendar Page for a Specific Day
+function goToDay(dayNumber) {
+  localStorage.setItem('selectedDay', dayNumber);
+  window.location.href = 'calendar.html';
+}

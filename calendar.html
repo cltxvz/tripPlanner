@@ -1,39 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trip Itinerary</title>
+  <title>Plan Your Day</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-
 <body>
-    
   <!-- 📌 Header -->
   <header>
-    <h1>Trip Itinerary</h1>
-    <p class="tagline" id="trip-info">Your personalized day-by-day vacation plan.</p>
+    <h1>Plan Your Day</h1>
+    <p class="tagline">Organize activities into time slots for a perfect itinerary.</p>
   </header>
 
   <!-- 🚀 Main Section -->
-  <main id="trip-page">
-    <!-- Left Column: Trip Plan (Days) -->
-    <section id="calendar-container">
-      <h2>Your Trip Plan</h2>
-      <div id="calendar">
-        <!-- Dynamic calendar content will be generated here -->
+  <main id="day-planner">
+    <!-- 🕒 Day Time Configuration -->
+    <section id="day-settings">
+      <h2>Day Settings</h2>
+      <form id="day-config-form">
+        <label>
+          Start Time:
+          <input type="time" id="start-time" required>
+        </label>
+        <label>
+          End Time:
+          <input type="time" id="end-time" required>
+        </label>
+        <button type="submit">Set Times</button>
+      </form>
+    </section>
+
+    <!-- 📅 Left Column: Day Plan -->
+    <section id="day-schedule">
+      <h2>Day Plan</h2>
+      <div id="day-plan">
+        <!-- Single Block Plan for Activities -->
       </div>
     </section>
 
-    <!-- Right Column: Available Activities -->
+    <!-- 🌟 Right Column: Available Activities -->
     <section id="available-activities">
       <h2>Available Activities</h2>
       <div id="activity-pool">
-        <!-- Dynamic activity content will be generated here -->
+        <!-- Activities will be dynamically loaded here -->
       </div>
     </section>
   </main>
+
+<!-- 🕒 Activity Time Modal -->
+<div id="activity-time-modal" class="modal">
+    <div class="modal-content">
+      <h2>Set Activity Start Time</h2>
+      <label for="activity-time">Start Time:</label>
+      <input type="time" id="activity-time" required>
+      <button id="confirm-time">Confirm Time</button>
+      <button id="close-modal">Cancel</button>
+    </div>
+  </div>
+  
 
   <!-- 📝 Footer -->
   <footer>
@@ -42,5 +67,4 @@
 
   <script src="assets/js/calendar.js"></script>
 </body>
-
 </html>

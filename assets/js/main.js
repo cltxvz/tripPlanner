@@ -6,7 +6,7 @@ document.getElementById('trip-form').addEventListener('submit', (e) => {
   
     if (destination && days > 0 && people > 0) {
       localStorage.setItem('tripDetails', JSON.stringify({ destination, days, people }));
-      window.location.href = 'calendar.html';
+      window.location.href = 'trip.html';
     } else {
       alert('Please fill all fields correctly.');
     }

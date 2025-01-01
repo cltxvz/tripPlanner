@@ -14,15 +14,38 @@ let dayPlan = [];
 let draggedActivity = null;
 const activities = JSON.parse(localStorage.getItem('activities')) || [];
 
-// 🛡️ Ensure Modal is Hidden on Page Load
+// 🛡️ Initialize Page on Load
 window.addEventListener('DOMContentLoaded', () => {
     console.log('🔄 Page Loaded: Initializing day planner...');
-    if (activityTimeModal) {
-        activityTimeModal.style.display = 'none';
+    if (activityTimeModal) activityTimeModal.style.display = 'none';
+
+    // Load Day Block Configuration
+    const dayBlockConfig = JSON.parse(localStorage.getItem('dayBlockConfig'));
+    if (dayBlockConfig && dayBlockConfig.startTime && dayBlockConfig.endTime) {
+        generateDayBlock(dayBlockConfig.startTime, dayBlockConfig.endTime);
+        
+        // Populate the input fields with saved times
+        startTimeInput.value = dayBlockConfig.startTime;
+        endTimeInput.value = dayBlockConfig.endTime;
+        console.log('⏳ Restored Start and End Times:', dayBlockConfig.startTime, dayBlockConfig.endTime);
     }
+
     loadActivities();
     loadDayPlan();
 });
+
+
+// 📥 Load Day Plan from localStorage
+function loadDayPlan() {
+    const storedDayPlan = localStorage.getItem('dayPlan');
+    dayPlan = storedDayPlan ? JSON.parse(storedDayPlan) : [];
+    console.log('📥 Day Plan Loaded:', dayPlan);
+
+    if (dayPlan.length > 0) {
+        organizeDayPlan();
+    }
+}
+
 
 // 🚀 Configure Day Plan Block
 dayConfigForm.addEventListener('submit', (e) => {
@@ -42,6 +65,7 @@ dayConfigForm.addEventListener('submit', (e) => {
     saveDayPlan();
 });
 
+
 // 🕒 Create Day Block
 function generateDayBlock(startTime, endTime) {
     console.log(`✅ Creating Day Block: ${startTime} - ${endTime}`);
@@ -60,9 +84,15 @@ function generateDayBlock(startTime, endTime) {
         console.error('❌ Drop Zone not found after creating Day Block');
         return;
     }
+
     dropZone.addEventListener('dragover', (e) => e.preventDefault());
     dropZone.addEventListener('drop', handleDrop);
+
+    // Save day block configuration in localStorage
+    localStorage.setItem('dayBlockConfig', JSON.stringify({ startTime, endTime }));
+    console.log('💾 Day Block Config Saved:', { startTime, endTime });
 }
+
 
 // 🌟 Load Activities into Pool
 function loadActivities() {
@@ -84,6 +114,7 @@ function createActivityItem(activity) {
     activityPool.appendChild(activityItem);
 }
 
+
 // 🚀 Drag Events
 function handleDragStart(e) {
     draggedActivity = activities.find(a => a.id == e.target.dataset.id);
@@ -96,10 +127,17 @@ function handleDragEnd(e) {
     console.log('🛑 Drag Ended');
 }
 
+
 // 🚀 Handle Drop
 function handleDrop(e) {
     if (!draggedActivity) {
         alert('❌ No activity selected for this time slot.');
+        return;
+    }
+
+    const dayBlock = document.getElementById('day-block');
+    if (!dayBlock) {
+        alert('❌ Please configure the day block first.');
         return;
     }
 
@@ -109,20 +147,19 @@ function handleDrop(e) {
     activityTimeInput.value = '';
 }
 
+
 // ❌ Close Modal
 closeModalBtn.addEventListener('click', () => {
     activityTimeModal.style.display = 'none';
-    console.log('❌ Modal Closed');
     draggedActivity = null;
+    console.log('❌ Modal Closed & draggedActivity Reset');
 });
+
 
 // 🚀 Confirm Activity Time
 confirmTimeBtn.addEventListener('click', () => {
     const startTime = activityTimeInput.value;
     const dayBlock = document.getElementById('day-block');
-
-    console.log('✅ Confirm Button Clicked');
-    console.log('🔑 Start Time Input:', startTime);
 
     if (!dayBlock) {
         console.error('❌ Day Block not found.');
@@ -132,15 +169,12 @@ confirmTimeBtn.addEventListener('click', () => {
     const dayStart = dayBlock.dataset.start;
     const dayEnd = dayBlock.dataset.end;
 
-    console.log(`🕒 Day Start: ${dayStart}, Day End: ${dayEnd}`);
-
     if (!startTime || startTime < dayStart || startTime >= dayEnd) {
         alert('❌ Please enter a valid start time within the day range.');
         return;
     }
 
     const activityEndTime = calculateEndTime(startTime, draggedActivity.duration);
-    console.log('🧮 Calculated End Time:', activityEndTime);
 
     if (activityEndTime > dayEnd || !canBookActivity(startTime, activityEndTime)) {
         alert('❌ Time slot is already occupied or exceeds day limit.');
@@ -148,10 +182,12 @@ confirmTimeBtn.addEventListener('click', () => {
     }
 
     addActivityToDayPlan(draggedActivity, startTime, activityEndTime);
-    removeActivityFromPool(draggedActivity.id); // FIXED FUNCTION CALL
+    removeActivityFromPool(draggedActivity.id);
     activityTimeModal.style.display = 'none';
     draggedActivity = null;
+    console.log('✅ Activity Added to Day Plan');
 });
+
 
 // 🌟 Add Activity to Day Plan
 function addActivityToDayPlan(activity, startTime, endTime) {
@@ -170,26 +206,34 @@ function addActivityToDayPlan(activity, startTime, endTime) {
     saveDayPlan();
 }
 
-// 🗑️ Remove Activity from Pool
+
+// 🗑️ Remove Activity from Pool and Save Changes
 function removeActivityFromPool(activityId) {
     console.log(`🗑️ Removing Activity from Pool: ${activityId}`);
+    const activityIndex = activities.findIndex(a => a.id == activityId);
+    if (activityIndex !== -1) {
+        activities.splice(activityIndex, 1);
+        localStorage.setItem('activities', JSON.stringify(activities));
+    }
+
     const activityItem = activityPool.querySelector(`[data-id="${activityId}"]`);
     if (activityItem) {
         activityItem.remove();
     }
 }
 
+
 // 🧮 Calculate End Time
 function calculateEndTime(startTime, duration) {
     const [hours, minutes] = startTime.split(':').map(Number);
-    const endHours = hours + Math.floor(duration);
-    const endMinutes = minutes + Math.floor((duration % 1) * 60);
+    const totalMinutes = hours * 60 + minutes + duration * 60;
 
-    const finalHours = endHours + Math.floor(endMinutes / 60);
-    const finalMinutes = endMinutes % 60;
+    const endHours = Math.floor(totalMinutes / 60);
+    const endMinutes = totalMinutes % 60;
 
-    return `${String(finalHours).padStart(2, '0')}:${String(finalMinutes).padStart(2, '0')}`;
+    return `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
 }
+
 
 // ✅ Check Time Slot
 function canBookActivity(startTime, endTime) {
@@ -200,6 +244,7 @@ function canBookActivity(startTime, endTime) {
     }
     return true;
 }
+
 
 // 🌟 Organize Day Plan
 function organizeDayPlan() {
@@ -213,12 +258,8 @@ function organizeDayPlan() {
     });
 }
 
-// 💾 Save & Load
+
+// 💾 Save Day Plan
 function saveDayPlan() {
     localStorage.setItem('dayPlan', JSON.stringify(dayPlan));
-}
-
-function loadDayPlan() {
-    dayPlan = JSON.parse(localStorage.getItem('dayPlan')) || [];
-    organizeDayPlan();
 }

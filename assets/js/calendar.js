@@ -28,12 +28,35 @@ window.addEventListener('DOMContentLoaded', () => {
         endTimeInput.value = dayBlockConfig.endTime;
     }
 
-    // Load Day Plan First
-    loadDayPlan();
+    // Check if editing an existing day plan
+    const currentDayPlan = JSON.parse(localStorage.getItem('currentDayPlan'));
+    if (currentDayPlan) {
+        console.log('📥 Loading existing day plan for editing:', currentDayPlan);
+
+        // Load Start and End Times
+        startTimeInput.value = currentDayPlan.startTime;
+        endTimeInput.value = currentDayPlan.endTime;
+
+        // Generate Day Block with existing times
+        generateDayBlock(currentDayPlan.startTime, currentDayPlan.endTime);
+
+        // Load Existing Day Plan into Drop Zone
+        dayPlan = currentDayPlan.dayPlan || [];
+        saveDayPlan(); // Persist loaded day plan in localStorage
+        organizeDayPlan();
+        updateTotalCost();
+
+        // Clear currentDayPlan from storage (optional, to avoid conflicts)
+        localStorage.removeItem('currentDayPlan');
+    } else {
+        loadDayPlan(); // Fallback to default behavior
+    }
 
     // Load Activities After Day Plan
     loadActivities();
 });
+
+
 
 
 
@@ -121,7 +144,6 @@ function loadActivities() {
     activityPool.innerHTML = ''; // Clear the pool before repopulating
 
     activities.forEach(activity => {
-        // Check if the activity exists in dayPlan using consistent types
         const isScheduled = dayPlan.some(scheduled => String(scheduled.id) === String(activity.id));
         if (!isScheduled) {
             createActivityItem(activity); // Add only unscheduled activities
@@ -130,6 +152,7 @@ function loadActivities() {
 
     console.log('✅ Activities Loaded into Pool (Excluding Scheduled Activities):', activities);
 }
+
 
 
 
@@ -407,11 +430,15 @@ finishPlanningBtn.addEventListener('click', () => {
 
     // Save updated tripDetails back to localStorage
     localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+
+    // Clear the currentDayPlan data
+    localStorage.removeItem('currentDayPlan');
     console.log(`📅 Day ${selectedDay} updated successfully in tripDetails.`);
 
     // Redirect to trip overview
     window.location.href = 'trip.html';
 });
+
 
 
 

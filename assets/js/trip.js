@@ -105,7 +105,18 @@ function handleTripImport(event) {
 
 // 📅 Navigate to Calendar Page for a Specific Day
 function goToDay(dayNumber) {
+  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  const dayDetails = tripDetails.dayPlans?.[dayNumber] || null;
+
+  if (dayDetails) {
+      localStorage.setItem('currentDayPlan', JSON.stringify(dayDetails));
+  } else {
+      localStorage.removeItem('currentDayPlan');
+  }
+
   localStorage.setItem('selectedDay', dayNumber);
   window.location.href = 'calendar.html';
 }
+
+
 

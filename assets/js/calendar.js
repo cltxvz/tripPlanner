@@ -289,10 +289,19 @@ function canBookActivity(startTime, endTime) {
     });
 }
 
+// 💰 Calculate and Display Total Cost
+function updateTotalCost() {
+    const totalCost = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
+    const totalCostElement = document.getElementById('total-cost');
+    if (totalCostElement) {
+        totalCostElement.textContent = `Total Cost: $${totalCost.toFixed(2)}`;
+    }
+    console.log('💰 Total Cost Updated:', totalCost);
+}
 
 
 
-// 🌟 Organize Day Plan with Empty State Handling
+// 🌟 Organize Day Plan with Costs Displayed
 function organizeDayPlan() {
     const dropZone = document.getElementById('activity-drop-zone');
     if (!dropZone) return;
@@ -303,13 +312,16 @@ function organizeDayPlan() {
         // Display default drag message when no activities are scheduled
         dropZone.innerHTML = `<p>Drag activities here to plan your day</p>`;
     } else {
-        // Display scheduled activities with delete buttons
+        // Display scheduled activities with cost
         dayPlan.sort((a, b) => a.startTime.localeCompare(b.startTime));
         dayPlan.forEach(activity => {
             const activityElement = document.createElement('div');
             activityElement.classList.add('scheduled-activity');
             activityElement.innerHTML = `
-                <p><strong>${activity.title}</strong> (${activity.startTime} - ${activity.endTime})</p>
+                <p>
+                    <strong>${activity.title}</strong> (${activity.startTime} - ${activity.endTime}) 
+                    - Cost: $${activity.cost.toFixed(2)}
+                </p>
                 <button class="delete-activity" data-id="${activity.id}">Delete</button>
             `;
             dropZone.appendChild(activityElement);
@@ -319,7 +331,10 @@ function organizeDayPlan() {
             deleteButton.addEventListener('click', () => deleteActivityFromDayPlan(activity.id));
         });
     }
+
+    updateTotalCost();
 }
+
 
 
 
@@ -360,6 +375,45 @@ function restoreActivityToPool(activityId) {
 
     createActivityItem(activity); // Add activity back to the pool visually
 }
+
+// 🚀 Finish Planning and Redirect
+const finishPlanningBtn = document.getElementById('finish-planning');
+finishPlanningBtn.addEventListener('click', () => {
+    console.log('✅ Finishing Planning for the Day');
+
+    // Prepare the day plan data
+    const totalCost = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
+    const currentDayPlan = {
+        dayPlan,
+        totalCost,
+        startTime: startTimeInput.value,
+        endTime: endTimeInput.value
+    };
+
+    // Retrieve tripDetails from localStorage
+    const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || { days: 0, dayPlans: {} };
+
+    // Get selected day
+    const selectedDay = localStorage.getItem('selectedDay');
+    if (!selectedDay) {
+        alert('❌ No day selected. Returning to trip overview.');
+        window.location.href = 'trip.html';
+        return;
+    }
+
+    // Update the selected day in tripDetails
+    tripDetails.dayPlans = tripDetails.dayPlans || {};
+    tripDetails.dayPlans[selectedDay] = currentDayPlan;
+
+    // Save updated tripDetails back to localStorage
+    localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+    console.log(`📅 Day ${selectedDay} updated successfully in tripDetails.`);
+
+    // Redirect to trip overview
+    window.location.href = 'trip.html';
+});
+
+
 
 
 

@@ -16,20 +16,37 @@ function loadTripDays() {
   daysGrid.innerHTML = '';
 
   if (!tripDetails.days || tripDetails.days <= 0) {
-    daysGrid.innerHTML = '<p>No days planned yet. Start by planning your trip on the home page.</p>';
-    return;
+      daysGrid.innerHTML = '<p>No days planned yet. Start by planning your trip on the home page.</p>';
+      return;
   }
 
   for (let i = 1; i <= tripDetails.days; i++) {
-    const dayBlock = document.createElement('div');
-    dayBlock.className = 'day-block';
-    dayBlock.innerHTML = `
-      <h3>Day ${i}</h3>
-      <button onclick="goToDay(${i})">🕒 Plan This Day</button>
-    `;
-    daysGrid.appendChild(dayBlock);
+      const dayBlock = document.createElement('div');
+      dayBlock.className = 'day-block';
+
+      // Check if the day has a planned schedule
+      const dayPlan = tripDetails.dayPlans?.[i];
+
+      if (dayPlan) {
+          dayBlock.innerHTML = `
+              <h3>Day ${i}</h3>
+              <p><strong>Start Time:</strong> ${dayPlan.startTime}</p>
+              <p><strong>End Time:</strong> ${dayPlan.endTime}</p>
+              <p><strong>Total Cost:</strong> $${dayPlan.totalCost.toFixed(2)}</p>
+              <button onclick="goToDay(${i})">📝 Edit Day Plan</button>
+          `;
+      } else {
+          dayBlock.innerHTML = `
+              <h3>Day ${i}</h3>
+              <p>No activities planned yet.</p>
+              <button onclick="goToDay(${i})">🕒 Plan This Day</button>
+          `;
+      }
+
+      daysGrid.appendChild(dayBlock);
   }
 }
+
 
 // 🏠 Navigate Back to Home Page
 goBackBtn.addEventListener('click', () => {
@@ -91,3 +108,4 @@ function goToDay(dayNumber) {
   localStorage.setItem('selectedDay', dayNumber);
   window.location.href = 'calendar.html';
 }
+

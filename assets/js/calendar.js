@@ -14,25 +14,28 @@ let dayPlan = [];
 let draggedActivity = null;
 const activities = JSON.parse(localStorage.getItem('activities')) || [];
 
-// 🛡️ Initialize Page on Load
+// 🛡️ Page Initialization on Load
 window.addEventListener('DOMContentLoaded', () => {
     console.log('🔄 Page Loaded: Initializing day planner...');
+
     if (activityTimeModal) activityTimeModal.style.display = 'none';
 
     // Load Day Block Configuration
     const dayBlockConfig = JSON.parse(localStorage.getItem('dayBlockConfig'));
     if (dayBlockConfig && dayBlockConfig.startTime && dayBlockConfig.endTime) {
         generateDayBlock(dayBlockConfig.startTime, dayBlockConfig.endTime);
-        
-        // Populate the input fields with saved times
         startTimeInput.value = dayBlockConfig.startTime;
         endTimeInput.value = dayBlockConfig.endTime;
-        console.log('⏳ Restored Start and End Times:', dayBlockConfig.startTime, dayBlockConfig.endTime);
     }
 
-    loadActivities();
+    // Load Day Plan First
     loadDayPlan();
+
+    // Load Activities After Day Plan
+    loadActivities();
 });
+
+
 
 
 // 📥 Load Day Plan from localStorage
@@ -41,10 +44,12 @@ function loadDayPlan() {
     dayPlan = storedDayPlan ? JSON.parse(storedDayPlan) : [];
     console.log('📥 Day Plan Loaded:', dayPlan);
 
-    if (dayPlan.length > 0) {
-        organizeDayPlan();
-    }
+    organizeDayPlan();
 }
+
+
+
+
 
 
 // 🚀 Configure Day Plan Block
@@ -66,10 +71,16 @@ dayConfigForm.addEventListener('submit', (e) => {
 });
 
 
-// 🕒 Create Day Block
+// 🕒 Create or Reset Day Block
 function generateDayBlock(startTime, endTime) {
-    console.log(`✅ Creating Day Block: ${startTime} - ${endTime}`);
+    console.log(`✅ Creating/Resetting Day Block: ${startTime} - ${endTime}`);
 
+    // Do NOT restore scheduled activities to the pool
+    // Only clear the day plan visually
+    dayPlan = []; // Clear the day plan array
+    saveDayPlan(); // Save the cleared day plan
+
+    // Reset the day plan display
     dayPlanContainer.innerHTML = `
         <div id="day-block" data-start="${startTime}" data-end="${endTime}" class="day-block">
             <h3>Day Plan (${startTime} - ${endTime})</h3>
@@ -79,39 +90,50 @@ function generateDayBlock(startTime, endTime) {
         </div>
     `;
 
+    // Add event listeners for drag-and-drop functionality to the drop zone
     const dropZone = document.getElementById('activity-drop-zone');
-    if (!dropZone) {
-        console.error('❌ Drop Zone not found after creating Day Block');
-        return;
-    }
-
     dropZone.addEventListener('dragover', (e) => e.preventDefault());
     dropZone.addEventListener('drop', handleDrop);
 
-    // Save day block configuration in localStorage
+    // Save new day block configuration
     localStorage.setItem('dayBlockConfig', JSON.stringify({ startTime, endTime }));
-    console.log('💾 Day Block Config Saved:', { startTime, endTime });
+
+    // Reload activities to ensure all unscheduled activities are displayed
+    loadActivities();
+
+    console.log('🔄 Day Plan Reset without Restoring Scheduled Activities to Pool');
 }
 
 
-// 📦 Load Activities into Pool (Avoid Duplicates)
+
+
+
+// 📦 Load Activities into Pool (Exclude Scheduled Activities)
 function loadActivities() {
+    console.log('📦 Loading Activities into Pool');
     const storedActivities = localStorage.getItem('activities');
-    activities.length = 0;
+    activities.length = 0; // Clear the existing array
 
-    if (storedActivities) activities.push(...JSON.parse(storedActivities));
+    if (storedActivities) {
+        activities.push(...JSON.parse(storedActivities));
+    }
 
-    activityPool.innerHTML = '';
+    activityPool.innerHTML = ''; // Clear the pool before repopulating
 
     activities.forEach(activity => {
-        const isScheduled = dayPlan.some(a => a.id === activity.id);
+        // Check if the activity exists in dayPlan using consistent types
+        const isScheduled = dayPlan.some(scheduled => String(scheduled.id) === String(activity.id));
         if (!isScheduled) {
-            createActivityItem(activity); // Display only unscheduled activities
+            createActivityItem(activity); // Add only unscheduled activities
         }
     });
 
-    console.log('📦 Activities Loaded into Pool:', activities);
+    console.log('✅ Activities Loaded into Pool (Excluding Scheduled Activities):', activities);
 }
+
+
+
+
 
 
 
@@ -214,9 +236,11 @@ function addActivityToDayPlan(activity, startTime, endTime) {
         endTime
     });
 
-    organizeDayPlan();
     saveDayPlan();
+    organizeDayPlan();
+    hideActivityFromPool(activity.id); // Hide from pool
 }
+
 
 
 // 🗑️ Hide Activity from Pool (Do NOT Remove from Data)
@@ -227,6 +251,7 @@ function hideActivityFromPool(activityId) {
         activityItem.style.display = 'none'; // Hide instead of removing
     }
 }
+
 
 
 
@@ -249,27 +274,36 @@ function canBookActivity(startTime, endTime) {
 
 
 
-// 🌟 Organize Day Plan with Delete Button
+// 🌟 Organize Day Plan with Empty State Handling
 function organizeDayPlan() {
     const dropZone = document.getElementById('activity-drop-zone');
     if (!dropZone) return;
 
-    dropZone.innerHTML = '';
-    dayPlan.sort((a, b) => a.startTime.localeCompare(b.startTime));
-    dayPlan.forEach(activity => {
-        const activityElement = document.createElement('div');
-        activityElement.classList.add('scheduled-activity');
-        activityElement.innerHTML = `
-            <p><strong>${activity.title}</strong> (${activity.startTime} - ${activity.endTime})</p>
-            <button class="delete-activity" data-id="${activity.id}">Delete</button>
-        `;
-        dropZone.appendChild(activityElement);
+    dropZone.innerHTML = ''; // Clear the drag zone
 
-        // Add event listener for delete button
-        const deleteButton = activityElement.querySelector('.delete-activity');
-        deleteButton.addEventListener('click', () => deleteActivityFromDayPlan(activity.id));
-    });
+    if (dayPlan.length === 0) {
+        // Display default drag message when no activities are scheduled
+        dropZone.innerHTML = `<p>Drag activities here to plan your day</p>`;
+    } else {
+        // Display scheduled activities with delete buttons
+        dayPlan.sort((a, b) => a.startTime.localeCompare(b.startTime));
+        dayPlan.forEach(activity => {
+            const activityElement = document.createElement('div');
+            activityElement.classList.add('scheduled-activity');
+            activityElement.innerHTML = `
+                <p><strong>${activity.title}</strong> (${activity.startTime} - ${activity.endTime})</p>
+                <button class="delete-activity" data-id="${activity.id}">Delete</button>
+            `;
+            dropZone.appendChild(activityElement);
+
+            // Add delete functionality
+            const deleteButton = activityElement.querySelector('.delete-activity');
+            deleteButton.addEventListener('click', () => deleteActivityFromDayPlan(activity.id));
+        });
+    }
 }
+
+
 
 // 🗑️ Delete Activity from Day Plan & Restore Availability
 function deleteActivityFromDayPlan(activityId) {
@@ -306,14 +340,13 @@ function restoreActivityToPool(activityId) {
         return;
     }
 
-    // Add the activity back to the pool visually
-    createActivityItem(activity);
+    createActivityItem(activity); // Add activity back to the pool visually
 }
 
 
 
-
-// 💾 Save Day Plan
+// 💾 Save Day Plan to localStorage
 function saveDayPlan() {
     localStorage.setItem('dayPlan', JSON.stringify(dayPlan));
+    console.log('💾 Day Plan Saved:', dayPlan);
 }

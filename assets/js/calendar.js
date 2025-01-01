@@ -190,6 +190,7 @@ closeModalBtn.addEventListener('click', () => {
 });
 
 
+// 🚀 Confirm Activity Time
 confirmTimeBtn.addEventListener('click', () => {
     const startTime = activityTimeInput.value;
     const dayBlock = document.getElementById('day-block');
@@ -209,17 +210,23 @@ confirmTimeBtn.addEventListener('click', () => {
 
     const activityEndTime = calculateEndTime(startTime, draggedActivity.duration);
 
-    if (activityEndTime > dayEnd || !canBookActivity(startTime, activityEndTime)) {
-        alert('❌ Time slot is already occupied or exceeds day limit.');
+    if (activityEndTime > dayEnd) {
+        alert('❌ Activity exceeds the day end time.');
+        return;
+    }
+
+    if (!canBookActivity(startTime, activityEndTime)) {
+        alert('❌ Time slot is already occupied by another activity.');
         return;
     }
 
     addActivityToDayPlan(draggedActivity, startTime, activityEndTime);
-    hideActivityFromPool(draggedActivity.id); // Only hide, don't remove
+    hideActivityFromPool(draggedActivity.id);
     activityTimeModal.style.display = 'none';
     draggedActivity = null;
     console.log('✅ Activity Added to Day Plan');
 });
+
 
 
 
@@ -267,10 +274,21 @@ function calculateEndTime(startTime, duration) {
 }
 
 
-// ✅ Check Time Slot
+
+// ✅ Check Time Slot Availability (Prevent Overlaps)
 function canBookActivity(startTime, endTime) {
-    return dayPlan.every(activity => !(Math.max(activity.startTime, startTime) < Math.min(activity.endTime, endTime)));
+    console.log(`🔍 Checking if time slot (${startTime} - ${endTime}) is available`);
+
+    return dayPlan.every(activity => {
+        const activityStart = activity.startTime;
+        const activityEnd = activity.endTime;
+
+        // Check for any overlap
+        const noOverlap = endTime <= activityStart || startTime >= activityEnd;
+        return noOverlap;
+    });
 }
+
 
 
 

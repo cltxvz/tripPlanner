@@ -94,14 +94,26 @@ function generateDayBlock(startTime, endTime) {
 }
 
 
-// 🌟 Load Activities into Pool
+// 📦 Load Activities into Pool (Avoid Duplicates)
 function loadActivities() {
-    console.log('📦 Loading Activities into Pool');
+    const storedActivities = localStorage.getItem('activities');
+    activities.length = 0;
+
+    if (storedActivities) activities.push(...JSON.parse(storedActivities));
+
     activityPool.innerHTML = '';
+
     activities.forEach(activity => {
-        createActivityItem(activity);
+        const isScheduled = dayPlan.some(a => a.id === activity.id);
+        if (!isScheduled) {
+            createActivityItem(activity); // Display only unscheduled activities
+        }
     });
+
+    console.log('📦 Activities Loaded into Pool:', activities);
 }
+
+
 
 function createActivityItem(activity) {
     const activityItem = document.createElement('div');
@@ -156,7 +168,6 @@ closeModalBtn.addEventListener('click', () => {
 });
 
 
-// 🚀 Confirm Activity Time
 confirmTimeBtn.addEventListener('click', () => {
     const startTime = activityTimeInput.value;
     const dayBlock = document.getElementById('day-block');
@@ -182,11 +193,12 @@ confirmTimeBtn.addEventListener('click', () => {
     }
 
     addActivityToDayPlan(draggedActivity, startTime, activityEndTime);
-    removeActivityFromPool(draggedActivity.id);
+    hideActivityFromPool(draggedActivity.id); // Only hide, don't remove
     activityTimeModal.style.display = 'none';
     draggedActivity = null;
     console.log('✅ Activity Added to Day Plan');
 });
+
 
 
 // 🌟 Add Activity to Day Plan
@@ -207,20 +219,15 @@ function addActivityToDayPlan(activity, startTime, endTime) {
 }
 
 
-// 🗑️ Remove Activity from Pool and Save Changes
-function removeActivityFromPool(activityId) {
-    console.log(`🗑️ Removing Activity from Pool: ${activityId}`);
-    const activityIndex = activities.findIndex(a => a.id == activityId);
-    if (activityIndex !== -1) {
-        activities.splice(activityIndex, 1);
-        localStorage.setItem('activities', JSON.stringify(activities));
-    }
-
+// 🗑️ Hide Activity from Pool (Do NOT Remove from Data)
+function hideActivityFromPool(activityId) {
+    console.log(`👀 Hiding Activity from Pool: ${activityId}`);
     const activityItem = activityPool.querySelector(`[data-id="${activityId}"]`);
     if (activityItem) {
-        activityItem.remove();
+        activityItem.style.display = 'none'; // Hide instead of removing
     }
 }
+
 
 
 // 🧮 Calculate End Time
@@ -237,16 +244,12 @@ function calculateEndTime(startTime, duration) {
 
 // ✅ Check Time Slot
 function canBookActivity(startTime, endTime) {
-    for (const activity of dayPlan) {
-        if (Math.max(activity.startTime, startTime) < Math.min(activity.endTime, endTime)) {
-            return false;
-        }
-    }
-    return true;
+    return dayPlan.every(activity => !(Math.max(activity.startTime, startTime) < Math.min(activity.endTime, endTime)));
 }
 
 
-// 🌟 Organize Day Plan
+
+// 🌟 Organize Day Plan with Delete Button
 function organizeDayPlan() {
     const dropZone = document.getElementById('activity-drop-zone');
     if (!dropZone) return;
@@ -254,9 +257,60 @@ function organizeDayPlan() {
     dropZone.innerHTML = '';
     dayPlan.sort((a, b) => a.startTime.localeCompare(b.startTime));
     dayPlan.forEach(activity => {
-        dropZone.innerHTML += `<p><strong>${activity.title}</strong> (${activity.startTime} - ${activity.endTime})</p>`;
+        const activityElement = document.createElement('div');
+        activityElement.classList.add('scheduled-activity');
+        activityElement.innerHTML = `
+            <p><strong>${activity.title}</strong> (${activity.startTime} - ${activity.endTime})</p>
+            <button class="delete-activity" data-id="${activity.id}">Delete</button>
+        `;
+        dropZone.appendChild(activityElement);
+
+        // Add event listener for delete button
+        const deleteButton = activityElement.querySelector('.delete-activity');
+        deleteButton.addEventListener('click', () => deleteActivityFromDayPlan(activity.id));
     });
 }
+
+// 🗑️ Delete Activity from Day Plan & Restore Availability
+function deleteActivityFromDayPlan(activityId) {
+    console.log(`🗑️ Deleting Activity from Day Plan: ${activityId}`);
+
+    // Find the activity in the day plan
+    const deletedActivity = dayPlan.find(activity => activity.id === activityId);
+    if (!deletedActivity) {
+        console.warn('❌ Activity not found in Day Plan');
+        return;
+    }
+
+    // Remove the activity from the day plan
+    dayPlan = dayPlan.filter(activity => activity.id !== activityId);
+
+    // Save the updated day plan
+    saveDayPlan();
+
+    // Make the activity visible in the pool again
+    restoreActivityToPool(deletedActivity.id);
+
+    // Reorganize the day plan display and activities pool
+    organizeDayPlan();
+    loadActivities();
+}
+
+// 🔄 Restore Activity to Pool
+function restoreActivityToPool(activityId) {
+    console.log(`🔄 Restoring Activity to Pool: ${activityId}`);
+    const activity = activities.find(a => a.id === activityId);
+
+    if (!activity) {
+        console.warn('❌ Activity not found in Activities list');
+        return;
+    }
+
+    // Add the activity back to the pool visually
+    createActivityItem(activity);
+}
+
+
 
 
 // 💾 Save Day Plan

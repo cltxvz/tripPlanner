@@ -10,16 +10,15 @@
   <!-- 📌 Header -->
   <header>
     <h1>Trip Overview</h1>
-    <p class="tagline">Manage your trip days, activities, and data effortlessly.</p>
+    <p id="trip-info" class="tagline"></p>
   </header>
 
-  <!-- 🚀 Main Section -->
+  <!-- 🚀 Actions Section -->
   <main id="trip-overview">
-    <!-- Action Buttons -->
     <section id="trip-actions">
-      <h2>Trip Actions</h2>
       <div class="action-buttons">
         <button id="go-back-btn">🏠 Start Over</button>
+        <button id="edit-trip-btn">✏️ Edit Trip</button>
         <button id="manage-activities-btn">📋 Manage Activities</button>
         <button id="import-trip-btn">📥 Import Trip</button>
         <button id="export-trip-btn">📤 Export Trip</button>
@@ -29,11 +28,39 @@
     <!-- Days Overview -->
     <section id="trip-days">
       <h2>Trip Days</h2>
-      <div id="days-grid">
-        <!-- Dynamic day blocks will load here -->
-      </div>
+      <div id="days-grid"></div>
+    </section>
+
+    <!-- 💰 Total Cost Section -->
+    <section id="total-cost-section">
+      <h2>Total Cost</h2>
+      <p><strong>Total Cost (Per Person):</strong> $<span id="total-cost-per-person">0.00</span></p>
+      <p><strong>Total Cost (All Travelers):</strong> $<span id="total-cost-all-travelers">0.00</span></p>
     </section>
   </main>
+
+  <!-- 📝 Edit Trip Modal -->
+  <div id="edit-trip-modal" class="modal">
+    <div class="modal-content">
+      <h2>Edit Trip Details</h2>
+      <form id="edit-trip-form">
+        <div class="form-group">
+          <label for="edit-destination">Destination:</label>
+          <input type="text" id="edit-destination" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-days">Number of Days:</label>
+          <input type="number" id="edit-days" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-people">Number of People:</label>
+          <input type="number" id="edit-people" min="1" required>
+        </div>
+        <button type="submit">Save Changes</button>
+        <button type="button" id="close-edit-modal">Cancel</button>
+      </form>
+    </div>
+  </div>
 
   <!-- 📝 Footer -->
   <footer>

@@ -4,6 +4,7 @@ const activityList = document.getElementById('activity-list');
 const addActivityBtn = document.getElementById('add-activity-btn');
 const modal = document.getElementById('modal');
 const closeModal = document.getElementById('close-modal');
+const saveGoBackBtn = document.getElementById('save-go-back-btn');
 
 // 📚 Activity Array
 let activities = [];
@@ -44,6 +45,17 @@ window.addEventListener('click', (e) => {
   if (e.target === modal) {
     closeModalHandler();
   }
+});
+
+// 🚀 Save and Go Back to Trip Page
+saveGoBackBtn.addEventListener('click', () => {
+  console.log('💾 Saving Activities and Redirecting to Trip Page');
+
+  // Ensure activities are saved to localStorage
+  saveActivities();
+
+  // Redirect to trip.html
+  window.location.href = 'trip.html';
 });
 
 // 🛠️ Add or Edit Activity

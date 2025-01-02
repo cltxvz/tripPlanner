@@ -101,35 +101,57 @@ function loadTripDays() {
   daysGrid.innerHTML = '';
 
   if (!tripDetails.days || tripDetails.days <= 0) {
-    daysGrid.innerHTML = '<p>No days planned yet. Start by planning your trip on the home page.</p>';
-    return;
+      daysGrid.innerHTML = '<p>No days planned yet. Start by planning your trip on the home page.</p>';
+      return;
   }
 
   for (let i = 1; i <= tripDetails.days; i++) {
-    const dayBlock = document.createElement('div');
-    dayBlock.className = 'day-block';
+      const dayBlock = document.createElement('div');
+      dayBlock.className = 'day-block';
 
-    const dayPlan = tripDetails.dayPlans?.[i];
+      const dayPlan = tripDetails.dayPlans?.[i];
 
-    if (dayPlan) {
-      dayBlock.innerHTML = `
-        <h3>Day ${i}</h3>
-        <p><strong>Start Time:</strong> ${dayPlan.startTime}</p>
-        <p><strong>End Time:</strong> ${dayPlan.endTime}</p>
-        <p><strong>Total Cost:</strong> $${dayPlan.totalCost.toFixed(2)}</p>
-        <button onclick="goToDay(${i})">📝 Edit Day Plan</button>
-      `;
-    } else {
-      dayBlock.innerHTML = `
-        <h3>Day ${i}</h3>
-        <p>No activities planned yet.</p>
-        <button onclick="goToDay(${i})">🕒 Plan This Day</button>
-      `;
-    }
+      if (dayPlan && dayPlan.dayPlan && dayPlan.dayPlan.length > 0) {
+          // Day has activities planned
+          let activitiesList = '<ul>';
+          dayPlan.dayPlan.forEach(activity => {
+              activitiesList += `<li>${activity.title}</li>`;
+          });
+          activitiesList += '</ul>';
 
-    daysGrid.appendChild(dayBlock);
+          dayBlock.innerHTML = `
+              <h3>Day ${i}</h3>
+              <p><strong>Activities:</strong></p>
+              ${activitiesList}
+              <p><strong>Total Cost:</strong> $${dayPlan.totalCost.toFixed(2)}</p>
+              <div class="day-buttons">
+                  <button onclick="goToDay(${i})">📝 Edit Day Plan</button>
+                  <button onclick="showDayDetails(${i})">🔍 Show Details</button>
+              </div>
+          `;
+      } else {
+          // Day has no activities planned
+          dayBlock.innerHTML = `
+              <h3>Day ${i}</h3>
+              <p>No activities planned yet.</p>
+              <div class="day-buttons">
+                  <button onclick="goToDay(${i})">🕒 Plan This Day</button>
+              </div>
+          `;
+      }
+
+      daysGrid.appendChild(dayBlock);
   }
 }
+
+// Placeholder Function for Show Details
+function showDayDetails(dayNumber) {
+  console.log(`🔍 Show details for Day ${dayNumber}`);
+  alert(`Show details functionality for Day ${dayNumber} will be implemented soon!`);
+}
+
+
+
 
 // 💰 Calculate Total Trip Cost
 function calculateTotalCost() {

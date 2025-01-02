@@ -15,25 +15,9 @@
 
   <!-- 🚀 Main Section -->
   <main id="day-planner">
-    <!-- 🕒 Day Time Configuration -->
-    <section id="day-settings">
-      <h2>Day Settings</h2>
-      <form id="day-config-form">
-        <label>
-          Start Time:
-          <input type="time" id="start-time" required>
-        </label>
-        <label>
-          End Time:
-          <input type="time" id="end-time" required>
-        </label>
-        <button type="submit">Set Times</button>
-      </form>
-    </section>
-
     <!-- 📅 Day Schedule -->
     <section id="day-schedule">
-      <h2>Day Schedule</h2>
+      <h2>Day Schedule (12:00 AM - 12:00 AM)</h2>
       <div id="day-plan">
         <!-- Day Plan Block -->
       </div>
@@ -45,8 +29,8 @@
       <div id="activity-pool">
         <!-- Activities will be dynamically loaded here -->
       </div>
+      <button id="manage-activities-btn">📋 Manage Activities</button>
     </section>
-  </main>
 
   <!-- 💰 Total Day Cost Section -->
 <section id="day-summary">

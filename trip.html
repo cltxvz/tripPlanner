@@ -31,12 +31,13 @@
       <div id="days-grid"></div>
     </section>
 
-    <!-- 💰 Total Cost Section -->
-    <section id="total-cost-section">
-      <h2>Total Cost</h2>
-      <p><strong>Total Cost (Per Person):</strong> $<span id="total-cost-per-person">0.00</span></p>
-      <p><strong>Total Cost (All Travelers):</strong> $<span id="total-cost-all-travelers">0.00</span></p>
-    </section>
+   <!-- 💰 Budget & Costs Section -->
+  <section id="budget-costs-section">
+    <h2>Budget & Costs</h2>
+    <p><strong>Total Cost (Per Person):</strong> $<span id="total-cost-per-person">0.00</span></p>
+    <p><strong>Total Budget:</strong> $<span id="total-budget">0.00</span></p>
+    <button id="edit-budget-btn">✏️ Edit Budget</button>
+  </section>
   </main>
 
   <!-- 📝 Edit Trip Modal -->
@@ -58,6 +59,21 @@
         </div>
         <button type="submit">Save Changes</button>
         <button type="button" id="close-edit-modal">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 📦 Modal for Editing Budget -->
+  <div id="budget-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close-budget-modal">&times;</span>
+      <h2>Edit Trip Budget</h2>
+      <form id="budget-form">
+        <div class="form-group">
+          <label for="budget-input">Set Budget ($):</label>
+          <input type="number" id="budget-input" placeholder="Enter Budget" min="0" step="0.01" required>
+        </div>
+        <button type="submit">Save Budget</button>
       </form>
     </div>
   </div>

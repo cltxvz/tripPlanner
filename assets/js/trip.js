@@ -5,8 +5,6 @@ const manageActivitiesBtn = document.getElementById('manage-activities-btn');
 const importTripBtn = document.getElementById('import-trip-btn');
 const exportTripBtn = document.getElementById('export-trip-btn');
 const tripInfo = document.getElementById('trip-info');
-const totalCostPerPerson = document.getElementById('total-cost-per-person');
-const totalCostAllTravelers = document.getElementById('total-cost-all-travelers');
 const editTripBtn = document.getElementById('edit-trip-btn');
 const editTripModal = document.getElementById('edit-trip-modal');
 const closeEditModal = document.getElementById('close-edit-modal');
@@ -14,6 +12,12 @@ const editTripForm = document.getElementById('edit-trip-form');
 const editDestination = document.getElementById('edit-destination');
 const editDays = document.getElementById('edit-days');
 const editPeople = document.getElementById('edit-people');
+const totalCostPerPerson = document.getElementById('total-cost-per-person');
+const editBudgetBtn = document.getElementById('edit-budget-btn');
+const budgetModal = document.getElementById('budget-modal');
+const closeBudgetModal = document.getElementById('close-budget-modal');
+const budgetForm = document.getElementById('budget-form');
+const totalBudgetDisplay = document.getElementById('total-budget');
 
 // 🚀 Open Edit Trip Modal
 editTripBtn.addEventListener('click', () => {
@@ -29,6 +33,14 @@ editTripBtn.addEventListener('click', () => {
 closeEditModal.addEventListener('click', () => {
     editTripModal.style.display = 'none';
     console.log('❌ Edit Trip Modal Closed');
+});
+
+// ❌ Close Edit Trip Modal on Outside Click
+window.addEventListener('click', (e) => {
+  if (e.target === editTripModal) {
+      editTripModal.style.display = 'none';
+      console.log('❌ Edit Trip Modal Closed by clicking outside');
+  }
 });
 
 // ✅ Save Edited Trip Details
@@ -74,7 +86,6 @@ editTripForm.addEventListener('submit', (e) => {
     editTripModal.style.display = 'none';
     console.log('✅ Trip Details Updated Successfully');
 });
-
 
 
 // 🚀 Load Trip Details on Page Load
@@ -151,7 +162,50 @@ function showDayDetails(dayNumber) {
 }
 
 
+// 🛡️ Load Initial Budget
+function loadBudget() {
+  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  const budget = tripDetails.budget || 0;
+  totalBudgetDisplay.textContent = budget.toFixed(2);
+  console.log('💰 Budget Loaded:', budget);
+}
 
+// 📦 Open Budget Modal
+editBudgetBtn.addEventListener('click', () => {
+  console.log('📝 Opening Budget Modal...');
+  budgetModal.style.display = 'flex';
+});
+
+// ❌ Close Budget Modal
+closeBudgetModal.addEventListener('click', () => {
+  console.log('❌ Closing Budget Modal...');
+  budgetModal.style.display = 'none';
+});
+
+// 📥 Save Budget
+budgetForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const newBudget = parseFloat(document.getElementById('budget-input').value);
+
+  if (isNaN(newBudget) || newBudget < 0) {
+      alert('❌ Please enter a valid budget amount.');
+      return;
+  }
+
+  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  tripDetails.budget = newBudget;
+
+  localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+  totalBudgetDisplay.textContent = newBudget.toFixed(2);
+
+  console.log('✅ Budget Updated:', newBudget);
+  budgetModal.style.display = 'none';
+});
+
+// 🚀 Initialize Budget on Load
+document.addEventListener('DOMContentLoaded', () => {
+  loadBudget();
+});
 
 // 💰 Calculate Total Trip Cost
 function calculateTotalCost() {
@@ -164,11 +218,9 @@ function calculateTotalCost() {
     }
   }
 
-  const people = tripDetails.people || 1;
-
   totalCostPerPerson.textContent = totalCost.toFixed(2);
-  totalCostAllTravelers.textContent = (totalCost * people).toFixed(2);
 }
+
 
 // 🏠 Navigate Back to Home Page
 goBackBtn.addEventListener('click', () => {

@@ -27,23 +27,27 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Check if editing an existing day plan
     const currentDayPlan = JSON.parse(localStorage.getItem('currentDayPlan'));
-    if (currentDayPlan) {
+    if (currentDayPlan && currentDayPlan.dayPlan) {
         console.log('📥 Loading existing day plan for editing:', currentDayPlan);
-
+    
         // Generate Day Block with fixed times
         generateDayBlock();
-
+    
         // Load Existing Day Plan into Drop Zone
-        dayPlan = currentDayPlan.dayPlan || [];
+        dayPlan = currentDayPlan.dayPlan;
         saveDayPlan();
         organizeDayPlan();
         updateTotalCost();
-
+    
         localStorage.removeItem('currentDayPlan');
     } else {
-        generateDayBlock(); // Default day block
-        loadDayPlan();
+        console.log('🧹 Starting with a clean day plan');
+        dayPlan = []; // Clear day plan for a fresh start
+        saveDayPlan();
+        generateDayBlock();
+        organizeDayPlan();
     }
+    
 
     // Load Activities After Day Plan
     loadActivities();
@@ -348,3 +352,19 @@ function hideActivityFromPool(activityId) {
         console.warn(`⚠️ Activity ID ${activityId} not found in the pool.`);
     }
 }
+
+// 🗑️ Delete Activity from Day Plan
+function deleteActivityFromDayPlan(activityId) {
+    console.log(`🗑️ Deleting Activity ID: ${activityId} from Day Plan`);
+
+    // Find and remove the activity from dayPlan
+    dayPlan = dayPlan.filter(activity => String(activity.id) !== String(activityId));
+
+    // Save and refresh UI
+    saveDayPlan();
+    organizeDayPlan();
+    loadActivities();
+
+    console.log(`✅ Activity ID ${activityId} successfully removed from Day Plan`);
+}
+

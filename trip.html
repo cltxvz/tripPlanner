@@ -25,6 +25,30 @@
       </div>
     </section>
 
+    <!-- ✈️ Flights and Stay Section -->
+<section id="trip-flights-stay">
+  <div class="flights-stay-container">
+    <!-- ✈️ Flights Information -->
+    <div class="flights-info">
+      <h3>Flights Information:</h3>
+      <ul id="flights-list">
+        <!-- Flights will be dynamically loaded here -->
+      </ul>
+      <p><strong>Total Flights Cost:</strong> $<span id="flights-total-cost">0.00</span></p>
+      <button id="add-flight-btn">Add Flight Info</button>
+    </div>
+
+    <!-- 🏨 Stay Information -->
+    <div class="stay-info">
+      <h3>Stay Information:</h3>
+      <p>No stay information added yet.</p>
+      <button id="add-stay-btn">Add Stay Info</button>
+    </div>
+  </div>
+</section>
+
+
+
     <!-- Days Overview -->
     <section id="trip-days">
       <h2>Trip Days</h2>
@@ -77,6 +101,39 @@
       </form>
     </div>
   </div>
+
+<!-- ✈️ Flight Modal -->
+<div id="flight-modal" class="modal">
+  <div class="modal-content">
+    <h2 id="flight-modal-title">Add Flight</h2>
+    <form id="flight-form">
+      <div class="form-group">
+        <label for="flight-departure">Departure Location:</label>
+        <input type="text" id="flight-departure" required>
+      </div>
+      <div class="form-group">
+        <label for="flight-arrival">Arrival Location:</label>
+        <input type="text" id="flight-arrival" required>
+      </div>
+      <div class="form-group">
+        <label for="flight-cost">Cost ($):</label>
+        <input type="number" id="flight-cost" min="0" step="0.01" required>
+      </div>
+      <div class="form-group">
+        <label for="flight-type">Trip Type:</label>
+        <select id="flight-type">
+          <option value="One-Way">One-Way</option>
+          <option value="Roundtrip">Roundtrip</option>
+        </select>
+      </div>
+      <button type="submit" id="save-flight-btn">Save Flight</button>
+      <button type="button" id="delete-flight-btn" style="display:none;">Delete Flight</button>
+      <button type="button" id="close-flight-modal">Cancel</button>
+    </form>
+  </div>
+</div>
+
+
 
   <!-- 📝 Footer -->
   <footer>

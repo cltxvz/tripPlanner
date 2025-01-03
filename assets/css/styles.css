@@ -224,3 +224,121 @@ footer {
   margin-top: 5px;
   box-sizing: border-box;
 }
+
+/* ✈️ Flights & Stay Information Section */
+#trip-flights-stay {
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #f9fafc;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#trip-flights-stay h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.flights-stay-container {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+/* 🛫 Flights Section */
+.flights-info {
+  text-align: left;
+}
+
+#flights-list {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 10px 0;
+}
+
+#flights-list li {
+  margin: 5px 0;
+}
+
+/* 🛫 Flights Modal */
+#flights-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+}
+
+#flights-modal .modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  text-align: center;
+}
+
+#flights-modal .form-group {
+  margin: 10px 0;
+  text-align: left;
+}
+
+#flights-modal .form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+#flights-modal .form-group input,
+#flights-modal .form-group select {
+  width: 100%;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+#flights-modal .modal-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#flights-modal .modal-buttons button {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  font-weight: bold;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+#flights-modal .modal-buttons button:first-child {
+  background-color: #007bff;
+  color: white;
+}
+
+#flights-modal .modal-buttons button:last-child {
+  background-color: #e0e0e0;
+}
+
+/* ❌ Delete Flight Button */
+.delete-flight-btn {
+  margin-left: 10px;
+  padding: 2px 6px;
+  font-size: 0.8em;
+  color: black;
+  
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-flight-btn:hover {
+  background-color: #c0392b;
+}

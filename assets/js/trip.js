@@ -19,6 +19,31 @@ const closeBudgetModal = document.getElementById('close-budget-modal');
 const budgetForm = document.getElementById('budget-form');
 const totalBudgetDisplay = document.getElementById('total-budget');
 
+// ✈️ Flight DOM Elements
+const flightsList = document.getElementById('flights-list'); // List container for flights
+const flightsTotalCost = document.getElementById('flights-total-cost'); // Total cost display
+const flightsModal = document.getElementById('flight-modal'); // Flight modal
+const addFlightsBtn = document.getElementById('add-flight-btn'); // Add flight button
+
+
+
+
+
+// ✈️ DOM Elements
+const flightModalTitle = document.getElementById('flight-modal-title');
+const saveFlightBtn = document.getElementById('save-flight-btn');
+const deleteFlightBtn = document.getElementById('delete-flight-btn');
+const flightsForm = document.getElementById('flight-form');
+const flightDeparture = document.getElementById('flight-departure');
+const flightArrival = document.getElementById('flight-arrival');
+const flightCost = document.getElementById('flight-cost');
+const flightType = document.getElementById('flight-type');
+const closeFlightModal = document.getElementById('close-flight-modal');
+
+// Track currently edited flight index
+let editingFlightIndex = null;
+
+
 // 🚀 Open Edit Trip Modal
 editTripBtn.addEventListener('click', () => {
     console.log('✏️ Editing Trip Details');
@@ -170,11 +195,21 @@ function loadBudget() {
   console.log('💰 Budget Loaded:', budget);
 }
 
-// 📦 Open Budget Modal
+// 📦 Open Budget Modal and Load Current Budget
 editBudgetBtn.addEventListener('click', () => {
   console.log('📝 Opening Budget Modal...');
+
+  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  const currentBudget = tripDetails.budget || 0;
+
+  // Set the current budget in the modal input
+  document.getElementById('budget-input').value = currentBudget;
+
+  console.log('💰 Loaded Budget into Modal:', currentBudget);
+
   budgetModal.style.display = 'flex';
 });
+
 
 // ❌ Close Budget Modal
 closeBudgetModal.addEventListener('click', () => {
@@ -207,19 +242,39 @@ document.addEventListener('DOMContentLoaded', () => {
   loadBudget();
 });
 
-// 💰 Calculate Total Trip Cost
+// 💰 Calculate and Display Total Trip Cost (Including Flights)
 function calculateTotalCost() {
-  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  console.log('🔄 Calculating Total Trip Cost...');
+
   let totalCost = 0;
 
+  // 🗓️ Add costs from Day Plans
+  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
   if (tripDetails.dayPlans) {
-    for (const day in tripDetails.dayPlans) {
-      totalCost += tripDetails.dayPlans[day].totalCost || 0;
-    }
+      for (const day in tripDetails.dayPlans) {
+          totalCost += tripDetails.dayPlans[day].totalCost || 0;
+      }
   }
 
+  console.log('🛠️ Day Plans Total Cost:', totalCost);
+
+  // ✈️ Add costs from Flights
+  const totalFlightCost = flights.reduce((sum, flight) => sum + flight.cost, 0);
+  totalCost += totalFlightCost;
+
+  console.log('✈️ Flights Total Cost:', totalFlightCost);
+  console.log('💵 Combined Total Trip Cost:', totalCost);
+
+  // 📝 Update DOM
   totalCostPerPerson.textContent = totalCost.toFixed(2);
+
+  // Save updated cost back to tripDetails for consistency
+  tripDetails.totalCost = totalCost;
+  localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
 }
+
+
+
 
 
 // 🏠 Navigate Back to Home Page
@@ -306,3 +361,259 @@ function goToDay(dayNumber) {
 
 
 
+// ✈️ Flight Data
+let flights = JSON.parse(localStorage.getItem('flights')) || [];
+console.log('✈️ Loaded Flights from localStorage:', flights);
+
+// 🚀 Show Flights Modal for Adding Flight
+addFlightsBtn.addEventListener('click', () => {
+  console.log('📝 Add Flights button clicked.');
+  openFlightModal(false); // Open modal in "Add" mode
+});
+
+
+// ❌ Close Flights Modal
+closeFlightModal.addEventListener('click', () => {
+  console.log('❌ Flights Modal closed.');
+  flightsModal.style.display = 'none';
+  flightsForm.reset();
+});
+
+// ✅ Handle Add/Edit Flight (Single Event Listener)
+flightsForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  console.log('✈️ Flight Form Submitted');
+
+  // 📝 Fetch Input Values
+  const departure = flightDeparture.value.trim();
+  const arrival = flightArrival.value.trim();
+  const cost = parseFloat(flightCost.value);
+  const tripType = flightType.value;
+
+  console.log('📝 Flight Details:', { departure, arrival, cost, tripType });
+  console.log('🛠️ Editing Flight Index:', editingFlightIndex);
+
+  // 🛡️ Validation Logic
+  if (!departure) {
+      console.warn('❌ Invalid departure location:', departure);
+      alert('❌ Please enter a valid departure location.');
+      return;
+  }
+
+  if (!arrival) {
+      console.warn('❌ Invalid arrival location:', arrival);
+      alert('❌ Please enter a valid arrival location.');
+      return;
+  }
+
+  if (isNaN(cost) || cost < 0) {
+      console.warn('❌ Invalid flight cost:', cost);
+      alert('❌ Please enter a valid flight cost.');
+      return;
+  }
+
+  // 🚀 Add or Edit Flight Based on `editingFlightIndex`
+  if (editingFlightIndex !== null && flights[editingFlightIndex]) {
+      console.log(`🛠️ Editing Existing Flight at Index: ${editingFlightIndex}`);
+      flights[editingFlightIndex] = {
+          ...flights[editingFlightIndex],
+          departure,
+          arrival,
+          cost,
+          tripType,
+      };
+      console.log('✅ Flight Updated:', flights[editingFlightIndex]);
+  } else {
+      console.log('🚀 Adding New Flight');
+      const newFlight = {
+          id: Date.now(),
+          departure,
+          arrival,
+          cost,
+          tripType,
+      };
+      flights.push(newFlight);
+      console.log('✅ New Flight Added:', newFlight);
+  }
+
+  // 💾 Save Flights to LocalStorage
+  localStorage.setItem('flights', JSON.stringify(flights));
+  console.log('💾 Flights saved to localStorage:', flights);
+
+  // 📝 Refresh Display
+  displayFlights();
+
+  // ✅ Properly Reset and Close Modal
+  flightsForm.reset();
+  flightsModal.style.display = 'none';
+  editingFlightIndex = null;
+
+  console.log('✅ Flight Form Handling Complete');
+});
+
+
+// 📝 Display Flights with Edit/Delete Button
+function displayFlights() {
+  flightsList.innerHTML = ''; // Clear the flight list
+  let totalCost = 0;
+
+  console.log('🔄 Displaying Flights:', flights);
+
+  flights.forEach((flight, index) => {
+      totalCost += flight.cost;
+
+      const flightItem = document.createElement('li');
+      flightItem.innerHTML = `
+          ${flight.departure} - ${flight.arrival}, ${flight.tripType}, Cost: $${flight.cost.toFixed(2)}
+          <button class="edit-flight-btn" data-index="${index}">✏️ Edit/Delete</button>
+      `;
+      flightsList.appendChild(flightItem);
+  });
+
+  flightsTotalCost.textContent = totalCost.toFixed(2);
+  console.log('💰 Flights Total Cost:', totalCost);
+
+  // Add Edit/Delete Listeners
+  const editButtons = document.querySelectorAll('.edit-flight-btn');
+  editButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+          const index = e.target.dataset.index;
+          console.log('📝 Edit/Delete Clicked for Flight Index:', index);
+          openFlightModal(true, index);
+      });
+  });
+
+  // 🔄 Immediately Recalculate Total Trip Cost
+  calculateTotalCost();
+  console.log('✅ Total Trip Cost recalculated after flight updates.');
+}
+
+
+
+
+// 🗑️ Remove Flight by Index
+function removeFlight(index) {
+  console.log(`🗑️ Removing Flight at Index: ${index}`);
+
+  // Remove flight from the array
+  flights.splice(index, 1);
+
+  // Save the updated flights array to localStorage
+  localStorage.setItem('flights', JSON.stringify(flights));
+  console.log('💾 Flights updated in localStorage after removal.');
+
+  // Refresh the flights list in the UI
+  displayFlights();
+
+  // 🔄 Recalculate the total cost immediately
+  calculateTotalCost();
+  console.log('✅ Total Trip Cost updated after flight removal');
+}
+
+
+// 🚀 Update Total Trip Cost (Including Flights)
+function updateTotalTripCost() {
+  let totalTripCost = 0;
+
+  // Add cost from Day Plans
+  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  if (tripDetails.dayPlans) {
+      for (const day in tripDetails.dayPlans) {
+          totalTripCost += tripDetails.dayPlans[day].totalCost || 0;
+      }
+  }
+
+  // Add cost from Flights
+  const totalFlightCost = flights.reduce((sum, flight) => sum + flight.cost, 0);
+  totalTripCost += totalFlightCost;
+
+  // Update Total Cost Display
+  totalCostPerPerson.textContent = totalTripCost.toFixed(2);
+
+  console.log('💵 Total Trip Cost Updated:', totalTripCost);
+}
+
+
+// 🚀 Initialize Flights on Page Load
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🔄 DOM Content Loaded - Initializing Flights Section');
+  console.log('✈️ Initial Flights Array:', flights);
+
+  if (!flightsList) {
+    console.error('❌ flightsList DOM element is not found during initialization.');
+  }
+
+  displayFlights();
+});
+
+
+// 🚀 Open Modal for Adding/Editing Flight
+function openFlightModal(isEdit = false, index = null) {
+  console.log(`📝 Opening Flight Modal | isEdit: ${isEdit}, index: ${index}`);
+  if (isEdit) {
+    flightModalTitle.textContent = 'Edit Flight';
+    saveFlightBtn.textContent = 'Save Changes';
+    deleteFlightBtn.style.display = 'inline-block';
+
+    // Load existing flight details
+    const flight = flights[index];
+    console.log('✏️ Editing Flight Details:', flight);
+
+    flightDeparture.value = flight.departure;
+    flightArrival.value = flight.arrival;
+    flightCost.value = flight.cost;
+    flightType.value = flight.tripType;
+
+    editingFlightIndex = index;
+  } else {
+    flightModalTitle.textContent = 'Add Flight';
+    saveFlightBtn.textContent = 'Add Flight';
+    deleteFlightBtn.style.display = 'none';
+
+    flightsForm.reset();
+    editingFlightIndex = null;
+  }
+
+  flightsModal.style.display = 'flex';
+}
+
+// 🚀 Close Modal
+closeFlightModal.addEventListener('click', () => {
+  console.log('❌ Closing Flight Modal');
+  flightsModal.style.display = 'none';
+  flightsForm.reset();
+  editingFlightIndex = null;
+});
+
+
+
+
+
+
+
+
+
+// 🗑️ Handle Flight Deletion
+deleteFlightBtn.addEventListener('click', () => {
+  if (editingFlightIndex !== null) {
+    flights.splice(editingFlightIndex, 1);
+    console.log(`🗑️ Flight Deleted at Index: ${editingFlightIndex}`);
+
+    localStorage.setItem('flights', JSON.stringify(flights));
+    displayFlights();
+    flightsModal.style.display = 'none';
+    editingFlightIndex = null;
+    flightsForm.reset();
+  }
+});
+
+
+
+
+
+// 🏨 Add Stay Information
+const addStayBtn = document.getElementById('add-stay-btn');
+addStayBtn.addEventListener('click', () => {
+  console.log('🏨 Add Stay Information');
+  alert('Feature to add stay information will be implemented soon!');
+});

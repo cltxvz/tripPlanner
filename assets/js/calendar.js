@@ -19,39 +19,39 @@ let dayPlan = [];
 let draggedActivity = null;
 const activities = JSON.parse(localStorage.getItem('activities')) || [];
 
-// 🛡️ Page Initialization on Load
 window.addEventListener('DOMContentLoaded', () => {
     console.log('🔄 Page Loaded: Initializing day planner...');
 
+    if (!localStorage.getItem('selectedDay')) {
+        console.warn('⚠️ No selectedDay found in localStorage. Redirecting to trip overview...');
+        window.location.href = 'trip.html';
+        return;
+    }
+
     if (activityTimeModal) activityTimeModal.style.display = 'none';
 
-    // Check if editing an existing day plan
+    generateDayBlock(); // Always generate the day block first
+
     const currentDayPlan = JSON.parse(localStorage.getItem('currentDayPlan'));
+
     if (currentDayPlan && currentDayPlan.dayPlan) {
         console.log('📥 Loading existing day plan for editing:', currentDayPlan);
-    
-        // Generate Day Block with fixed times
-        generateDayBlock();
-    
-        // Load Existing Day Plan into Drop Zone
         dayPlan = currentDayPlan.dayPlan;
         saveDayPlan();
         organizeDayPlan();
         updateTotalCost();
-    
         localStorage.removeItem('currentDayPlan');
     } else {
         console.log('🧹 Starting with a clean day plan');
-        dayPlan = []; // Clear day plan for a fresh start
+        dayPlan = [];
         saveDayPlan();
-        generateDayBlock();
         organizeDayPlan();
     }
-    
 
-    // Load Activities After Day Plan
     loadActivities();
 });
+
+
 
 // 🚀 Generate Fixed Day Block (12:00 AM - 12:00 AM)
 function generateDayBlock() {
@@ -211,7 +211,6 @@ confirmTimeBtn.addEventListener('click', () => {
 });
 
 
-// ✅ Finish Planning and Redirect
 finishPlanningBtn.addEventListener('click', () => {
     console.log('✅ Finishing Planning for the Day');
 
@@ -221,8 +220,12 @@ finishPlanningBtn.addEventListener('click', () => {
         totalCost
     };
 
-    const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || { days: 0, dayPlans: {} };
+    // Validate tripDetails and selectedDay
+    let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || { days: 0, dayPlans: {} };
     const selectedDay = localStorage.getItem('selectedDay');
+
+    console.log('🔍 Selected Day:', selectedDay);
+    console.log('🔍 Trip Details:', tripDetails);
 
     if (!selectedDay) {
         alert('❌ No day selected. Returning to trip overview.');
@@ -230,12 +233,25 @@ finishPlanningBtn.addEventListener('click', () => {
         return;
     }
 
-    tripDetails.dayPlans[selectedDay] = currentDayPlan;
-    localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
-    console.log(`📅 Day ${selectedDay} updated successfully.`);
+    if (!tripDetails.dayPlans) {
+        tripDetails.dayPlans = {};
+    }
 
+    tripDetails.dayPlans[selectedDay] = currentDayPlan;
+
+    try {
+        localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+        console.log(`📅 Day ${selectedDay} updated successfully.`);
+    } catch (e) {
+        console.error('❌ Failed to save trip details to localStorage:', e);
+        alert('❌ Failed to save trip details. Ensure storage is enabled.');
+        return;
+    }
+
+    // Redirect to the trip overview page
     window.location.href = 'trip.html';
 });
+
 
 // 📋 Create Individual Activity Item
 function createActivityItem(activity) {

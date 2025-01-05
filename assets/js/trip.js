@@ -24,12 +24,6 @@ const flightsList = document.getElementById('flights-list'); // List container f
 const flightsTotalCost = document.getElementById('flights-total-cost'); // Total cost display
 const flightsModal = document.getElementById('flight-modal'); // Flight modal
 const addFlightsBtn = document.getElementById('add-flight-btn'); // Add flight button
-
-
-
-
-
-// ✈️ DOM Elements
 const flightModalTitle = document.getElementById('flight-modal-title');
 const saveFlightBtn = document.getElementById('save-flight-btn');
 const deleteFlightBtn = document.getElementById('delete-flight-btn');
@@ -39,6 +33,193 @@ const flightArrival = document.getElementById('flight-arrival');
 const flightCost = document.getElementById('flight-cost');
 const flightType = document.getElementById('flight-type');
 const closeFlightModal = document.getElementById('close-flight-modal');
+
+
+// 🏨 Stay DOM Elements
+const stayList = document.getElementById('stay-list');
+const stayTotalCost = document.getElementById('stay-total-cost');
+const stayModal = document.getElementById('stay-modal');
+const addStayBtn = document.getElementById('add-stay-btn');
+const stayForm = document.getElementById('stay-form');
+const stayName = document.getElementById('stay-name');
+const stayLocation = document.getElementById('stay-location');
+const stayNights = document.getElementById('stay-nights');
+const stayCost = document.getElementById('stay-cost');
+const closeStayModal = document.getElementById('close-stay-modal');
+const saveStayBtn = document.getElementById('save-stay-btn');
+const deleteStayBtn = document.getElementById('delete-stay-btn');
+const stayModalTitle = document.getElementById('stay-modal-title');
+
+
+
+
+// 🏨 Stay Data
+let stays = JSON.parse(localStorage.getItem('stays')) || [];
+let editingStayIndex = null;
+
+// 🚀 Open Stay Modal for Adding/Editing
+addStayBtn.addEventListener('click', () => {
+  openStayModal(false);
+});
+
+closeStayModal.addEventListener('click', () => {
+  stayModal.style.display = 'none';
+  stayForm.reset();
+  editingStayIndex = null;
+});
+
+// 🚀 Open Modal for Adding/Editing Stay
+function openStayModal(isEdit = false, index = null) {
+  console.log(`📝 Opening Stay Modal | isEdit: ${isEdit}, index: ${index}`);
+  if (isEdit) {
+    stayModalTitle.textContent = 'Edit Stay';
+    saveStayBtn.textContent = 'Save Changes';
+    deleteStayBtn.style.display = 'inline-block';
+
+    const stay = stays[index];
+    console.log('✏️ Editing Stay Details:', stay);
+
+    stayName.value = stay.name;
+    stayLocation.value = stay.location;
+    stayNights.value = stay.nights;
+    stayCost.value = stay.cost;
+
+    editingStayIndex = index;
+  } else {
+    stayModalTitle.textContent = 'Add Stay';
+    saveStayBtn.textContent = 'Add Stay';
+    deleteStayBtn.style.display = 'none';
+
+    stayForm.reset();
+    editingStayIndex = null;
+  }
+
+  stayModal.style.display = 'flex';
+}
+
+// 🚀 Close Stay Modal
+function closeStayModalHandler() {
+  console.log('❌ Closing Stay Modal');
+  stayModal.style.display = 'none';
+  stayForm.reset();
+  editingStayIndex = null;
+}
+
+// ✅ Handle Add/Edit Stay
+stayForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  console.log('🏨 Stay Form Submitted');
+
+  const name = stayName.value.trim();
+  const location = stayLocation.value.trim();
+  const nights = parseInt(stayNights.value, 10);
+  const cost = parseFloat(stayCost.value);
+
+  console.log('📝 Stay Details:', { name, location, nights, cost });
+
+  if (!name || !location || isNaN(nights) || nights <= 0 || isNaN(cost) || cost < 0) {
+    alert('❌ Please enter valid stay details.');
+    return;
+  }
+
+  if (editingStayIndex !== null) {
+    console.log(`🛠️ Editing Existing Stay at Index: ${editingStayIndex}`);
+    stays[editingStayIndex] = {
+      ...stays[editingStayIndex],
+      name,
+      location,
+      nights,
+      cost,
+    };
+    console.log('✅ Stay Updated:', stays[editingStayIndex]);
+  } else {
+    console.log('🚀 Adding New Stay');
+    const newStay = {
+      id: Date.now(),
+      name,
+      location,
+      nights,
+      cost,
+    };
+    stays.push(newStay);
+    console.log('✅ New Stay Added:', newStay);
+  }
+
+  // Save to localStorage
+  localStorage.setItem('stays', JSON.stringify(stays));
+  console.log('💾 Stays saved to localStorage:', stays);
+
+  // Update UI and close modal
+  displayStays();
+  closeStayModalHandler();
+});
+
+// 🗑️ Handle Stay Deletion
+deleteStayBtn.addEventListener('click', () => {
+  if (editingStayIndex !== null) {
+    console.log(`🗑️ Deleting Stay at Index: ${editingStayIndex}`);
+    stays.splice(editingStayIndex, 1);
+
+    localStorage.setItem('stays', JSON.stringify(stays));
+    console.log('💾 Stays updated in localStorage after removal.');
+    displayStays();
+    closeStayModalHandler();
+  }
+});
+
+// 🚀 Display Stays
+function displayStays() {
+  const stayList = document.getElementById('stay-list');
+  const stayTotalCost = document.getElementById('stay-total-cost');
+
+  stayList.innerHTML = '';
+  let totalCost = 0;
+
+  stays.forEach((stay, index) => {
+    totalCost += stay.cost;
+
+    const stayItem = document.createElement('li');
+    stayItem.innerHTML = `
+      ${stay.name}, ${stay.location}, ${stay.nights} nights, Cost: $${stay.cost.toFixed(2)}
+      <button class="edit-stay-btn" data-index="${index}">✏️ Edit/Delete</button>
+    `;
+    stayList.appendChild(stayItem);
+  });
+
+  stayTotalCost.textContent = totalCost.toFixed(2);
+  console.log('💰 Stay Total Cost:', totalCost);
+
+  // Add event listener for Edit/Delete
+  const editButtons = document.querySelectorAll('.edit-stay-btn');
+  editButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      const index = e.target.dataset.index;
+      console.log('📝 Edit/Delete Clicked for Stay Index:', index);
+      openStayModal(true, index);
+    });
+  });
+
+  // Update total trip cost if needed
+  calculateTotalCost();
+}
+
+// 💰 Update Total Cost
+function updateTotalCost() {
+  let flightCost = flights.reduce((sum, flight) => sum + flight.cost, 0);
+  let stayCost = stays.reduce((sum, stay) => sum + stay.cost, 0);
+  let activityCost = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
+
+  const totalCost = flightCost + stayCost + activityCost;
+  document.getElementById('total-cost-per-person').textContent = totalCost.toFixed(2);
+}
+
+// 🚀 Initialize Stay Section
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🔄 DOM Content Loaded - Initializing Stay Section');
+  displayStays();
+  updateTotalCost();
+});
+
 
 // Track currently edited flight index
 let editingFlightIndex = null;
@@ -259,11 +440,14 @@ function calculateTotalCost() {
   console.log('🛠️ Day Plans Total Cost:', totalCost);
 
   // ✈️ Add costs from Flights
-  const totalFlightCost = flights.reduce((sum, flight) => sum + flight.cost, 0);
-  totalCost += totalFlightCost;
+  const flights = JSON.parse(localStorage.getItem('flights')) || [];
+  const flightsTotalCost = flights.reduce((sum, flight) => sum + flight.cost, 0);
+  totalCost += flightsTotalCost;
 
-  console.log('✈️ Flights Total Cost:', totalFlightCost);
-  console.log('💵 Combined Total Trip Cost:', totalCost);
+  // ✅ Add Stays Total Cost
+  const stays = JSON.parse(localStorage.getItem('stays')) || [];
+  const staysTotalCost = stays.reduce((sum, stay) => sum + stay.cost, 0);
+  totalCost += staysTotalCost;
 
   // 📝 Update DOM
   totalCostPerPerson.textContent = totalCost.toFixed(2);
@@ -300,10 +484,14 @@ importTripBtn.addEventListener('click', () => {
 exportTripBtn.addEventListener('click', () => {
   const activities = JSON.parse(localStorage.getItem('activities')) || [];
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  const flights = JSON.parse(localStorage.getItem('flights')) || [];
+  const stays = JSON.parse(localStorage.getItem('stays')) || [];
 
   const exportData = {
     tripDetails,
-    activities
+    activities,
+    flights,
+    stays,
   };
 
   const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
@@ -317,7 +505,7 @@ exportTripBtn.addEventListener('click', () => {
   console.log('📤 Trip Data Exported:', exportData);
 });
 
-// 📥 Handle Import Trip Data
+
 function handleTripImport(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -326,17 +514,42 @@ function handleTripImport(event) {
   reader.onload = (e) => {
     try {
       const tripData = JSON.parse(e.target.result);
-      localStorage.setItem('tripDetails', JSON.stringify(tripData.tripDetails));
-      localStorage.setItem('activities', JSON.stringify(tripData.activities));
+
+      // ✅ Restore trip details
+      if (tripData.tripDetails) {
+        localStorage.setItem('tripDetails', JSON.stringify(tripData.tripDetails));
+      }
+
+      // ✅ Restore activities
+      if (tripData.activities) {
+        localStorage.setItem('activities', JSON.stringify(tripData.activities));
+      }
+
+      // ✅ Restore flights
+      if (tripData.flights) {
+        localStorage.setItem('flights', JSON.stringify(tripData.flights));
+      }
+
+      // ✅ Restore stays
+      if (tripData.stays) {
+        localStorage.setItem('stays', JSON.stringify(tripData.stays));
+      }
 
       alert('✅ Trip data imported successfully!');
+      console.log('📥 Trip Data Imported:', tripData);
+
+      // Reload relevant sections
       loadTripDetails();
       loadTripDays();
       calculateTotalCost();
+      displayFlights(); // Ensure flights are reloaded
+      displayStays();   // Ensure stays are reloaded
     } catch (err) {
+      console.error('❌ Error importing trip data:', err);
       alert('❌ Invalid file format. Please upload a valid JSON file.');
     }
   };
+
   reader.readAsText(file);
 }
 
@@ -610,10 +823,3 @@ deleteFlightBtn.addEventListener('click', () => {
 
 
 
-
-// 🏨 Add Stay Information
-const addStayBtn = document.getElementById('add-stay-btn');
-addStayBtn.addEventListener('click', () => {
-  console.log('🏨 Add Stay Information');
-  alert('Feature to add stay information will be implemented soon!');
-});

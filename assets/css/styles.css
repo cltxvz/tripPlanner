@@ -155,8 +155,11 @@ footer {
 }
 
 /* 📅 Trip Actions Section */
+/* Action Buttons */
 #trip-actions {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
@@ -175,13 +178,17 @@ footer {
 
 /* 🗓️ Trip Days Section */
 #trip-days {
-  border: 1px solid #ccc;
-  padding: 10px;
+  /*border: 1px solid #ccc;
+  padding: 10px;*/
+  margin-bottom: 20px;
 }
 
 #days-grid {
-  display: flex;
+  /*display: flex;
   flex-wrap: wrap;
+  gap: 10px;*/
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 10px;
 }
 
@@ -190,6 +197,16 @@ footer {
   padding: 10px;
   text-align: center;
   flex: 1 1 150px;
+}
+
+/* Budget & Costs Section */
+#budget-costs-section {
+  text-align: left;
+  background-color: #f9fafb;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-top: 20px;
 }
 
 /* 📦 Budget Modal Styling */
@@ -226,6 +243,16 @@ footer {
 }
 
 /* ✈️ Flights & Stay Information Section */
+
+/* Flights & Stay Section */
+#flights-stay-section {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+
 #trip-flights-stay {
   margin: 30px auto;
   padding: 20px;
@@ -248,10 +275,19 @@ footer {
   justify-content: space-between;
 }
 
-/* 🛫 Flights Section */
-.flights-info {
-  text-align: left;
+.flights-info,
+.stay-info {
+  flex: 1;
+  background-color: #f9fafb;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
 }
+
+/* 🛫 Flights Section */
+/*.flights-info {
+  text-align: left;
+}*/
 
 #flights-list {
   list-style-type: disc;
@@ -342,3 +378,11 @@ footer {
 .delete-flight-btn:hover {
   background-color: #c0392b;
 }
+
+/* General Section Styling */
+section {
+  margin: 5px 0;
+  padding: 20px;
+  border-radius: 8px;
+}
+

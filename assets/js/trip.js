@@ -515,25 +515,16 @@ function handleTripImport(event) {
     try {
       const tripData = JSON.parse(e.target.result);
 
-      // ✅ Restore trip details
-      if (tripData.tripDetails) {
-        localStorage.setItem('tripDetails', JSON.stringify(tripData.tripDetails));
-      }
+      // ✅ Ensure each section is initialized if missing
+      const defaultTripDetails = { destination: '', days: 0, people: 1, dayPlans: {} };
+      const defaultActivities = [];
+      const defaultFlights = [];
+      const defaultStays = [];
 
-      // ✅ Restore activities
-      if (tripData.activities) {
-        localStorage.setItem('activities', JSON.stringify(tripData.activities));
-      }
-
-      // ✅ Restore flights
-      if (tripData.flights) {
-        localStorage.setItem('flights', JSON.stringify(tripData.flights));
-      }
-
-      // ✅ Restore stays
-      if (tripData.stays) {
-        localStorage.setItem('stays', JSON.stringify(tripData.stays));
-      }
+      localStorage.setItem('tripDetails', JSON.stringify(tripData.tripDetails || defaultTripDetails));
+      localStorage.setItem('activities', JSON.stringify(tripData.activities || defaultActivities));
+      localStorage.setItem('flights', JSON.stringify(tripData.flights || defaultFlights));
+      localStorage.setItem('stays', JSON.stringify(tripData.stays || defaultStays));
 
       alert('✅ Trip data imported successfully!');
       console.log('📥 Trip Data Imported:', tripData);
@@ -552,6 +543,7 @@ function handleTripImport(event) {
 
   reader.readAsText(file);
 }
+
 
 // 📅 Navigate to Calendar Page for a Specific Day
 function goToDay(dayNumber) {

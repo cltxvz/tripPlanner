@@ -558,7 +558,7 @@ exportTripBtn.addEventListener('click', () => {
 
 
 
-// 📥 Import Trip Data
+// 📥 Import Trip Data with Private Browsing Support
 importTripBtn.addEventListener('click', () => {
   const input = document.createElement('input');
   input.type = 'file';
@@ -576,7 +576,7 @@ function handleTripImport(event) {
       try {
           const tripData = JSON.parse(e.target.result);
 
-          // Validate the imported structure
+          // Validate trip data structure
           if (!tripData.tripDetails || !tripData.activities || !tripData.flights || !tripData.stays) {
               throw new Error('Invalid file structure. Missing required keys.');
           }
@@ -602,11 +602,22 @@ function handleTripImport(event) {
               }
           }
 
-          // Save data to localStorage
-          localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
-          localStorage.setItem('activities', JSON.stringify(tripData.activities || defaultActivities));
-          localStorage.setItem('flights', JSON.stringify(tripData.flights || defaultFlights));
-          localStorage.setItem('stays', JSON.stringify(tripData.stays || defaultStays));
+          // ✅ Test localStorage availability
+          if (isLocalStorageAvailable()) {
+              console.log('✅ localStorage is available. Saving imported data.');
+              localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+              localStorage.setItem('activities', JSON.stringify(tripData.activities || defaultActivities));
+              localStorage.setItem('flights', JSON.stringify(tripData.flights || defaultFlights));
+              localStorage.setItem('stays', JSON.stringify(tripData.stays || defaultStays));
+          } else {
+              console.warn('⚠️ localStorage is not available. Using temporary in-memory storage.');
+              window.tempStorage = {
+                  tripDetails,
+                  activities: tripData.activities || defaultActivities,
+                  flights: tripData.flights || defaultFlights,
+                  stays: tripData.stays || defaultStays,
+              };
+          }
 
           console.log('📥 Trip Data Imported:', tripData);
           alert('✅ Trip data imported successfully!');
@@ -631,6 +642,42 @@ function handleTripImport(event) {
 
   reader.readAsText(file);
 }
+
+// ✅ Test localStorage availability
+function isLocalStorageAvailable() {
+  try {
+      const testKey = '__test_key__';
+      localStorage.setItem(testKey, 'test');
+      localStorage.removeItem(testKey);
+      return true;
+  } catch (e) {
+      return false;
+  }
+}
+
+// 🚀 Populate Temporary Storage Data in UI
+function populateFromTempStorage() {
+  if (window.tempStorage) {
+      console.warn('⚠️ Populating data from temporary in-memory storage.');
+
+      const { tripDetails, activities, flights, stays } = window.tempStorage;
+
+      loadImportedData(tripDetails, activities, flights, stays);
+  } else {
+      console.warn('⚠️ No temporary storage data available.');
+  }
+}
+
+// 📥 Load Imported Data into the UI
+function loadImportedData(tripDetails, activities, flights, stays) {
+  console.log('📊 Loading imported data into the UI...');
+  loadTripDetails(tripDetails);
+  loadTripDays(tripDetails);
+  calculateTotalCost(tripDetails);
+  displayFlights(flights);
+  displayStays(stays);
+}
+
 
 
 

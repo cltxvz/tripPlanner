@@ -103,46 +103,49 @@ function generateDayBlock() {
 // 📦 Load Activities into Pool (Exclude Scheduled Activities)
 function loadActivities() {
     console.log('📦 Loading Activities into Pool');
+    activityPool.innerHTML = ''; // Clear the pool before repopulating
+
     const storedActivities = localStorage.getItem('activities');
     console.log('📦 Raw Activities from LocalStorage:', storedActivities);
 
-    activities.length = 0; // Clear the existing array
-
-    if (storedActivities) {
-        activities.push(...JSON.parse(storedActivities));
-    }
-
-    console.log('📦 Parsed Activities Array:', activities);
-
-    activityPool.innerHTML = ''; // Clear the pool before repopulating
-
-    if (activities.length === 0) {
+    if (!storedActivities) {
         console.warn('⚠️ No activities found in localStorage');
         activityPool.innerHTML = '<p>No activities available. Go to Manage Activities to add new ones.</p>';
         return;
     }
 
-    activities.forEach(activity => {
-        console.log(`🔍 Checking Activity: ${activity.title} (ID: ${activity.id})`);
+    const activities = JSON.parse(storedActivities);
 
-        // Check if activity is already scheduled in dayPlan
-        const isScheduled = dayPlan.some(scheduled => {
-            console.log(
-                `🔗 Comparing Scheduled ID (${scheduled.id}) with Activity ID (${activity.id})`
-            );
-            return String(scheduled.id) === String(activity.id);
-        });
+    // Filter out activities already scheduled in the dayPlan
+    const unscheduledActivities = activities.filter(activity => 
+        !dayPlan.some(scheduled => String(scheduled.id) === String(activity.id))
+    );
 
-        if (isScheduled) {
-            console.log(`⏳ Skipping Scheduled Activity: ${activity.title}`);
-        } else {
-            console.log(`✅ Adding Unscheduled Activity: ${activity.title}`);
-            createActivityItem(activity); // Add only unscheduled activities
-        }
+    console.log('✅ Unscheduled Activities:', unscheduledActivities);
+
+    if (unscheduledActivities.length === 0) {
+        activityPool.innerHTML = '<p>All activities are already scheduled for this day.</p>';
+        return;
+    }
+
+    // Display each unscheduled activity in the pool
+    unscheduledActivities.forEach(activity => {
+        const activityItem = document.createElement('div');
+        activityItem.classList.add('activity-item');
+        activityItem.textContent = `${activity.title} - $${activity.cost.toFixed(2)}`;
+        activityItem.draggable = true;
+        activityItem.dataset.id = activity.id;
+
+        // Add Drag Events
+        activityItem.addEventListener('dragstart', handleDragStart);
+        activityItem.addEventListener('dragend', handleDragEnd);
+
+        activityPool.appendChild(activityItem);
     });
 
-    console.log('✅ Activities Loaded into Pool (Excluding Scheduled Activities):', activities);
+    console.log('✅ Activities Loaded into Pool Successfully');
 }
+
 
 
 
@@ -207,14 +210,27 @@ function loadDayPlan() {
 
 // 🚀 Handle Drop
 function handleDrop(e) {
+    e.preventDefault();
+
     if (!draggedActivity) {
         alert('❌ No activity selected for this time slot.');
         return;
     }
 
+    // Ensure the modal and inputs exist
+    if (!activityTimeModal || !activityStartTimeInput || !activityEndTimeInput) {
+        console.error('❌ Required modal or time inputs are missing from the DOM.');
+        return;
+    }
+
+    // Show the modal and reset input values
     activityTimeModal.style.display = 'flex';
-    activityTimeInput.value = '';
+    activityStartTimeInput.value = '';
+    activityEndTimeInput.value = '';
+
+    console.log('✅ Activity Time Modal displayed successfully.');
 }
+
 
 // 🚀 Confirm Activity Time
 confirmTimeBtn.addEventListener('click', () => {
@@ -419,16 +435,20 @@ function updateTotalCost() {
 
 // 🚀 Handle Drag Start
 function handleDragStart(e) {
-    draggedActivity = activities.find(a => a.id == e.target.dataset.id);
+    const activityId = e.target.dataset.id;
+    draggedActivity = activities.find(activity => String(activity.id) === activityId);
+
     console.log('🚚 Dragging Activity:', draggedActivity);
     e.target.classList.add('dragging');
 }
 
+
 // 🚀 Handle Drag End
 function handleDragEnd(e) {
     e.target.classList.remove('dragging');
-    console.log('🛑 Drag Ended');
+    console.log('🛑 Dragging Ended');
 }
+
 
 // 🧮 Calculate End Time
 function calculateEndTime(startTime, duration) {

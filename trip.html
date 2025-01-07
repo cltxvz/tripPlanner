@@ -56,15 +56,47 @@
       <div id="days-grid"></div>
     </section>
 
-   <!-- 💰 Budget & Costs Section -->
-   <section id="budget-costs-section">
-    <h2>Budget & Costs</h2>
-    <p><strong>Total Cost (All Travelers):</strong> <span id="total-cost-all-travelers">$0.00</span></p>
-    <p><strong>Total Cost (Per Person):</strong> <span id="total-cost-per-person">$0.00</span></p>
-    <p><strong>Total Budget (Per Person):</strong> <span id="total-budget">$0.00</span></p>
-    <p><strong>Total Budget (All Travelers):</strong> <span id="total-budget-all-travelers">$0.00</span></p>
-    <button id="edit-budget-btn">✏️ Edit Budget</button>
-  </section>
+   <!-- 💰 Budget, Expenses, and To-Do Section -->
+<section id="trip-extras-section">
+  <!-- 📌 Additional Expenses Section -->
+  <div id="additional-expenses-section">
+    <h3>Additional Expenses (All Travelers)</h3>
+    <ul id="additional-expenses-list">
+      <!-- Expenses dynamically populated here -->
+    </ul>
+    <p><strong>Total Additional Expenses:</strong> $<span id="additional-expenses-total">0.00</span></p>
+    <button id="add-expense-btn">Add Expense</button>
+  </div>
+
+  <!-- 💰 Budget & Costs Section -->
+<div id="budget-costs-section">
+  <h3>Budget & Costs</h3>
+  
+  <div class="budget-group">
+    <h4>All Travelers</h4>
+    <p><strong>Total Cost:</strong> <span id="total-cost-all-travelers">0.00</span></p>
+    <p><strong>Total Budget:</strong> <span id="total-budget-all-travelers">0.00</span></p>
+  </div>
+
+  <div class="budget-group">
+    <h4>Per Person</h4>
+    <p><strong>Total Cost:</strong> <span id="total-cost-per-person">0.00</span></p>
+    <p><strong>Total Budget:</strong> <span id="total-budget">0.00</span></p>
+  </div>
+
+  <button id="edit-budget-btn">✏️ Edit Budget</button>
+</div>
+
+
+  <!-- ✅ To-Do List Section -->
+  <div id="todo-list-section">
+    <h3>To-Do List</h3>
+    <ul id="todo-list">
+      <!-- To-Do items dynamically populated here -->
+    </ul>
+    <button id="add-todo-btn">Add To-Do</button>
+  </div>
+</section>
   
 
   </main>
@@ -115,6 +147,42 @@
       </form>
     </div>
   </div>
+
+  <!-- 📦 Additional Expenses Modal -->
+  <div id="expense-modal" class="modal">
+    <div class="modal-content">
+      <h2 id="expense-modal-title">Add Expense</h2>
+      <form id="expense-form">
+        <div class="form-group">
+          <label for="expense-title">Title:</label>
+          <input type="text" id="expense-title" required>
+        </div>
+        <div class="form-group">
+          <label for="expense-cost">Cost ($):</label>
+          <input type="number" id="expense-cost" min="0" step="0.01" required>
+        </div>
+        <button type="submit" id="save-expense-btn">Save</button>
+        <button type="button" id="delete-expense-btn" style="display:none;">Delete</button>
+        <button type="button" id="close-expense-modal">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+<!-- ✅ To-Do Modal -->
+<div id="todo-modal" class="modal">
+  <div class="modal-content">
+    <h2 id="todo-modal-title">Add To-Do</h2>
+    <form id="todo-form">
+      <div class="form-group">
+        <label for="todo-title">Title:</label>
+        <input type="text" id="todo-title" required>
+      </div>
+      <button type="submit" id="save-todo-btn">Save</button>
+      <button type="button" id="delete-todo-btn" style="display:none;">Delete</button>
+      <button type="button" id="close-todo-modal">Cancel</button>
+    </form>
+  </div>
+</div>
 
   <!-- ✈️ Flight Modal -->
   <div id="flight-modal" class="modal">

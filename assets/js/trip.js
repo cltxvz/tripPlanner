@@ -515,6 +515,49 @@ manageActivitiesBtn.addEventListener('click', () => {
   window.location.href = 'activities.html';
 });
 
+
+// 📤 Export Trip Data
+exportTripBtn.addEventListener('click', () => {
+  try {
+      const activities = JSON.parse(localStorage.getItem('activities')) || [];
+      const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+      const flights = JSON.parse(localStorage.getItem('flights')) || [];
+      const stays = JSON.parse(localStorage.getItem('stays')) || [];
+
+      // Ensure dayPlans include updated totals
+      if (tripDetails.dayPlans) {
+          for (const day in tripDetails.dayPlans) {
+              const dayPlan = tripDetails.dayPlans[day];
+              const totalCostPerPerson = dayPlan.dayPlan?.reduce((sum, activity) => sum + activity.cost, 0) || 0;
+              tripDetails.dayPlans[day].totalCost = totalCostPerPerson * (tripDetails.people || 1);
+          }
+      }
+
+      const exportData = {
+          tripDetails,
+          activities,
+          flights,
+          stays,
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'trip-data.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      console.log('📤 Trip Data Exported:', exportData);
+      alert('✅ Trip data exported successfully!');
+  } catch (error) {
+      console.error('❌ Error exporting trip data:', error);
+      alert('❌ Failed to export trip data. Please ensure storage is accessible.');
+  }
+});
+
+
+
 // 📥 Import Trip Data
 importTripBtn.addEventListener('click', () => {
   const input = document.createElement('input');
@@ -524,69 +567,71 @@ importTripBtn.addEventListener('click', () => {
   input.click();
 });
 
-// 📤 Export Trip Data
-exportTripBtn.addEventListener('click', () => {
-  const activities = JSON.parse(localStorage.getItem('activities')) || [];
-  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
-  const flights = JSON.parse(localStorage.getItem('flights')) || [];
-  const stays = JSON.parse(localStorage.getItem('stays')) || [];
-
-  const exportData = {
-    tripDetails,
-    activities,
-    flights,
-    stays,
-  };
-
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'trip-data.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
-  console.log('📤 Trip Data Exported:', exportData);
-});
-
-
 function handleTripImport(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
   reader.onload = (e) => {
-    try {
-      const tripData = JSON.parse(e.target.result);
+      try {
+          const tripData = JSON.parse(e.target.result);
 
-      // ✅ Ensure each section is initialized if missing
-      const defaultTripDetails = { destination: '', days: 0, people: 1, dayPlans: {} };
-      const defaultActivities = [];
-      const defaultFlights = [];
-      const defaultStays = [];
+          // Validate the imported structure
+          if (!tripData.tripDetails || !tripData.activities || !tripData.flights || !tripData.stays) {
+              throw new Error('Invalid file structure. Missing required keys.');
+          }
 
-      localStorage.setItem('tripDetails', JSON.stringify(tripData.tripDetails || defaultTripDetails));
-      localStorage.setItem('activities', JSON.stringify(tripData.activities || defaultActivities));
-      localStorage.setItem('flights', JSON.stringify(tripData.flights || defaultFlights));
-      localStorage.setItem('stays', JSON.stringify(tripData.stays || defaultStays));
+          const defaultTripDetails = { destination: '', days: 0, people: 1, dayPlans: {} };
+          const defaultActivities = [];
+          const defaultFlights = [];
+          const defaultStays = [];
 
-      alert('✅ Trip data imported successfully!');
-      console.log('📥 Trip Data Imported:', tripData);
+          // Merge defaults and validate dayPlans
+          const tripDetails = {
+              ...defaultTripDetails,
+              ...tripData.tripDetails,
+              dayPlans: tripData.tripDetails.dayPlans || {},
+          };
 
-      // Reload relevant sections
-      loadTripDetails();
-      loadTripDays();
-      calculateTotalCost();
-      displayFlights(); // Ensure flights are reloaded
-      displayStays();   // Ensure stays are reloaded
-    } catch (err) {
-      console.error('❌ Error importing trip data:', err);
-      alert('❌ Invalid file format. Please upload a valid JSON file.');
-    }
+          // Ensure dayPlans have the correct totalCost calculation
+          if (tripDetails.dayPlans) {
+              for (const day in tripDetails.dayPlans) {
+                  const dayPlan = tripDetails.dayPlans[day];
+                  const totalCostPerPerson = dayPlan.dayPlan?.reduce((sum, activity) => sum + activity.cost, 0) || 0;
+                  tripDetails.dayPlans[day].totalCost = totalCostPerPerson * (tripDetails.people || 1);
+              }
+          }
+
+          // Save data to localStorage
+          localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+          localStorage.setItem('activities', JSON.stringify(tripData.activities || defaultActivities));
+          localStorage.setItem('flights', JSON.stringify(tripData.flights || defaultFlights));
+          localStorage.setItem('stays', JSON.stringify(tripData.stays || defaultStays));
+
+          console.log('📥 Trip Data Imported:', tripData);
+          alert('✅ Trip data imported successfully!');
+
+          // Refresh relevant sections
+          loadTripDetails();
+          loadTripDays();
+          calculateTotalCost();
+          displayFlights();
+          displayStays();
+
+      } catch (error) {
+          console.error('❌ Error importing trip data:', error);
+          alert('❌ Failed to import trip data. Ensure the file has a valid format and try again.');
+      }
+  };
+
+  reader.onerror = () => {
+      console.error('❌ Error reading the file');
+      alert('❌ Failed to read the file. Please try again.');
   };
 
   reader.readAsText(file);
 }
+
 
 
 // 📅 Navigate to Calendar Page for a Specific Day

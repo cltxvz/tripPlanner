@@ -17,6 +17,8 @@ const editBudgetBtn = document.getElementById('edit-budget-btn');
 const budgetModal = document.getElementById('budget-modal');
 const budgetForm = document.getElementById('budget-form');
 const totalBudgetDisplay = document.getElementById('total-budget');
+const closeBudgetModal = document.getElementById('close-budget-modal');
+/*const totalBudgetAllTravelersDisplay = document.getElementById('total-budget-all-travelers');*/
 
 // ✈️ Flight DOM Elements
 const flightsList = document.getElementById('flights-list'); // List container for flights
@@ -497,6 +499,20 @@ editBudgetBtn.addEventListener('click', () => {
   budgetModal.style.display = 'flex';
 });
 
+
+// ❌ Close Budget Modal on X Button Click
+closeBudgetModal.addEventListener('click', () => {
+  console.log('❌ Closing Budget Modal via Close Button');
+  budgetModal.style.display = 'none';
+});
+
+// ❌ Close Budget Modal on Outside Click
+window.addEventListener('click', (e) => {
+  if (e.target === budgetModal) {
+      console.log('❌ Closing Budget Modal via Outside Click');
+      budgetModal.style.display = 'none';
+  }
+});
 
 
 

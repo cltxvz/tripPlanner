@@ -34,7 +34,7 @@
           <ul id="flights-list">
             <!-- Flights will be dynamically loaded here -->
           </ul>
-          <p><strong>Total Flights Cost:</strong> $<span id="flights-total-cost">0.00</span></p>
+          <p><strong>Total Flights Cost (All Travelers):</strong> $<span id="flights-total-cost">0.00</span></p>
           <button id="add-flight-btn">Add Flight Info</button>
         </div>
 
@@ -44,7 +44,7 @@
           <ul id="stay-list">
             <!-- Stay entries will be dynamically loaded here -->
           </ul>
-          <p><strong>Total Stay Cost:</strong> $<span id="stay-total-cost">0.00</span></p>
+          <p><strong>Total Stay Cost (All Travelers):</strong> $<span id="stay-total-cost">0.00</span></p>
           <button id="add-stay-btn">Add Stay Info</button>
         </div>
       </div>
@@ -56,13 +56,17 @@
       <div id="days-grid"></div>
     </section>
 
-    <!-- 💰 Budget & Costs Section -->
-    <section id="budget-costs-section">
-      <h2>Budget & Costs</h2>
-      <p><strong>Total Cost (Per Person):</strong> $<span id="total-cost-per-person">0.00</span></p>
-      <p><strong>Total Budget:</strong> $<span id="total-budget">0.00</span></p>
-      <button id="edit-budget-btn">✏️ Edit Budget</button>
-    </section>
+   <!-- 💰 Budget & Costs Section -->
+   <section id="budget-costs-section">
+    <h2>Budget & Costs</h2>
+    <p><strong>Total Cost (All Travelers):</strong> <span id="total-cost-all-travelers">$0.00</span></p>
+    <p><strong>Total Cost (Per Person):</strong> <span id="total-cost-per-person">$0.00</span></p>
+    <p><strong>Total Budget (Per Person):</strong> <span id="total-budget">$0.00</span></p>
+    <p><strong>Total Budget (All Travelers):</strong> <span id="total-budget-all-travelers">$0.00</span></p>
+    <button id="edit-budget-btn">✏️ Edit Budget</button>
+  </section>
+  
+
   </main>
 
   <!-- 📝 Edit Trip Modal -->
@@ -92,7 +96,7 @@
   <div id="budget-modal" class="modal">
     <div class="modal-content">
       <span class="close" id="close-budget-modal">&times;</span>
-      <h2>Edit Trip Budget</h2>
+      <h2>Edit Trip Budget (Per Person)</h2>
       <form id="budget-form">
         <div class="form-group">
           <label for="budget-input">Set Budget ($):</label>

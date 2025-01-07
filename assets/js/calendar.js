@@ -176,9 +176,22 @@ function canBookActivity(startTime, endTime) {
 
 // 💾 Save Day Plan to localStorage
 function saveDayPlan() {
-    localStorage.setItem('dayPlan', JSON.stringify(dayPlan));
-    console.log('💾 Day Plan Saved:', dayPlan);
+    const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || { dayPlans: {} };
+    const selectedDay = localStorage.getItem('selectedDay');
+    const people = tripDetails.people || 1;
+
+    const totalCostPerPerson = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
+    const totalCostForAllTravelers = totalCostPerPerson * people;
+
+    tripDetails.dayPlans[selectedDay] = {
+        dayPlan,
+        totalCost: totalCostForAllTravelers
+    };
+
+    localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+    console.log(`💾 Day Plan Saved for Day ${selectedDay}:`, tripDetails.dayPlans[selectedDay]);
 }
+
 
 // 📥 Load Day Plan from localStorage
 function loadDayPlan() {
@@ -254,18 +267,9 @@ closeModalBtn.addEventListener('click', () => {
 finishPlanningBtn.addEventListener('click', () => {
     console.log('✅ Finishing Planning for the Day');
 
-    const totalCost = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
-    const currentDayPlan = {
-        dayPlan,
-        totalCost
-    };
-
-    // Validate tripDetails and selectedDay
-    let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || { days: 0, dayPlans: {} };
+    const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || { days: 0, dayPlans: {} };
     const selectedDay = localStorage.getItem('selectedDay');
-
-    console.log('🔍 Selected Day:', selectedDay);
-    console.log('🔍 Trip Details:', tripDetails);
+    const numberOfTravelers = tripDetails.people || 1;
 
     if (!selectedDay) {
         alert('❌ No day selected. Returning to trip overview.');
@@ -277,20 +281,36 @@ finishPlanningBtn.addEventListener('click', () => {
         tripDetails.dayPlans = {};
     }
 
+    // Calculate the total cost for one traveler
+    const totalCostPerPerson = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
+    console.log(`💵 Total Cost Per Person: ${totalCostPerPerson}`);
+
+    // Calculate total cost for all travelers
+    const totalCostForAllTravelers = totalCostPerPerson * numberOfTravelers;
+    console.log(`💵 Total Cost for All Travelers: ${totalCostForAllTravelers}`);
+
+    // Store day plan with total cost for all travelers
+    const currentDayPlan = {
+        dayPlan,
+        totalCost: totalCostForAllTravelers
+    };
+
     tripDetails.dayPlans[selectedDay] = currentDayPlan;
 
     try {
         localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
-        console.log(`📅 Day ${selectedDay} updated successfully.`);
+        console.log(`📅 Day ${selectedDay} updated successfully in tripDetails.`);
     } catch (e) {
         console.error('❌ Failed to save trip details to localStorage:', e);
         alert('❌ Failed to save trip details. Ensure storage is enabled.');
         return;
     }
 
-    // Redirect to the trip overview page
+    // Redirect to Trip Page
     window.location.href = 'trip.html';
 });
+
+
 
 
 // 📋 Create Individual Activity Item
@@ -371,29 +391,30 @@ function updateTotalCost() {
     const people = tripDetails.people || 1; // Get the number of travelers from tripDetails
 
     // Calculate the total cost of all activities
-    const totalCost = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
+    const totalCostPerPerson = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
 
     // Calculate total cost for all travelers
-    const totalCostForAllTravelers = totalCost * people;
+    const totalCostForAllTravelers = totalCostPerPerson * people;
 
     // Display costs in the DOM
     const totalCostElement = document.getElementById('total-cost-per-person');
     const totalCostAllTravelersElement = document.getElementById('total-cost-all-travelers');
 
     if (totalCostElement) {
-        totalCostElement.textContent = totalCost.toFixed(2);
-        console.log(`💵 Total Cost Per Person Updated: $${totalCost.toFixed(2)}`);
+        totalCostElement.textContent = `$${totalCostPerPerson.toFixed(2)}`;
+        console.log(`💵 Total Cost Per Person Updated: $${totalCostPerPerson.toFixed(2)}`);
     } else {
         console.warn('⚠️ Total Cost Per Person element not found in DOM.');
     }
 
     if (totalCostAllTravelersElement) {
-        totalCostAllTravelersElement.textContent = totalCostForAllTravelers.toFixed(2);
+        totalCostAllTravelersElement.textContent = `$${totalCostForAllTravelers.toFixed(2)}`;
         console.log(`💵 Total Cost for All Travelers Updated: $${totalCostForAllTravelers.toFixed(2)}`);
     } else {
         console.warn('⚠️ Total Cost for All Travelers element not found in DOM.');
     }
 }
+
 
 
 // 🚀 Handle Drag Start

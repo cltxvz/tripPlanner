@@ -169,12 +169,15 @@ deleteStayBtn.addEventListener('click', () => {
 
 // 🚀 Display Stays
 function displayStays() {
+  console.log('🔄 Displaying Stays...');
+
   const stayList = document.getElementById('stay-list');
   const stayTotalCost = document.getElementById('stay-total-cost');
 
-  stayList.innerHTML = '';
+  stayList.innerHTML = ''; // Clear the list before repopulating
   let totalCost = 0;
 
+  // 📝 Iterate through stays and display them
   stays.forEach((stay, index) => {
     totalCost += stay.cost;
 
@@ -186,10 +189,17 @@ function displayStays() {
     stayList.appendChild(stayItem);
   });
 
+  // 📝 Update total cost in the DOM
   stayTotalCost.textContent = totalCost.toFixed(2);
   console.log('💰 Stay Total Cost:', totalCost);
 
-  // Add event listener for Edit/Delete
+  // ✅ Update total stay cost in localStorage
+  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  tripDetails.stayTotalCost = totalCost;
+  localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+  console.log('💾 Stay Total Cost saved to tripDetails in localStorage:', totalCost);
+
+  // 🛠️ Add event listeners for Edit/Delete buttons
   const editButtons = document.querySelectorAll('.edit-stay-btn');
   editButtons.forEach(button => {
     button.addEventListener('click', (e) => {
@@ -199,26 +209,23 @@ function displayStays() {
     });
   });
 
-  // Update total trip cost if needed
+  // 🔄 Update the total trip cost dynamically
   calculateTotalCost();
 }
 
-// 💰 Update Total Cost
-function updateTotalCost() {
-  let flightCost = flights.reduce((sum, flight) => sum + flight.cost, 0);
-  let stayCost = stays.reduce((sum, stay) => sum + stay.cost, 0);
-  let activityCost = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
 
-  const totalCost = flightCost + stayCost + activityCost;
-  document.getElementById('total-cost-per-person').textContent = totalCost.toFixed(2);
-}
+
 
 // 🚀 Initialize Stay Section
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🔄 DOM Content Loaded - Initializing Stay Section');
+  console.log('✅ DOM Loaded: Initializing trip details...');
+  loadTripDetails();
+  loadTripDays();
+  displayFlights();
   displayStays();
-  updateTotalCost();
+  calculateTotalCost();
 });
+
 
 
 // Track currently edited flight index
@@ -251,47 +258,51 @@ window.addEventListener('click', (e) => {
 
 // ✅ Save Edited Trip Details
 editTripForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const newDestination = editDestination.value.trim();
-    const newDays = parseInt(editDays.value, 10);
-    const newPeople = parseInt(editPeople.value, 10);
+  const newDestination = editDestination.value.trim();
+  const newDays = parseInt(editDays.value, 10);
+  const newPeople = parseInt(editPeople.value, 10);
 
-    if (!newDestination || newDays <= 0 || newPeople <= 0) {
-        alert('❌ Please provide valid trip details.');
-        return;
-    }
+  if (!newDestination || newDays <= 0 || newPeople <= 0) {
+      alert('❌ Please provide valid trip details.');
+      return;
+  }
 
-    let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
 
-    // Update Trip Details
-    tripDetails.destination = newDestination;
-    tripDetails.days = newDays;
-    tripDetails.people = newPeople;
+  // Update Trip Details
+  tripDetails.destination = newDestination;
+  tripDetails.days = newDays;
+  tripDetails.people = newPeople;
 
-    // Trim Extra Days from Day Plans
-    if (tripDetails.dayPlans) {
-        const updatedDayPlans = {};
-        for (let i = 1; i <= newDays; i++) {
-            if (tripDetails.dayPlans[i]) {
-                updatedDayPlans[i] = tripDetails.dayPlans[i];
-            }
-        }
-        tripDetails.dayPlans = updatedDayPlans;
-    }
+  // Recalculate Day Plans Total Cost for All Travelers
+  if (tripDetails.dayPlans) {
+      console.log('🔄 Updating day plans to match new number of travelers...');
+      for (const day in tripDetails.dayPlans) {
+          const dayPlan = tripDetails.dayPlans[day];
+          const totalCostPerPerson = dayPlan.dayPlan?.reduce((sum, activity) => sum + activity.cost, 0) || 0;
+          tripDetails.dayPlans[day].totalCost = totalCostPerPerson * newPeople;
 
-    // Save Updates to LocalStorage
-    localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+          console.log(
+              `✅ Day ${day} total recalculated: Per Person $${totalCostPerPerson}, Total (All Travelers): $${tripDetails.dayPlans[day].totalCost}`
+          );
+      }
+  }
 
-    // Refresh Page Sections
-    loadTripDetails();
-    loadTripDays();
-    calculateTotalCost();
+  // Save Updates to LocalStorage
+  localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
 
-    // Close Modal
-    editTripModal.style.display = 'none';
-    console.log('✅ Trip Details Updated Successfully');
+  // Refresh Page Sections
+  loadTripDetails();
+  loadTripDays();
+  calculateTotalCost();
+
+  // Close Modal
+  editTripModal.style.display = 'none';
+  console.log('✅ Trip Details and Day Plans Updated Successfully');
 });
+
 
 
 // 🚀 Load Trip Details on Page Load
@@ -312,6 +323,9 @@ function loadTripDetails() {
   tripInfo.textContent = `Destination: ${destination} | Days: ${days} | Travelers: ${people}`;
 }
 
+
+
+
 // 🗓️ Load Trip Days into Grid
 function loadTripDays() {
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
@@ -322,6 +336,8 @@ function loadTripDays() {
       return;
   }
 
+  const numberOfTravelers = tripDetails.people || 1;
+
   for (let i = 1; i <= tripDetails.days; i++) {
       const dayBlock = document.createElement('div');
       dayBlock.className = 'day-block';
@@ -329,10 +345,12 @@ function loadTripDays() {
       const dayPlan = tripDetails.dayPlans?.[i];
 
       if (dayPlan && dayPlan.dayPlan && dayPlan.dayPlan.length > 0) {
-          // Day has activities planned
+          // Use the stored total cost for all travelers directly
+          const totalCostForAllTravelers = dayPlan.totalCost || 0;
+
           let activitiesList = '<ul>';
           dayPlan.dayPlan.forEach(activity => {
-              activitiesList += `<li>${activity.title}</li>`;
+              activitiesList += `<li>${activity.title}</li>`; // Display only titles
           });
           activitiesList += '</ul>';
 
@@ -340,12 +358,13 @@ function loadTripDays() {
               <h3>Day ${i}</h3>
               <p><strong>Activities:</strong></p>
               ${activitiesList}
-              <p><strong>Total Cost:</strong> $${dayPlan.totalCost.toFixed(2)}</p>
+              <p><strong>Total Cost (All Travelers):</strong> $${totalCostForAllTravelers.toFixed(2)}</p>
               <div class="day-buttons">
                   <button onclick="goToDay(${i})">📝 Edit Day Plan</button>
                   <button onclick="showDayDetails(${i})">🔍 Show Details</button>
               </div>
           `;
+          console.log(`📅 Day ${i}: Displayed Total Cost (All Travelers): $${totalCostForAllTravelers.toFixed(2)}`);
       } else {
           // Day has no activities planned
           dayBlock.innerHTML = `
@@ -355,11 +374,17 @@ function loadTripDays() {
                   <button onclick="goToDay(${i})">🕒 Plan This Day</button>
               </div>
           `;
+          console.log(`📅 Day ${i}: No activities planned.`);
       }
 
       daysGrid.appendChild(dayBlock);
   }
 }
+
+
+
+
+
 
 // Placeholder Function for Show Details
 function showDayDetails(dayNumber) {
@@ -423,39 +448,58 @@ document.addEventListener('DOMContentLoaded', () => {
   loadBudget();
 });
 
-// 💰 Calculate and Display Total Trip Cost (Including Flights)
+
+
+
+// 💰 Calculate Total Trip Cost
 function calculateTotalCost() {
-  console.log('🔄 Calculating Total Trip Cost...');
+  console.log('🔄 Starting Total Trip Cost Calculation...');
 
-  let totalCost = 0;
-
-  // 🗓️ Add costs from Day Plans
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+  const numberOfTravelers = parseInt(tripDetails.people) || 1;
+
+  let totalFlightsCost = parseFloat(tripDetails.flightsTotalCost || 0);
+  let totalStayCost = parseFloat(tripDetails.stayTotalCost || 0);
+  let totalDayPlansCost = 0;
+
   if (tripDetails.dayPlans) {
+      console.log('📅 Calculating Total Day Plans Cost...');
       for (const day in tripDetails.dayPlans) {
-          totalCost += tripDetails.dayPlans[day].totalCost || 0;
+          totalDayPlansCost += parseFloat(tripDetails.dayPlans[day]?.totalCost || 0);
       }
   }
 
-  console.log('🛠️ Day Plans Total Cost:', totalCost);
+  const totalCostAllTravelers = totalFlightsCost + totalStayCost + totalDayPlansCost;
+  const totalCostPerPerson = numberOfTravelers > 0
+      ? (totalCostAllTravelers / numberOfTravelers).toFixed(2)
+      : '0.00';
+  const totalBudgetPerPerson = parseFloat(tripDetails.budget || 0).toFixed(2);
+  const totalBudgetAllTravelers = (parseFloat(totalBudgetPerPerson) * numberOfTravelers).toFixed(2);
 
-  // ✈️ Add costs from Flights
-  const flights = JSON.parse(localStorage.getItem('flights')) || [];
-  const flightsTotalCost = flights.reduce((sum, flight) => sum + flight.cost, 0);
-  totalCost += flightsTotalCost;
+  // Update DOM Elements
+  document.getElementById('total-cost-all-travelers').textContent = `$${totalCostAllTravelers.toFixed(2)}`;
+  document.getElementById('total-cost-per-person').textContent = `$${totalCostPerPerson}`;
+  document.getElementById('total-budget').textContent = `$${totalBudgetPerPerson}`;
+  document.getElementById('total-budget-all-travelers').textContent = `$${totalBudgetAllTravelers}`;
 
-  // ✅ Add Stays Total Cost
-  const stays = JSON.parse(localStorage.getItem('stays')) || [];
-  const staysTotalCost = stays.reduce((sum, stay) => sum + stay.cost, 0);
-  totalCost += staysTotalCost;
-
-  // 📝 Update DOM
-  totalCostPerPerson.textContent = totalCost.toFixed(2);
-
-  // Save updated cost back to tripDetails for consistency
-  tripDetails.totalCost = totalCost;
-  localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+  console.log('✅ Total Trip Cost Calculated Successfully:', {
+      totalFlightsCost,
+      totalStayCost,
+      totalDayPlansCost,
+      totalCostAllTravelers,
+      totalCostPerPerson,
+      totalBudgetPerPerson,
+      totalBudgetAllTravelers
+  });
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -659,21 +703,16 @@ flightsForm.addEventListener('submit', (e) => {
 
 // 📝 Display Flights with Edit/Delete Button
 function displayFlights() {
-  flightsList.innerHTML = ''; // Clear the flight list
-  let totalCost = 0;
+  flightsList.innerHTML = ''; 
+    let totalCost = 0;
 
-  console.log('🔄 Displaying Flights:', flights);
-
-  flights.forEach((flight, index) => {
-      totalCost += flight.cost;
-
-      const flightItem = document.createElement('li');
-      flightItem.innerHTML = `
-          ${flight.departure} - ${flight.arrival}, ${flight.tripType}, Cost: $${flight.cost.toFixed(2)}
-          <button class="edit-flight-btn" data-index="${index}">✏️ Edit/Delete</button>
-      `;
-      flightsList.appendChild(flightItem);
-  });
+    flights.forEach((flight, index) => {
+        totalCost += flight.cost;
+        const flightItem = document.createElement('li');
+        flightItem.innerHTML = `${flight.departure} - ${flight.arrival}, ${flight.tripType}, Cost: $${flight.cost.toFixed(2)}
+            <button class="edit-flight-btn" data-index="${index}">✏️ Edit/Delete</button>`;
+        flightsList.appendChild(flightItem);
+    });
 
   flightsTotalCost.textContent = totalCost.toFixed(2);
   console.log('💰 Flights Total Cost:', totalCost);
@@ -689,7 +728,11 @@ function displayFlights() {
   });
 
   // 🔄 Immediately Recalculate Total Trip Cost
-  calculateTotalCost();
+  let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+    tripDetails.flightsTotalCost = totalCost;
+    localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+
+    calculateTotalCost();
   console.log('✅ Total Trip Cost recalculated after flight updates.');
 }
 

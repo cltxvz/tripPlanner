@@ -179,21 +179,36 @@ function canBookActivity(startTime, endTime) {
 
 // 💾 Save Day Plan to localStorage
 function saveDayPlan() {
-    const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || { dayPlans: {} };
+    let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || { dayPlans: {} };
     const selectedDay = localStorage.getItem('selectedDay');
+
+    if (!selectedDay) {
+        console.error('❌ No selected day found in localStorage. Cannot save day plan.');
+        return;
+    }
+
+    // Ensure dayPlans exists
+    if (!tripDetails.dayPlans) {
+        tripDetails.dayPlans = {};
+    }
+
     const people = tripDetails.people || 1;
 
+    // Calculate costs
     const totalCostPerPerson = dayPlan.reduce((sum, activity) => sum + activity.cost, 0);
     const totalCostForAllTravelers = totalCostPerPerson * people;
 
+    // Save day plan
     tripDetails.dayPlans[selectedDay] = {
-        dayPlan,
+        dayPlan: dayPlan,
         totalCost: totalCostForAllTravelers
     };
 
     localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
-    console.log(`💾 Day Plan Saved for Day ${selectedDay}:`, tripDetails.dayPlans[selectedDay]);
+
+    console.log(`✅ Day Plan Saved for Day ${selectedDay}:`, tripDetails.dayPlans[selectedDay]);
 }
+
 
 
 // 📥 Load Day Plan from localStorage

@@ -12,6 +12,7 @@
   <header>
     <h1>Plan Activities</h1>
     <p class="tagline">Add and organize your activities for the perfect trip itinerary.</p>
+    <p id="trip-details-header" class="tagline"></p>
   </header>
 
   <!-- 🚀 Actions Section -->
@@ -31,32 +32,30 @@
 </main>
 
 
-  <!-- 📦 Modal for Adding/Editing an Activity -->
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="close-modal">&times;</span>
-      <h2>Add a New Activity</h2>
-      <form id="activity-form">
-        <div class="form-group">
-          <label for="activity-title">Activity Title:</label>
-          <input type="text" id="activity-title" placeholder="Activity Title" required>
-        </div>
-        <div class="form-group">
-          <label for="activity-description">Description:</label>
-          <textarea id="activity-description" placeholder="Description"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="activity-duration">Duration (hours):</label>
-          <input type="number" id="activity-duration" placeholder="Duration (hours)" min="0.5" step="0.5" required>
-        </div>
-        <div class="form-group">
-          <label for="activity-cost">Cost ($):</label>
-          <input type="number" id="activity-cost" placeholder="Cost ($)" min="0" step="0.01">
-        </div>
-        <button type="submit">Add Activity</button>
-      </form>
-    </div>
+ <!-- 📝 Activity Modal -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h2 id="activity-modal-title">Add Activity</h2>
+    <form id="activity-form">
+      <div class="form-group">
+        <label for="activity-title">Activity Title:</label>
+        <input type="text" id="activity-title" required>
+      </div>
+      <div class="form-group">
+        <label for="activity-description">Description:</label>
+        <input type="text" id="activity-description">
+      </div>
+      <div class="form-group">
+        <label for="activity-cost">Cost ($):</label>
+        <input type="number" id="activity-cost" min="0" step="0.01" required>
+      </div>
+      <button type="submit" id="save-activity-btn">Save Activity</button>
+      <button type="button" id="delete-activity-btn" style="display:none;">Delete Activity</button>
+      <button type="button" id="close-modal">Cancel</button>
+    </form>
   </div>
+</div>
+
 
   <!-- 📝 Footer -->
   <footer>

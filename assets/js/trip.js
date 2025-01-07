@@ -559,167 +559,20 @@ manageActivitiesBtn.addEventListener('click', () => {
 
 
 // 📤 Export Trip Data
-exportTripBtn.addEventListener('click', () => {
-  try {
-      const activities = JSON.parse(localStorage.getItem('activities')) || [];
-      const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
-      const flights = JSON.parse(localStorage.getItem('flights')) || [];
-      const stays = JSON.parse(localStorage.getItem('stays')) || [];
-
-      // Ensure dayPlans include updated totals
-      if (tripDetails.dayPlans) {
-          for (const day in tripDetails.dayPlans) {
-              const dayPlan = tripDetails.dayPlans[day];
-              const totalCostPerPerson = dayPlan.dayPlan?.reduce((sum, activity) => sum + activity.cost, 0) || 0;
-              tripDetails.dayPlans[day].totalCost = totalCostPerPerson * (tripDetails.people || 1);
-          }
-      }
-
-      const exportData = {
-          tripDetails,
-          activities,
-          flights,
-          stays,
-      };
-
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'trip-data.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      console.log('📤 Trip Data Exported:', exportData);
-      alert('✅ Trip data exported successfully!');
-  } catch (error) {
-      console.error('❌ Error exporting trip data:', error);
-      alert('❌ Failed to export trip data. Please ensure storage is accessible.');
-  }
-});
-
-
-
-// 📥 Import Trip Data with Full Support for Private Mode and Dynamic UI Updates
-importTripBtn.addEventListener('click', () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'application/json';
-  input.addEventListener('change', handleTripImport);
-  input.click();
-});
-
-async function handleTripImport(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-      try {
-          const tripData = JSON.parse(e.target.result);
-
-          // ✅ Validate trip data structure
-          if (!tripData.tripDetails || !tripData.activities || !tripData.flights || !tripData.stays) {
-              throw new Error('Invalid file structure. Missing required keys.');
-          }
-
-          const defaultTripDetails = { destination: '', days: 0, people: 1, dayPlans: {} };
-          const defaultActivities = [];
-          const defaultFlights = [];
-          const defaultStays = [];
-
-          // Merge defaults and validate dayPlans
-          const tripDetails = {
-              ...defaultTripDetails,
-              ...tripData.tripDetails,
-              dayPlans: tripData.tripDetails.dayPlans || {},
-          };
-
-          // Ensure dayPlans have the correct totalCost calculation
-          if (tripDetails.dayPlans) {
-              for (const day in tripDetails.dayPlans) {
-                  const dayPlan = tripDetails.dayPlans[day];
-                  const totalCostPerPerson = dayPlan.dayPlan?.reduce((sum, activity) => sum + activity.cost, 0) || 0;
-                  tripDetails.dayPlans[day].totalCost = totalCostPerPerson * (tripDetails.people || 1);
-              }
-          }
-
-          // ✅ Try updating localStorage first
-          if (isLocalStorageAvailable()) {
-              console.log('✅ localStorage is available. Saving imported data.');
-
-              localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
-              localStorage.setItem('activities', JSON.stringify(tripData.activities || defaultActivities));
-              localStorage.setItem('flights', JSON.stringify(tripData.flights || defaultFlights));
-              localStorage.setItem('stays', JSON.stringify(tripData.stays || defaultStays));
-          } else {
-              console.warn('⚠️ localStorage is not available. Using temporary in-memory storage.');
-              window.tempStorage = {
-                  tripDetails,
-                  activities: tripData.activities || defaultActivities,
-                  flights: tripData.flights || defaultFlights,
-                  stays: tripData.stays || defaultStays,
-              };
-          }
-
-          console.log('📥 Trip Data Imported:', tripData);
-          alert('✅ Trip data imported successfully!');
-
-          // ✅ Immediately update the UI
-          loadImportedData(tripDetails, tripData.activities, tripData.flights, tripData.stays);
-
-      } catch (error) {
-          console.error('❌ Error importing trip data:', error);
-          alert('❌ Failed to import trip data. Ensure the file has a valid format and try again.');
-      }
-  };
-
-  reader.onerror = () => {
-      console.error('❌ Error reading the file');
-      alert('❌ Failed to read the file. Please try again.');
-  };
-
-  reader.readAsText(file);
+if (exportTripBtn) {
+    exportTripBtn.addEventListener('click', () => {
+        alert('🛠️ Export functionality is temporarily disabled. Please try again later.');
+    });
 }
 
-// ✅ Test localStorage availability
-function isLocalStorageAvailable() {
-  try {
-      const testKey = '__test_key__';
-      localStorage.setItem(testKey, 'test');
-      localStorage.removeItem(testKey);
-      return true;
-  } catch (e) {
-      return false;
-  }
+
+
+// 📥 Import Trip Data
+if (importTripBtn) {
+    importTripBtn.addEventListener('click', () => {
+        alert('🛠️ Import functionality is temporarily disabled. Please try again later.');
+    });
 }
-
-// 🚀 Populate Imported Data into the UI Dynamically
-function loadImportedData(tripDetails, activities, flights, stays) {
-  console.log('📊 Loading imported data into the UI...');
-  
-  // Handle Local Storage or Temp Storage
-  const loadedTripDetails = tripDetails || window.tempStorage?.tripDetails || {};
-  const loadedActivities = activities || window.tempStorage?.activities || [];
-  const loadedFlights = flights || window.tempStorage?.flights || [];
-  const loadedStays = stays || window.tempStorage?.stays || [];
-
-  // Update trip details
-  localStorage.setItem('tripDetails', JSON.stringify(loadedTripDetails));
-  localStorage.setItem('activities', JSON.stringify(loadedActivities));
-  localStorage.setItem('flights', JSON.stringify(loadedFlights));
-  localStorage.setItem('stays', JSON.stringify(loadedStays));
-
-  // Update UI immediately
-  loadTripDetails();
-  loadTripDays();
-  calculateTotalCost();
-  displayFlights(loadedFlights);
-  displayStays(loadedStays);
-
-  console.log('✅ Imported data applied successfully to the UI.');
-}
-
 
 
 

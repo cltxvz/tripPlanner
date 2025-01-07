@@ -22,20 +22,30 @@
       <h2>Plan Your Trip</h2>
       <div class="form-container">
         <form id="trip-form">
+          <!-- 🌍 Destination with Autocomplete Dropdown -->
           <div class="form-group">
             <label for="destination">Destination:</label>
-            <input type="text" id="destination" placeholder="e.g., Paris" required>
+            <input type="text" id="destination" placeholder="Start typing a location..." autocomplete="off" required>
+            <ul id="destination-suggestions"></ul>
           </div>
+
+          <!-- 📅 Number of Days -->
           <div class="form-group">
             <label for="days">Number of Days:</label>
             <input type="number" id="days" min="1" required>
           </div>
+
+          <!-- 👥 Number of People -->
           <div class="form-group">
             <label for="people">Number of People:</label>
             <input type="number" id="people" min="1" required>
           </div>
+
+          <!-- 🚀 Start Planning Button -->
           <button type="submit">Start Planning</button>
         </form>
+
+        <!-- 📥 Import Trip Button -->
         <button id="import-trip-btn">📥 Import Trip</button>
       </div>
     </section>
@@ -46,7 +56,9 @@
     <p>Created by <a href="https://github.com/cltxvz" target="_blank">Carlos A. Cárdenas</a></p>
   </footer>
 
+  <!-- 📦 JavaScript Files -->
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/location-autocomplete.js"></script>
 
 </body>
 

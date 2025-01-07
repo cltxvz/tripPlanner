@@ -386,3 +386,46 @@ section {
   border-radius: 8px;
 }
 
+/* 📍 Destination Suggestions Dropdown */
+#destination-suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  background: white;
+  width: calc(100% - 2px);
+  z-index: 1000;
+}
+
+#destination-suggestions li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#destination-suggestions li:hover {
+  background: #f0f0f0;
+}
+
+/* 📍 Edit Destination Suggestions Dropdown */
+#edit-destination-suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  background: white;
+  width: calc(100% - 2px);
+  z-index: 1000;
+}
+
+#edit-destination-suggestions li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#edit-destination-suggestions li:hover {
+  background: #f0f0f0;
+}

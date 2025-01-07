@@ -70,27 +70,36 @@
   </main>
 
   <!-- 📝 Edit Trip Modal -->
-  <div id="edit-trip-modal" class="modal">
-    <div class="modal-content">
-      <h2>Edit Trip Details</h2>
-      <form id="edit-trip-form">
-        <div class="form-group">
-          <label for="edit-destination">Destination:</label>
-          <input type="text" id="edit-destination" required>
-        </div>
-        <div class="form-group">
-          <label for="edit-days">Number of Days:</label>
-          <input type="number" id="edit-days" min="1" required>
-        </div>
-        <div class="form-group">
-          <label for="edit-people">Number of People:</label>
-          <input type="number" id="edit-people" min="1" required>
-        </div>
-        <button type="submit">Save Changes</button>
-        <button type="button" id="close-edit-modal">Cancel</button>
-      </form>
-    </div>
+<div id="edit-trip-modal" class="modal">
+  <div class="modal-content">
+    <h2>Edit Trip Details</h2>
+    <form id="edit-trip-form">
+      <!-- 🌍 Destination Field with Autocomplete -->
+      <div class="form-group">
+        <label for="edit-destination">Destination:</label>
+        <input type="text" id="edit-destination" placeholder="Start typing a location..." autocomplete="off" required>
+        <ul id="edit-destination-suggestions"></ul>
+      </div>
+
+      <!-- 📅 Number of Days -->
+      <div class="form-group">
+        <label for="edit-days">Number of Days:</label>
+        <input type="number" id="edit-days" min="1" required>
+      </div>
+
+      <!-- 👥 Number of People -->
+      <div class="form-group">
+        <label for="edit-people">Number of People:</label>
+        <input type="number" id="edit-people" min="1" required>
+      </div>
+
+      <!-- 🚀 Save Changes -->
+      <button type="submit">Save Changes</button>
+      <button type="button" id="close-edit-modal">Cancel</button>
+    </form>
   </div>
+</div>
+
 
   <!-- 📦 Modal for Editing Budget -->
   <div id="budget-modal" class="modal">

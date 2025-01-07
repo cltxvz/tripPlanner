@@ -168,50 +168,26 @@ deleteStayBtn.addEventListener('click', () => {
 });
 
 // 🚀 Display Stays
-function displayStays() {
-  console.log('🔄 Displaying Stays...');
+function displayStays(staysData = null) {
+  const data = staysData || JSON.parse(localStorage.getItem('stays')) || window.tempStorage?.stays || [];
+  stayList.innerHTML = '';
 
-  const stayList = document.getElementById('stay-list');
-  const stayTotalCost = document.getElementById('stay-total-cost');
-
-  stayList.innerHTML = ''; // Clear the list before repopulating
   let totalCost = 0;
+  data.forEach((stay, index) => {
+      totalCost += stay.cost;
 
-  // 📝 Iterate through stays and display them
-  stays.forEach((stay, index) => {
-    totalCost += stay.cost;
-
-    const stayItem = document.createElement('li');
-    stayItem.innerHTML = `
-      ${stay.name}, ${stay.location}, ${stay.nights} nights, Cost: $${stay.cost.toFixed(2)}
-      <button class="edit-stay-btn" data-index="${index}">✏️ Edit/Delete</button>
-    `;
-    stayList.appendChild(stayItem);
+      const stayItem = document.createElement('li');
+      stayItem.innerHTML = `
+          ${stay.name}, ${stay.location}, ${stay.nights} nights, Cost: $${stay.cost.toFixed(2)}
+          <button class="edit-stay-btn" data-index="${index}">✏️ Edit/Delete</button>
+      `;
+      stayList.appendChild(stayItem);
   });
 
-  // 📝 Update total cost in the DOM
   stayTotalCost.textContent = totalCost.toFixed(2);
   console.log('💰 Stay Total Cost:', totalCost);
-
-  // ✅ Update total stay cost in localStorage
-  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
-  tripDetails.stayTotalCost = totalCost;
-  localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
-  console.log('💾 Stay Total Cost saved to tripDetails in localStorage:', totalCost);
-
-  // 🛠️ Add event listeners for Edit/Delete buttons
-  const editButtons = document.querySelectorAll('.edit-stay-btn');
-  editButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      const index = e.target.dataset.index;
-      console.log('📝 Edit/Delete Clicked for Stay Index:', index);
-      openStayModal(true, index);
-    });
-  });
-
-  // 🔄 Update the total trip cost dynamically
-  calculateTotalCost();
 }
+
 
 
 
@@ -558,7 +534,7 @@ exportTripBtn.addEventListener('click', () => {
 
 
 
-// 📥 Import Trip Data with Private Browsing Support
+// 📥 Import Trip Data with Full Support for Private Mode and Dynamic UI Updates
 importTripBtn.addEventListener('click', () => {
   const input = document.createElement('input');
   input.type = 'file';
@@ -567,7 +543,7 @@ importTripBtn.addEventListener('click', () => {
   input.click();
 });
 
-function handleTripImport(event) {
+async function handleTripImport(event) {
   const file = event.target.files[0];
   if (!file) return;
 
@@ -576,7 +552,7 @@ function handleTripImport(event) {
       try {
           const tripData = JSON.parse(e.target.result);
 
-          // Validate trip data structure
+          // ✅ Validate trip data structure
           if (!tripData.tripDetails || !tripData.activities || !tripData.flights || !tripData.stays) {
               throw new Error('Invalid file structure. Missing required keys.');
           }
@@ -602,9 +578,10 @@ function handleTripImport(event) {
               }
           }
 
-          // ✅ Test localStorage availability
+          // ✅ Try updating localStorage first
           if (isLocalStorageAvailable()) {
               console.log('✅ localStorage is available. Saving imported data.');
+
               localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
               localStorage.setItem('activities', JSON.stringify(tripData.activities || defaultActivities));
               localStorage.setItem('flights', JSON.stringify(tripData.flights || defaultFlights));
@@ -622,12 +599,8 @@ function handleTripImport(event) {
           console.log('📥 Trip Data Imported:', tripData);
           alert('✅ Trip data imported successfully!');
 
-          // Refresh relevant sections
-          loadTripDetails();
-          loadTripDays();
-          calculateTotalCost();
-          displayFlights();
-          displayStays();
+          // ✅ Immediately update the UI
+          loadImportedData(tripDetails, tripData.activities, tripData.flights, tripData.stays);
 
       } catch (error) {
           console.error('❌ Error importing trip data:', error);
@@ -655,28 +628,32 @@ function isLocalStorageAvailable() {
   }
 }
 
-// 🚀 Populate Temporary Storage Data in UI
-function populateFromTempStorage() {
-  if (window.tempStorage) {
-      console.warn('⚠️ Populating data from temporary in-memory storage.');
-
-      const { tripDetails, activities, flights, stays } = window.tempStorage;
-
-      loadImportedData(tripDetails, activities, flights, stays);
-  } else {
-      console.warn('⚠️ No temporary storage data available.');
-  }
-}
-
-// 📥 Load Imported Data into the UI
+// 🚀 Populate Imported Data into the UI Dynamically
 function loadImportedData(tripDetails, activities, flights, stays) {
   console.log('📊 Loading imported data into the UI...');
-  loadTripDetails(tripDetails);
-  loadTripDays(tripDetails);
-  calculateTotalCost(tripDetails);
-  displayFlights(flights);
-  displayStays(stays);
+  
+  // Handle Local Storage or Temp Storage
+  const loadedTripDetails = tripDetails || window.tempStorage?.tripDetails || {};
+  const loadedActivities = activities || window.tempStorage?.activities || [];
+  const loadedFlights = flights || window.tempStorage?.flights || [];
+  const loadedStays = stays || window.tempStorage?.stays || [];
+
+  // Update trip details
+  localStorage.setItem('tripDetails', JSON.stringify(loadedTripDetails));
+  localStorage.setItem('activities', JSON.stringify(loadedActivities));
+  localStorage.setItem('flights', JSON.stringify(loadedFlights));
+  localStorage.setItem('stays', JSON.stringify(loadedStays));
+
+  // Update UI immediately
+  loadTripDetails();
+  loadTripDays();
+  calculateTotalCost();
+  displayFlights(loadedFlights);
+  displayStays(loadedStays);
+
+  console.log('✅ Imported data applied successfully to the UI.');
 }
+
 
 
 
@@ -794,39 +771,26 @@ flightsForm.addEventListener('submit', (e) => {
 
 
 // 📝 Display Flights with Edit/Delete Button
-function displayFlights() {
-  flightsList.innerHTML = ''; 
-    let totalCost = 0;
+function displayFlights(flightsData = null) {
+  const data = flightsData || JSON.parse(localStorage.getItem('flights')) || window.tempStorage?.flights || [];
+  flightsList.innerHTML = '';
 
-    flights.forEach((flight, index) => {
-        totalCost += flight.cost;
-        const flightItem = document.createElement('li');
-        flightItem.innerHTML = `${flight.departure} - ${flight.arrival}, ${flight.tripType}, Cost: $${flight.cost.toFixed(2)}
-            <button class="edit-flight-btn" data-index="${index}">✏️ Edit/Delete</button>`;
-        flightsList.appendChild(flightItem);
-    });
+  let totalCost = 0;
+  data.forEach((flight, index) => {
+      totalCost += flight.cost;
+
+      const flightItem = document.createElement('li');
+      flightItem.innerHTML = `
+          ${flight.departure} - ${flight.arrival}, ${flight.tripType}, Cost: $${flight.cost.toFixed(2)}
+          <button class="edit-flight-btn" data-index="${index}">✏️ Edit/Delete</button>
+      `;
+      flightsList.appendChild(flightItem);
+  });
 
   flightsTotalCost.textContent = totalCost.toFixed(2);
   console.log('💰 Flights Total Cost:', totalCost);
-
-  // Add Edit/Delete Listeners
-  const editButtons = document.querySelectorAll('.edit-flight-btn');
-  editButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-          const index = e.target.dataset.index;
-          console.log('📝 Edit/Delete Clicked for Flight Index:', index);
-          openFlightModal(true, index);
-      });
-  });
-
-  // 🔄 Immediately Recalculate Total Trip Cost
-  let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
-    tripDetails.flightsTotalCost = totalCost;
-    localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
-
-    calculateTotalCost();
-  console.log('✅ Total Trip Cost recalculated after flight updates.');
 }
+
 
 
 

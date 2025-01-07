@@ -11,14 +11,17 @@
   <header>
     <h1>Plan Your Day</h1>
     <p class="tagline">Organize activities into time slots for a perfect itinerary.</p>
+    <p id="trip-details-header" class="tagline"></p>
   </header>
 
   <!-- 💰 Total Day Cost Section -->
-  <section id="day-summary">
-    <h2>Total Cost</h2>
-    <p id="total-cost">Total Cost: $0.00</p>
-    <button id="finish-planning">Finish Planning</button>
-  </section>
+<section id="day-summary">
+  <h2>Total Costs for the Day:</h2>
+  <p><strong>Per Person:</strong> $<span id="total-cost-per-person">0.00</span></p>
+  <p><strong>For All Travelers:</strong> $<span id="total-cost-all-travelers">0.00</span></p>
+  <button id="finish-planning">Finish Planning</button>
+</section>
+
 
   <!-- 🚀 Main Section -->
   <main id="day-planner">
@@ -43,14 +46,22 @@
   </main>
 
   <!-- ⏰ Modal for Activity Time Input -->
-  <div id="activity-time-modal" class="modal">
-    <div class="modal-content">
-      <h2>Set Activity Start Time</h2>
-      <input type="time" id="activity-time" required>
-      <button id="confirm-time">Confirm</button>
-      <button id="close-modal">Cancel</button>
+<div id="activity-time-modal" class="modal">
+  <div class="modal-content">
+    <h2>Set Activity Time</h2>
+    <div class="form-group">
+      <label for="activity-time-start">Start Time:</label>
+      <input type="time" id="activity-time-start" required>
     </div>
+    <div class="form-group">
+      <label for="activity-time-end">End Time:</label>
+      <input type="time" id="activity-time-end" required>
+    </div>
+    <button id="confirm-time">Confirm</button>
+    <button id="close-modal">Cancel</button>
   </div>
+</div>
+
 
   <!-- 📝 Footer -->
   <footer>

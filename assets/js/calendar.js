@@ -124,7 +124,7 @@ function loadActivities() {
     console.log('✅ Unscheduled Activities:', unscheduledActivities);
 
     if (unscheduledActivities.length === 0) {
-        activityPool.innerHTML = '<p>All activities are already scheduled for this day.</p>';
+        activityPool.innerHTML = '<p>No activities available. Go to Manage Activities to add new ones.</p>';
         return;
     }
 
@@ -377,7 +377,7 @@ function organizeDayPlan() {
     console.log('🔄 Organizing Day Plan...');
     const dropZone = document.getElementById('activity-drop-zone');
     if (!dropZone) {
-        console.error('❌ Drop Zone not found.');
+        /*console.error('❌ Drop Zone not found.');*/
         return;
     }
 

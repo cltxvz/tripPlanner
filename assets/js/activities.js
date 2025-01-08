@@ -134,25 +134,38 @@ activityForm.addEventListener('submit', (e) => {
 function displayActivities() {
   activityList.innerHTML = ''; // Clear list before repopulating
 
+  if (activities.length === 0) {
+      // Show empty state message when no activities exist
+      activityList.innerHTML = `
+          <li class="empty-activity-message">
+              No activities available. Click "Add New Activity" to create your first activity!
+          </li>
+      `;
+      console.warn('⚠️ Activity pool is empty. Showing prompt message.');
+      return;
+  }
+
+  // Populate activities if they exist
   activities.forEach((activity, index) => {
-    const activityItem = document.createElement('li');
-    activityItem.innerHTML = `
-      <strong>${activity.title}</strong> 
-      ${activity.description ? `<p>${activity.description}</p>` : ''}
-      Cost Per Person: $${activity.cost.toFixed(2)}
-      <button class="edit-activity-btn" data-index="${index}">✏️ Edit/Delete</button>
-    `;
-    activityList.appendChild(activityItem);
+      const activityItem = document.createElement('li');
+      activityItem.innerHTML = `
+          <strong>${activity.title}</strong> 
+          ${activity.description ? `<p>${activity.description}</p>` : ''}
+          Cost Per Person: $${activity.cost.toFixed(2)}
+          <button class="edit-activity-btn" data-index="${index}">✏️ Edit/Delete</button>
+      `;
+      activityList.appendChild(activityItem);
   });
 
   // Add Edit/Delete Listeners
   document.querySelectorAll('.edit-activity-btn').forEach(button => {
-    button.addEventListener('click', (e) => {
-      const index = e.target.dataset.index;
-      openActivityModal(true, index);
-    });
+      button.addEventListener('click', (e) => {
+          const index = e.target.dataset.index;
+          openActivityModal(true, index);
+      });
   });
 }
+
 
 
 
@@ -206,11 +219,40 @@ function editActivity(id) {
 
 // 🗑️ Delete Activity
 function deleteActivity(id) {
-  activities = activities.filter(a => a.id !== id);
-  saveActivities();
-  displayActivities();
-  console.log(`🗑️ Activity Deleted (ID: ${id})`);
+    console.log(`🗑️ Deleting Activity with ID: ${id}`);
+
+    // Remove the activity from the main activities array
+    activities = activities.filter(a => a.id !== id);
+    saveActivities();
+    console.log('✅ Activity removed from activities array.');
+
+    // Remove the activity from all day plans
+    let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+    if (tripDetails.dayPlans) {
+        Object.keys(tripDetails.dayPlans).forEach(day => {
+            let dayPlan = tripDetails.dayPlans[day];
+
+            if (dayPlan.dayPlan) {
+                // Remove the activity from the day plan
+                dayPlan.dayPlan = dayPlan.dayPlan.filter(activity => activity.id !== id);
+
+                // Recalculate total cost for the day
+                const people = tripDetails.people || 1;
+                const totalCostPerPerson = dayPlan.dayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0);
+                dayPlan.totalCost = totalCostPerPerson * people;
+            }
+        });
+
+        // Save updated tripDetails
+        localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+        console.log('✅ Activity removed from all day plans and costs recalculated.');
+    }
+
+    // Update the UI
+    displayActivities();
+    console.log('✅ Activity list refreshed in UI.');
 }
+
 
 
 // 🗑️ Handle Delete Button in Modal
@@ -306,4 +348,3 @@ function updateActivityEverywhere(activityId, updatedActivity) {
   }
 }
 
-// Call this function after updating activity in the Activities Page

@@ -511,3 +511,30 @@ function deleteActivityFromDayPlan(activityId) {
     console.log(`✅ Activity ID ${activityId} successfully removed from Day Plan`);
 }
 
+function refreshDayPlanActivities() {
+    console.log('🔄 Refreshing Day Plan Activities with Latest Details');
+
+    const activities = JSON.parse(localStorage.getItem('activities')) || [];
+    const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+
+    if (tripDetails.dayPlans) {
+        Object.keys(tripDetails.dayPlans).forEach(day => {
+            let dayPlan = tripDetails.dayPlans[day];
+            dayPlan.dayPlan.forEach(activity => {
+                const updatedActivity = activities.find(act => act.id === activity.id);
+                if (updatedActivity) {
+                    activity.title = updatedActivity.title;
+                    activity.cost = updatedActivity.cost;
+                }
+            });
+        });
+
+        localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+        console.log('✅ Day Plans updated with refreshed activity details.');
+    }
+}
+
+// Call this on page load
+refreshDayPlanActivities();
+organizeDayPlan();
+

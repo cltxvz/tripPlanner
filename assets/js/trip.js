@@ -77,6 +77,7 @@ const closeTodoModal = document.getElementById('close-todo-modal');
 // 🚀 Initialize Sections
 document.addEventListener('DOMContentLoaded', () => {
   console.log('✅ DOM Loaded: Initializing trip details...');
+  refreshDayPlanActivities();
   displayExpenses();
   loadTripDetails();
   loadTripDays();
@@ -87,34 +88,57 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateTotalCost();
 });
 
-// 📌 DOM Elements for Edit Modal Autocomplete
+// 📌 DOM Elements for Edit Modal
 const editDestinationInput = document.getElementById('edit-destination');
 const editDestinationSuggestions = document.getElementById('edit-destination-suggestions');
 
-// 🌍 OpenCage API Key (Replace YOUR_API_KEY)
+// 🌍 OpenCage API Key
 const API_KEY = 'f71bc728a85d40a692e5d5d7b62bd559';
 const API_URL = 'https://api.opencagedata.com/geocode/v1/json';
 
-// 📥 Fetch Suggestions for Edit Modal
+// 🚀 Fetch Location Suggestions for Edit Modal
 async function fetchEditLocationSuggestions(query) {
-    if (!query) {
-        editDestinationSuggestions.innerHTML = '';
+    if (!query || query.length < 3) {
+        console.warn('⚠️ Query is too short for API request:', query);
+        editDestinationSuggestions.innerHTML = '<li>Type at least 3 characters...</li>';
         return;
     }
+
+    editDestinationSuggestions.innerHTML = '<li>Loading suggestions...</li>';
 
     try {
         const response = await fetch(
             `${API_URL}?q=${encodeURIComponent(query)}&key=${API_KEY}&limit=5`
         );
 
-        if (!response.ok) throw new Error('Failed to fetch location suggestions');
+        if (!response.ok) {
+            throw new Error('Failed to fetch location suggestions');
+        }
 
         const data = await response.json();
         console.log('📦 OpenCage API Response (Edit Modal):', data);
         displayEditSuggestions(data.results);
     } catch (error) {
         console.error('❌ Error fetching suggestions (Edit Modal):', error);
+        editDestinationSuggestions.innerHTML = '<li>Failed to fetch suggestions. Try again later.</li>';
     }
+}
+
+// 🚀 Debounce Function
+function debounce(func, delay) {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+}
+
+// 🚀 Event Listener with Debounce
+if (editDestinationInput) {
+    editDestinationInput.addEventListener('input', debounce((e) => {
+        const query = e.target.value.trim();
+        fetchEditLocationSuggestions(query);
+    }, 300)); // 300ms delay
 }
 
 // 📋 Display Suggestions in Edit Modal
@@ -140,12 +164,6 @@ function selectEditSuggestion(placeName) {
     editDestinationInput.value = placeName;
     editDestinationSuggestions.innerHTML = '';
 }
-
-// 🚀 Event Listener for Input in Edit Modal
-editDestinationInput.addEventListener('input', (e) => {
-    const query = e.target.value.trim();
-    fetchEditLocationSuggestions(query);
-});
 
 // ❌ Close Dropdown on Outside Click in Edit Modal
 document.addEventListener('click', (e) => {
@@ -419,8 +437,6 @@ function loadTripDays() {
       return;
   }
 
-  const numberOfTravelers = tripDetails.people || 1;
-
   for (let i = 1; i <= tripDetails.days; i++) {
       const dayBlock = document.createElement('div');
       dayBlock.className = 'day-block';
@@ -428,12 +444,11 @@ function loadTripDays() {
       const dayPlan = tripDetails.dayPlans?.[i];
 
       if (dayPlan && dayPlan.dayPlan && dayPlan.dayPlan.length > 0) {
-          // Use the stored total cost for all travelers directly
           const totalCostForAllTravelers = dayPlan.totalCost || 0;
 
           let activitiesList = '<ul>';
           dayPlan.dayPlan.forEach(activity => {
-              activitiesList += `<li>${activity.title}</li>`; // Display only titles
+              activitiesList += `<li>${activity.title} - $${activity.cost.toFixed(2)}</li>`;
           });
           activitiesList += '</ul>';
 
@@ -447,9 +462,7 @@ function loadTripDays() {
                   <button onclick="showDayDetails(${i})">🔍 Show Details</button>
               </div>
           `;
-          console.log(`📅 Day ${i}: Displayed Total Cost (All Travelers): $${totalCostForAllTravelers.toFixed(2)}`);
       } else {
-          // Day has no activities planned
           dayBlock.innerHTML = `
               <h3>Day ${i}</h3>
               <p>No activities planned yet.</p>
@@ -457,12 +470,14 @@ function loadTripDays() {
                   <button onclick="goToDay(${i})">🕒 Plan This Day</button>
               </div>
           `;
-          console.log(`📅 Day ${i}: No activities planned.`);
       }
 
       daysGrid.appendChild(dayBlock);
   }
+
+  console.log('✅ Day Plans Loaded Successfully');
 }
+
 
 
 
@@ -575,9 +590,10 @@ function calculateTotalCost() {
 
   if (tripDetails.dayPlans) {
       console.log('📅 Calculating Total Day Plans Cost...');
-      for (const day in tripDetails.dayPlans) {
-          totalDayPlansCost += parseFloat(tripDetails.dayPlans[day]?.totalCost || 0);
-      }
+      Object.keys(tripDetails.dayPlans).forEach(day => {
+          const dayPlan = tripDetails.dayPlans[day];
+          totalDayPlansCost += parseFloat(dayPlan?.totalCost || 0);
+      });
   }
 
   const totalCostAllTravelers = totalFlightsCost + totalStayCost + totalDayPlansCost + totalAdditionalExpenses;
@@ -614,6 +630,7 @@ function calculateTotalCost() {
       totalBudgetAllTravelers
   });
 }
+
 
 
 
@@ -1165,4 +1182,46 @@ document.getElementById('close-todo-modal').addEventListener('click', () => {
   document.getElementById('todo-form').reset();
   editingTodoIndex = null;
 });
+
+function refreshDayPlanActivities() {
+  console.log('🔄 Refreshing Day Plan Activities in Trip Overview');
+
+  const activities = JSON.parse(localStorage.getItem('activities')) || [];
+  const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+
+  if (tripDetails.dayPlans) {
+      Object.keys(tripDetails.dayPlans).forEach(day => {
+          let dayPlan = tripDetails.dayPlans[day];
+          if (dayPlan.dayPlan) {
+              dayPlan.dayPlan = dayPlan.dayPlan.map(activity => {
+                  const updatedActivity = activities.find(act => act.id == activity.id);
+                  if (updatedActivity) {
+                      return {
+                          ...activity,
+                          title: updatedActivity.title,
+                          cost: updatedActivity.cost
+                      };
+                  }
+                  return activity;
+              });
+          }
+
+          // 🧮 Recalculate total cost for the day
+          const people = tripDetails.people || 1;
+          const totalCostPerPerson = dayPlan.dayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0);
+          dayPlan.totalCost = totalCostPerPerson * people;
+      });
+
+      // Save updated day plans back to localStorage
+      localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+      console.log('✅ Day Plans updated with refreshed activity details and recalculated costs.');
+  }
+}
+
+
+
+// Call this before rendering days
+refreshDayPlanActivities();
+loadTripDays();
+
 

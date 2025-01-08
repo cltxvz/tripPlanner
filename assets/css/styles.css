@@ -371,11 +371,11 @@ section {
   list-style: none;
   margin: 0;
   padding: 0;
+  border: 1px solid #ccc;
   max-height: 200px;
   overflow-y: auto;
-  position: absolute;
   background: white;
-  width: calc(100% - 2px);
+  position: absolute;
   z-index: 1000;
 }
 
@@ -385,8 +385,9 @@ section {
 }
 
 #edit-destination-suggestions li:hover {
-  background: #f0f0f0;
+  background-color: #f0f0f0;
 }
+
 
 /* 📦 Trip Extras Section */
 #trip-extras-section {

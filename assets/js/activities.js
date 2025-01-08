@@ -242,3 +242,68 @@ function loadActivities() {
 // 🚀 Initialize
 loadActivities();
 displayActivities();
+
+// 🚀 Update Activity and Reflect Changes Everywhere
+function saveActivityChanges(activityId, updatedActivity) {
+  console.log(`🔄 Updating Activity ID: ${activityId}`);
+
+  // Update in activities array
+  let activities = JSON.parse(localStorage.getItem('activities')) || [];
+  const activityIndex = activities.findIndex(act => act.id === activityId);
+
+  if (activityIndex !== -1) {
+      activities[activityIndex] = { ...activities[activityIndex], ...updatedActivity };
+      console.log('✅ Activity updated in activities array:', activities[activityIndex]);
+
+      // Save back to localStorage
+      localStorage.setItem('activities', JSON.stringify(activities));
+
+      // ✅ Update Day Plans
+      let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+      if (tripDetails.dayPlans) {
+          Object.keys(tripDetails.dayPlans).forEach(day => {
+              let dayPlan = tripDetails.dayPlans[day];
+              dayPlan.dayPlan.forEach(activity => {
+                  if (activity.id === activityId) {
+                      activity.title = updatedActivity.title;
+                      activity.cost = updatedActivity.cost;
+                  }
+              });
+          });
+      }
+
+      localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+      console.log('✅ Day Plans updated with the modified activity.');
+  } else {
+      console.warn(`⚠️ Activity with ID: ${activityId} not found in activities array.`);
+  }
+}
+
+function updateActivityEverywhere(activityId, updatedActivity) {
+  console.log(`🔄 Updating Activity ID: ${activityId} across Day Plans`);
+
+  let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
+
+  if (tripDetails.dayPlans) {
+      Object.keys(tripDetails.dayPlans).forEach(day => {
+          let dayPlan = tripDetails.dayPlans[day];
+          if (dayPlan.dayPlan) {
+              dayPlan.dayPlan = dayPlan.dayPlan.map(activity => {
+                  if (activity.id === activityId) {
+                      return {
+                          ...activity,
+                          title: updatedActivity.title,
+                          cost: updatedActivity.cost
+                      };
+                  }
+                  return activity;
+              });
+          }
+      });
+
+      localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
+      console.log('✅ Activity updated across all Day Plans');
+  }
+}
+
+// Call this function after updating activity in the Activities Page

@@ -6,27 +6,48 @@ const destinationSuggestions = document.getElementById('destination-suggestions'
 const API_KEY = 'f71bc728a85d40a692e5d5d7b62bd559';
 const API_URL = 'https://api.opencagedata.com/geocode/v1/json';
 
-// 📥 Fetch Suggestions
+// 🚀 Fetch Location Suggestions
 async function fetchLocationSuggestions(query) {
-    if (!query) {
-        destinationSuggestions.innerHTML = '';
+    if (!query || query.length < 3) {
+        console.warn('⚠️ Query is too short for API request:', query);
+        destinationSuggestions.innerHTML = '<li>Type at least 3 characters...</li>';
         return;
     }
+
+    destinationSuggestions.innerHTML = '<li>Loading suggestions...</li>';
 
     try {
         const response = await fetch(
             `${API_URL}?q=${encodeURIComponent(query)}&key=${API_KEY}&limit=5`
         );
 
-        if (!response.ok) throw new Error('Failed to fetch location suggestions');
+        if (!response.ok) {
+            throw new Error('Failed to fetch location suggestions');
+        }
 
         const data = await response.json();
         console.log('📦 OpenCage API Response:', data);
         displaySuggestions(data.results);
     } catch (error) {
         console.error('❌ Error fetching suggestions:', error);
+        destinationSuggestions.innerHTML = '<li>Failed to fetch suggestions. Try again later.</li>';
     }
 }
+
+// 🚀 Debounce Function
+function debounce(func, delay) {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+}
+
+// 🚀 Event Listener with Debounce
+destinationInput.addEventListener('input', debounce((e) => {
+    const query = e.target.value.trim();
+    fetchLocationSuggestions(query);
+}, 300)); // 300ms delay
 
 // 📋 Display Suggestions
 function displaySuggestions(suggestions) {
@@ -52,12 +73,6 @@ function selectSuggestion(placeName) {
     destinationSuggestions.innerHTML = '';
 }
 
-// 🚀 Event Listener for Input
-destinationInput.addEventListener('input', (e) => {
-    const query = e.target.value.trim();
-    fetchLocationSuggestions(query);
-});
-
 // ❌ Close Dropdown on Outside Click
 document.addEventListener('click', (e) => {
     if (!destinationInput.contains(e.target) && !destinationSuggestions.contains(e.target)) {
@@ -65,22 +80,19 @@ document.addEventListener('click', (e) => {
     }
 });
 
-
-
-
 // 🚀 Trip Form Submission
 document.getElementById('trip-form').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const destination = document.getElementById('destination').value;
-  const days = parseInt(document.getElementById('days').value, 10);
-  const people = parseInt(document.getElementById('people').value, 10);
+    e.preventDefault();
+    const destination = document.getElementById('destination').value;
+    const days = parseInt(document.getElementById('days').value, 10);
+    const people = parseInt(document.getElementById('people').value, 10);
 
-  if (destination && days > 0 && people > 0) {
-    localStorage.setItem('tripDetails', JSON.stringify({ destination, days, people }));
-    window.location.href = 'trip.html';
-  } else {
-    alert('Please fill all fields correctly.');
-  }
+    if (destination && days > 0 && people > 0) {
+        localStorage.setItem('tripDetails', JSON.stringify({ destination, days, people }));
+        window.location.href = 'trip.html';
+    } else {
+        alert('Please fill all fields correctly.');
+    }
 });
 
 // 📥 Import Trip Functionality
@@ -90,4 +102,3 @@ if (importTripBtn) {
         alert('🛠️ Import functionality is temporarily disabled. Please try again later.');
     });
 }
-

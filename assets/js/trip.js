@@ -459,7 +459,6 @@ function loadTripDays() {
               <p><strong>Total Cost (All Travelers):</strong> $${totalCostForAllTravelers.toFixed(2)}</p>
               <div class="day-buttons">
                   <button onclick="goToDay(${i})">📝 Edit Day Plan</button>
-                  <button onclick="showDayDetails(${i})">🔍 Show Details</button>
               </div>
           `;
       } else {
@@ -478,17 +477,6 @@ function loadTripDays() {
   console.log('✅ Day Plans Loaded Successfully');
 }
 
-
-
-
-
-
-
-// Placeholder Function for Show Details
-function showDayDetails(dayNumber) {
-  console.log(`🔍 Show details for Day ${dayNumber}`);
-  alert(`Show details functionality for Day ${dayNumber} will be implemented soon!`);
-}
 
 
 // 🛡️ Load Initial Budget
@@ -632,22 +620,6 @@ function calculateTotalCost() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // 🏠 Navigate Back to Home Page
 goBackBtn.addEventListener('click', () => {
   window.location.href = 'index.html';
@@ -659,19 +631,99 @@ manageActivitiesBtn.addEventListener('click', () => {
 });
 
 
-// 📤 Export Trip Data
-if (exportTripBtn) {
-    exportTripBtn.addEventListener('click', () => {
-        alert('🛠️ Export functionality is temporarily disabled. Please try again later.');
-    });
+
+
+
+
+
+// 📤 Export Trip Data as JSON
+function exportTripData() {
+  console.log("📤 Exporting trip data...");
+
+  const tripData = {
+      tripDetails: JSON.parse(localStorage.getItem("tripDetails")) || {},
+      flights: JSON.parse(localStorage.getItem("flights")) || [],
+      stays: JSON.parse(localStorage.getItem("stays")) || [],
+      dayPlans: JSON.parse(localStorage.getItem("dayPlans")) || {},
+      activities: JSON.parse(localStorage.getItem("activities")) || [],
+      additionalExpenses: JSON.parse(localStorage.getItem("additionalExpenses")) || [],
+      todoList: JSON.parse(localStorage.getItem("todoList")) || []
+  };
+
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tripData, null, 2));
+  const downloadAnchor = document.createElement("a");
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", "trip-plan.json");
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  document.body.removeChild(downloadAnchor);
+
+  console.log("✅ Trip data exported successfully.");
 }
 
-// 📥 Import Trip Data
-if (importTripBtn) {
-    importTripBtn.addEventListener('click', () => {
-        alert('🛠️ Import functionality is temporarily disabled. Please try again later.');
-    });
+// 📤 Attach Export Button Event Listener
+if (exportTripBtn) {
+  exportTripBtn.addEventListener("click", exportTripData);
 }
+
+
+// 📥 Import Trip Data from JSON File
+function importTripData(event, redirectToTrip = false) {
+  const file = event.target.files[0];
+
+  if (!file) {
+      alert("❌ No file selected.");
+      return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+      try {
+          const tripData = JSON.parse(event.target.result);
+
+          // ✅ Validate JSON structure
+          if (!tripData.tripDetails || !tripData.dayPlans || !tripData.activities) {
+              throw new Error("Invalid trip data format.");
+          }
+
+          console.log("📥 Valid Trip Data Loaded:", tripData);
+
+          // 📝 Store everything in localStorage
+          localStorage.setItem("tripDetails", JSON.stringify(tripData.tripDetails));
+          localStorage.setItem("flights", JSON.stringify(tripData.flights || []));
+          localStorage.setItem("stays", JSON.stringify(tripData.stays || []));
+          localStorage.setItem("dayPlans", JSON.stringify(tripData.dayPlans || {}));
+          localStorage.setItem("activities", JSON.stringify(tripData.activities || []));
+          localStorage.setItem("additionalExpenses", JSON.stringify(tripData.additionalExpenses || []));
+          localStorage.setItem("todoList", JSON.stringify(tripData.todoList || []));
+
+          console.log("✅ Trip data imported and saved in localStorage.");
+
+          // 🔄 Redirect to trip page after import (for index.html)
+          if (redirectToTrip) {
+              window.location.href = "trip.html";
+          } else {
+              // Refresh page to reflect imported data
+              window.location.reload();
+          }
+
+      } catch (error) {
+          console.error("❌ Error importing trip data:", error);
+          alert("❌ Failed to import trip. Please upload a valid JSON file.");
+      }
+  };
+
+  reader.readAsText(file);
+}
+
+const importTripBtnTrip = document.getElementById("import-trip-btn");
+const importTripInputTrip = document.getElementById("import-trip-input-trip");
+
+if (importTripBtnTrip && importTripInputTrip) {
+    importTripBtnTrip.addEventListener("click", () => importTripInputTrip.click());
+    importTripInputTrip.addEventListener("change", (event) => importTripData(event, false));
+}
+
 
 
 
@@ -1103,19 +1155,52 @@ let editingTodoIndex = null;
 
 // 🚀 Display To-Do List
 function displayTodoList() {
+  const todoListContainer = document.getElementById("todo-list");
+  if (!todoListContainer) {
+      console.warn("⚠️ To-Do List container not found in DOM.");
+      return;
+  }
+
+  // ✅ Load the To-Do list from localStorage
+  let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
+
+  console.log("📥 Loaded To-Do List from localStorage:", todoList);
+
+  // ✅ Clear previous list
   todoListContainer.innerHTML = '';
 
+  // ✅ Handle empty To-Do list scenario
+  if (todoList.length === 0) {
+      todoListContainer.innerHTML = `<p>No to-dos yet.</p>`;
+      return;
+  }
+
+  // ✅ Populate the list with To-Do items
   todoList.forEach((item, index) => {
       const li = document.createElement('li');
       li.innerHTML = `
-          <input type="checkbox" ${item.completed ? 'checked' : ''} data-index="${index}">
-          ${item.title}
+          <input type="checkbox" class="todo-checkbox" data-index="${index}" ${item.completed ? 'checked' : ''}>
+          <span>${item.title}</span>
           <button class="edit-todo-btn" data-index="${index}">✏️ Edit/Delete</button>
       `;
       todoListContainer.appendChild(li);
   });
 
-  // Add Edit/Delete Button Listeners
+  // ✅ Add Event Listener for Checkboxes (Save Completion Status)
+  document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+          let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
+          const index = e.target.dataset.index;
+          todoList[index].completed = e.target.checked;
+
+          // ✅ Save updated To-Do list to localStorage
+          localStorage.setItem("todoList", JSON.stringify(todoList));
+
+          console.log(`✅ To-Do ${index} checked state updated:`, todoList[index].completed);
+      });
+  });
+
+  // ✅ Add Event Listener for Edit/Delete Buttons
   document.querySelectorAll('.edit-todo-btn').forEach(button => {
       button.addEventListener('click', (e) => {
           editingTodoIndex = e.target.dataset.index;
@@ -1124,56 +1209,92 @@ function displayTodoList() {
   });
 }
 
+
+
+
 // 🚀 Initialize Add To-Do Button
 document.getElementById('add-todo-btn').addEventListener('click', () => openTodoModal(false));
 
 
 // 🚀 Open To-Do Modal
 function openTodoModal(isEdit = false, index = null) {
-    const modalTitle = document.getElementById('todo-modal-title');
-    const saveBtn = document.getElementById('save-todo-btn');
-    const deleteBtn = document.getElementById('delete-todo-btn');
+  const modalTitle = document.getElementById('todo-modal-title');
+  const saveBtn = document.getElementById('save-todo-btn');
+  const deleteBtn = document.getElementById('delete-todo-btn');
 
-    if (isEdit) {
-        modalTitle.textContent = 'Edit To-Do';
-        saveBtn.textContent = 'Save Changes';
-        deleteBtn.style.display = 'inline-block';
+  // ✅ Load the existing todoList from localStorage before opening modal
+  let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
 
-        document.getElementById('todo-title').value = todoList[index].title;
-    } else {
-        modalTitle.textContent = 'Add To-Do';
-        saveBtn.textContent = 'Add To-Do';
-        deleteBtn.style.display = 'none';
-        document.getElementById('todo-form').reset();
-    }
+  if (isEdit) {
+      modalTitle.textContent = 'Edit To-Do';
+      saveBtn.textContent = 'Save Changes';
+      deleteBtn.style.display = 'inline-block';
 
-    document.getElementById('todo-modal').style.display = 'flex';
+      // ✅ Make sure `index` is within bounds
+      if (index !== null && todoList[index]) {
+          document.getElementById('todo-title').value = todoList[index].title;
+      }
+  } else {
+      modalTitle.textContent = 'Add To-Do';
+      saveBtn.textContent = 'Add To-Do';
+      deleteBtn.style.display = 'none';
+      document.getElementById('todo-form').reset();
+  }
+
+  document.getElementById('todo-modal').style.display = 'flex';
 }
 
 // 🚀 Save To-Do
 document.getElementById('todo-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const title = document.getElementById('todo-title').value.trim();
+  e.preventDefault();
 
-    if (editingTodoIndex !== null) {
-        todoList[editingTodoIndex].title = title;
-        editingTodoIndex = null;
-    } else {
-        todoList.push({ title, completed: false });
-    }
+  const title = document.getElementById('todo-title').value.trim();
+  if (!title) {
+      alert("❌ Please enter a valid To-Do title.");
+      return;
+  }
 
-    displayTodoList();
-    document.getElementById('todo-modal').style.display = 'none';
+  // ✅ Retrieve and update the todoList from localStorage
+  let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
+
+  if (editingTodoIndex !== null) {
+      // ✅ Editing an existing item
+      todoList[editingTodoIndex].title = title;
+      editingTodoIndex = null;
+  } else {
+      // ✅ Adding a new item
+      todoList.push({ title, completed: false });
+  }
+
+  // ✅ Save updated todoList to localStorage
+  localStorage.setItem("todoList", JSON.stringify(todoList));
+
+  // ✅ Refresh the list in UI
+  displayTodoList();
+
+  // ✅ Close modal
+  document.getElementById('todo-modal').style.display = 'none';
+  document.getElementById('todo-form').reset();
 });
 
 // 🚀 Delete To-Do
 document.getElementById('delete-todo-btn').addEventListener('click', () => {
-    if (editingTodoIndex !== null) {
-        todoList.splice(editingTodoIndex, 1);
-        editingTodoIndex = null;
-        displayTodoList();
-        document.getElementById('todo-modal').style.display = 'none';
-    }
+  if (editingTodoIndex !== null) {
+      let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
+
+      // ✅ Remove the item
+      todoList.splice(editingTodoIndex, 1);
+      editingTodoIndex = null;
+
+      // ✅ Save updated list to localStorage
+      localStorage.setItem("todoList", JSON.stringify(todoList));
+
+      // ✅ Refresh the list in UI
+      displayTodoList();
+
+      // ✅ Close modal
+      document.getElementById('todo-modal').style.display = 'none';
+  }
 });
 
 // 🚀 Reset Modal State for To-Do
@@ -1182,6 +1303,8 @@ document.getElementById('close-todo-modal').addEventListener('click', () => {
   document.getElementById('todo-form').reset();
   editingTodoIndex = null;
 });
+
+
 
 function refreshDayPlanActivities() {
   console.log('🔄 Refreshing Day Plan Activities in Trip Overview');

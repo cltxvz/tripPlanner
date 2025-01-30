@@ -95,10 +95,61 @@ document.getElementById('trip-form').addEventListener('submit', (e) => {
     }
 });
 
+// 📥 Import Trip Data from JSON File
+function importTripData(event, redirectToTrip = false) {
+    const file = event.target.files[0];
+  
+    if (!file) {
+        alert("❌ No file selected.");
+        return;
+    }
+  
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        try {
+            const tripData = JSON.parse(event.target.result);
+  
+            // ✅ Validate JSON structure
+            if (!tripData.tripDetails || !tripData.dayPlans || !tripData.activities) {
+                throw new Error("Invalid trip data format.");
+            }
+  
+            console.log("📥 Valid Trip Data Loaded:", tripData);
+  
+            // 📝 Store everything in localStorage
+            localStorage.setItem("tripDetails", JSON.stringify(tripData.tripDetails));
+            localStorage.setItem("flights", JSON.stringify(tripData.flights || []));
+            localStorage.setItem("stays", JSON.stringify(tripData.stays || []));
+            localStorage.setItem("dayPlans", JSON.stringify(tripData.dayPlans || {}));
+            localStorage.setItem("activities", JSON.stringify(tripData.activities || []));
+            localStorage.setItem("additionalExpenses", JSON.stringify(tripData.additionalExpenses || []));
+            localStorage.setItem("todoList", JSON.stringify(tripData.todoList || []));
+  
+            console.log("✅ Trip data imported and saved in localStorage.");
+  
+            // 🔄 Redirect to trip page after import (for index.html)
+            if (redirectToTrip) {
+                window.location.href = "trip.html";
+            } else {
+                // Refresh page to reflect imported data
+                window.location.reload();
+            }
+  
+        } catch (error) {
+            console.error("❌ Error importing trip data:", error);
+            alert("❌ Failed to import trip. Please upload a valid JSON file.");
+        }
+    };
+  
+    reader.readAsText(file);
+  }
+
 // 📥 Import Trip Functionality
-const importTripBtn = document.getElementById('import-trip-btn');
-if (importTripBtn) {
-    importTripBtn.addEventListener('click', () => {
-        alert('🛠️ Import functionality is temporarily disabled. Please try again later.');
-    });
+const importTripBtnIndex = document.getElementById("import-trip-btn");
+const importTripInputIndex = document.getElementById("import-trip-input");
+
+if (importTripBtnIndex && importTripInputIndex) {
+    importTripBtnIndex.addEventListener("click", () => importTripInputIndex.click());
+    importTripInputIndex.addEventListener("change", (event) => importTripData(event, true));
 }
+

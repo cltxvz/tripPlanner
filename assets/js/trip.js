@@ -2,7 +2,7 @@
 const daysGrid = document.getElementById('days-grid');
 const goBackBtn = document.getElementById('go-back-btn');
 const manageActivitiesBtn = document.getElementById('manage-activities-btn');
-const importTripBtn = document.getElementById('import-trip-btn');
+const importTripBtn = document.getElementById('import-trip-btn-trip');
 const exportTripBtn = document.getElementById('export-trip-btn');
 const tripInfo = document.getElementById('trip-info');
 const editTripBtn = document.getElementById('edit-trip-btn');
@@ -286,6 +286,7 @@ deleteStayBtn.addEventListener('click', () => {
     console.log('💾 Stays updated in localStorage after removal.');
     displayStays();
     closeStayModalHandler();
+    calculateTotalCost();
   }
 });
 
@@ -430,52 +431,57 @@ function loadTripDetails() {
 // 🗓️ Load Trip Days into Grid
 function loadTripDays() {
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
-  daysGrid.innerHTML = '';
+  const daysGrid = document.getElementById('days-grid'); // Ensure correct container reference
+  daysGrid.innerHTML = ''; // Clear previous content
 
   if (!tripDetails.days || tripDetails.days <= 0) {
-      daysGrid.innerHTML = '<p>No days planned yet. Start by planning your trip on the home page.</p>';
-      return;
+    daysGrid.innerHTML = '<p>No days planned yet. Start by planning your trip on the home page.</p>';
+    return;
   }
 
+  // Generate day blocks
   for (let i = 1; i <= tripDetails.days; i++) {
-      const dayBlock = document.createElement('div');
-      dayBlock.className = 'day-block';
+    const dayBlock = document.createElement('div');
+    dayBlock.className = 'day-block'; // Ensure CSS for '.day-block' is applied
 
-      const dayPlan = tripDetails.dayPlans?.[i];
+    const dayPlan = tripDetails.dayPlans?.[i];
 
-      if (dayPlan && dayPlan.dayPlan && dayPlan.dayPlan.length > 0) {
-          const totalCostForAllTravelers = dayPlan.totalCost || 0;
+    if (dayPlan && dayPlan.dayPlan && dayPlan.dayPlan.length > 0) {
+      const totalCostForAllTravelers = dayPlan.totalCost || 0;
 
-          let activitiesList = '<ul>';
-          dayPlan.dayPlan.forEach(activity => {
-              activitiesList += `<li>${activity.title} - $${activity.cost.toFixed(2)}</li>`;
-          });
-          activitiesList += '</ul>';
+      // Add activities list
+      let activitiesList = '<ul>';
+      dayPlan.dayPlan.forEach(activity => {
+        activitiesList += `<li>${activity.title} - $${activity.cost.toFixed(2)}</li>`;
+      });
+      activitiesList += '</ul>';
 
-          dayBlock.innerHTML = `
-              <h3>Day ${i}</h3>
-              <p><strong>Activities:</strong></p>
-              ${activitiesList}
-              <p><strong>Total Cost (All Travelers):</strong> $${totalCostForAllTravelers.toFixed(2)}</p>
-              <div class="day-buttons">
-                  <button onclick="goToDay(${i})">📝 Edit Day Plan</button>
-              </div>
-          `;
-      } else {
-          dayBlock.innerHTML = `
-              <h3>Day ${i}</h3>
-              <p>No activities planned yet.</p>
-              <div class="day-buttons">
-                  <button onclick="goToDay(${i})">🕒 Plan This Day</button>
-              </div>
-          `;
-      }
+      dayBlock.innerHTML = `
+        <h3>Day ${i}</h3>
+        <p><strong>Activities:</strong></p>
+        ${activitiesList}
+        <p><strong>Total Cost (All Travelers):</strong> $${totalCostForAllTravelers.toFixed(2)}</p>
+        <div class="day-buttons">
+          <button onclick="goToDay(${i})">📝 Edit Day Plan</button>
+        </div>
+      `;
+    } else {
+      // Display placeholder for unplanned days
+      dayBlock.innerHTML = `
+        <h3>Day ${i}</h3>
+        <p>No activities planned yet.</p>
+        <div class="day-buttons">
+          <button onclick="goToDay(${i})">🕒 Plan This Day</button>
+        </div>
+      `;
+    }
 
-      daysGrid.appendChild(dayBlock);
+    daysGrid.appendChild(dayBlock); // Append the day block to the grid
   }
 
   console.log('✅ Day Plans Loaded Successfully');
 }
+
 
 
 
@@ -716,7 +722,7 @@ function importTripData(event, redirectToTrip = false) {
   reader.readAsText(file);
 }
 
-const importTripBtnTrip = document.getElementById("import-trip-btn");
+const importTripBtnTrip = document.getElementById("import-trip-btn-trip");
 const importTripInputTrip = document.getElementById("import-trip-input-trip");
 
 if (importTripBtnTrip && importTripInputTrip) {
@@ -902,26 +908,6 @@ document.querySelectorAll('.edit-stay-btn').forEach(button => {
 
 
 
-// 🗑️ Remove Flight by Index
-function removeFlight(index) {
-  console.log(`🗑️ Removing Flight at Index: ${index}`);
-
-  // Remove flight from the array
-  flights.splice(index, 1);
-
-  // Save the updated flights array to localStorage
-  localStorage.setItem('flights', JSON.stringify(flights));
-  console.log('💾 Flights updated in localStorage after removal.');
-
-  // Refresh the flights list in the UI
-  displayFlights();
-
-  // 🔄 Recalculate the total cost immediately
-  calculateTotalCost();
-  console.log('✅ Total Trip Cost updated after flight removal');
-}
-
-
 // 🚀 Update Total Trip Cost (Including Flights)
 function updateTotalTripCost() {
   let totalTripCost = 0;
@@ -996,6 +982,7 @@ deleteFlightBtn.addEventListener('click', () => {
     flightsModal.style.display = 'none';
     editingFlightIndex = null;
     flightsForm.reset();
+    calculateTotalCost();
   }
 });
 

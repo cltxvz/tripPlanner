@@ -21,7 +21,7 @@
         <button id="edit-trip-btn">✏️ Edit Trip</button>
         <button id="manage-activities-btn">📋 Manage Activities</button>
         <input type="file" id="import-trip-input-trip" accept="application/json" style="display: none;">
-        <button id="import-trip-btn">📥 Import Trip</button>
+        <button id="import-trip-btn-trip">📥 Import Trip</button>
         <button id="export-trip-btn">📤 Export Trip</button>
       </div>
     </section>
@@ -75,14 +75,18 @@
   
   <div class="budget-group">
     <h4>All Travelers</h4>
-    <p><strong>Total Cost:</strong> <span id="total-cost-all-travelers">0.00</span></p>
-    <p><strong>Total Budget:</strong> <span id="total-budget-all-travelers">0.00</span></p>
+    <ul>
+      <li><strong>Total Cost:</strong> <span id="total-cost-all-travelers">0.00</span></li>
+      <li><strong>Total Budget:</strong> <span id="total-budget-all-travelers">0.00</span></li>
+    </ul>
   </div>
 
   <div class="budget-group">
     <h4>Per Person</h4>
-    <p><strong>Total Cost:</strong> <span id="total-cost-per-person">0.00</span></p>
-    <p><strong>Total Budget:</strong> <span id="total-budget">0.00</span></p>
+    <ul>
+      <li><strong>Total Cost:</strong> <span id="total-cost-per-person">0.00</span></li>
+      <li><strong>Total Budget:</strong> <span id="total-budget">0.00</span></li>
+    </ul>
   </div>
 
   <button id="edit-budget-btn">✏️ Edit Budget</button>

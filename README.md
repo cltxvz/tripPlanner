@@ -95,7 +95,7 @@
 
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/your-repo/tripplanner.git
+   git clone https://github.com/cltxvz/tripplanner.git
    ```  
 2. Navigate to the project folder:  
    ```bash

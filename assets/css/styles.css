@@ -602,3 +602,109 @@ button:hover {
   cursor: grabbing; /* Change cursor when dragging */
 }
 
+
+/* ============================= */
+/* 📋 Activities Page */
+/* ============================= */
+
+#activity-page {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center items horizontally */
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 800px; /* Restrict maximum width for better readability */
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Actions Section */
+#activity-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#activity-actions button {
+  padding: 10px 20px;
+  font-size: 1em;
+  color: #fff;
+  background-color: #57a0d2;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#activity-actions button:hover {
+  background-color: #0056b3;
+}
+
+/* Activity List Section */
+#activity-list-section {
+  width: 100%; /* Make it take the full width of the container */
+  margin-top: 0px;
+}
+
+#activity-list-section h2 {
+  font-size: 1.8em;
+  color: #333;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Activity List Styling */
+#activity-list-container {
+  
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+#activity-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#activity-list li {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#activity-list li strong {
+  font-size: 1.2em;
+  color: #333;
+}
+
+#activity-list li p {
+  font-size: 1em;
+  color: #555;
+}
+
+#activity-list li button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  font-size: 0.9em;
+  color: black;
+  
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#activity-list li button:hover {
+  background-color: #ccc;
+}
+

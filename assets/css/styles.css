@@ -511,4 +511,94 @@ button:hover {
 
 
 
+/* ============================= */
+/* 🗓️ Calendar Page (Day Plan) */
+/* ============================= */
+#day-planner {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Two-column layout */
+  gap: 15px; /* Consistent gap between sections */
+  margin: 10px auto; /* Reduce vertical margin */
+  padding: 10px 15px; /* Slight padding for internal spacing */
+  align-items: start; /* Align child items to the top */
+  background-color: #fff; /* Set the background to white */
+  border-radius: 10px; /* Add subtle rounded corners */
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Add a soft shadow for elevation */
+}
+
+/* Day Schedule Section */
+#day-schedule {
+  padding: 10px;
+  border: 1px solid #ccc;
+  min-height: 300px;
+  margin: 0;
+  background-color: #fff; /* Ensure white background */
+  border-radius: 8px; /* Consistent rounding */
+  border-color: #fff;
+}
+
+/* Available Activities Section */
+#available-activities {
+  padding: 10px;
+  border: 1px solid #ccc;
+  min-height: 300px;
+  margin: 0;
+  overflow-y: auto;
+  background-color: #fff; /* Ensure white background */
+  border-radius: 8px;
+  border-color: #fff;
+}
+
+/* Total Day Cost Section */
+#day-summary {
+  padding: 15px 20px;
+  text-align: center;
+  margin: 5px auto;
+  width: fit-content;
+  border-radius: 8px;
+  background-color: #fff; /* Ensure white background */
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow for emphasis */
+}
+
+/* Drop Zone Styling */
+#activity-drop-zone {
+  border: 2px dashed rgba(128, 128, 128, 0.356);
+  background-color: #e7f3ff52; /* Slightly opaque light blue */
+  border-radius: 8px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  
+}
+
+
+/* Text Styling inside Drop Zone */
+#activity-drop-zone p {
+  font-size: 1.2em;
+  color: black; /* Text matches theme */
+  text-align: center;
+  margin: 0;
+}
+
+/* Styling for Available Activities List */
+#activity-list {
+  list-style-type: disc; /* Display bullet points */
+  padding-left: 20px; /* Add spacing from the left */
+  margin: 10px 0; /* Add spacing around the list */
+}
+
+#activity-list li {
+  font-size: 1em; /* Set font size */
+  margin-bottom: 5px; /* Add space between list items */
+  cursor: grab; /* Show grab cursor for draggable items */
+  color: #333; /* Dark text for readability */
+}
+
+#activity-list li:active {
+  cursor: grabbing; /* Change cursor when dragging */
+}
 

@@ -128,26 +128,29 @@ function loadActivities() {
         return;
     }
 
-    // Display each unscheduled activity in the pool
+    // Create a <ul> for the activities
+    const activityList = document.createElement('ul');
+    activityList.id = 'activity-list';
+
+    // Add each unscheduled activity as a <li>
     unscheduledActivities.forEach(activity => {
-        const activityItem = document.createElement('div');
-        activityItem.classList.add('activity-item');
-        activityItem.textContent = `${activity.title} - $${activity.cost.toFixed(2)}`;
-        activityItem.draggable = true;
+        const activityItem = document.createElement('li');
+        activityItem.textContent = `${activity.title} - $${activity.cost.toFixed(2)} (Per Person)`;
         activityItem.dataset.id = activity.id;
 
         // Add Drag Events
+        activityItem.draggable = true;
         activityItem.addEventListener('dragstart', handleDragStart);
         activityItem.addEventListener('dragend', handleDragEnd);
 
-        activityPool.appendChild(activityItem);
+        activityList.appendChild(activityItem);
     });
+
+    // Append the list to the activity pool
+    activityPool.appendChild(activityList);
 
     console.log('✅ Activities Loaded into Pool Successfully');
 }
-
-
-
 
 
 // 🚀 Add Activity to Day Plan

@@ -110,6 +110,6 @@
 **Carlos A. Cárdenas**  
 
 Feel free to reach out for collaboration or feedback!  
-If you like this project, ⭐ star the repository and contribute to its growth. 🚀  
 
-Thank you for using **TripPlanner**! 🌍✨
+Thank you for using **TripPlanner**! 🌍✨ If you like this project, ⭐ star the repository and contribute to its growth. 🚀  
+

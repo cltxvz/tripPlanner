@@ -1,4 +1,4 @@
-// 📌 DOM Elements
+// DOM Elements
 const activityForm = document.getElementById('activity-form');
 const activityList = document.getElementById('activity-list');
 const addActivityBtn = document.getElementById('add-activity-btn');
@@ -6,7 +6,7 @@ const modal = document.getElementById('modal');
 const closeModal = document.getElementById('close-modal');
 const saveGoBackBtn = document.getElementById('save-go-back-btn');
 
-// 🚀 Load Trip Details into Header
+// Load Trip Details into Header
 function loadTripDetailsInHeader() {
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
 
@@ -23,21 +23,21 @@ function loadTripDetailsInHeader() {
   }
 }
 
-// 📚 Activity Array
+// Activity Array
 let activities = JSON.parse(localStorage.getItem('activities')) || [];
 console.log('📦 Loaded Activities:', activities);
 
 
-// 🛡️ Ensure Modal is Hidden on Page Load
+// Ensure Modal is Hidden on Page Load
 window.addEventListener('DOMContentLoaded', () => {
 
-  // 📝 Display Trip Details in Header
+  // Display Trip Details in Header
   loadTripDetailsInHeader();
   
     modal.style.display = 'none';
   });
   
-// 🚀 Show Modal Function
+// Show Modal Function
 function showModal(title = 'Add a New Activity') {
   document.querySelector('.modal-content h2').innerText = title;
   document.querySelector('#activity-form button').innerText = title.includes('Edit') ? 'Edit Activity' : 'Add Activity';
@@ -48,7 +48,6 @@ function showModal(title = 'Add a New Activity') {
   modal.scrollTop = 0; // Reset scroll position
 }
 
-
 // Open Modal for Adding a New Activity
 addActivityBtn.addEventListener('click', () => {
   activityForm.reset();
@@ -56,8 +55,7 @@ addActivityBtn.addEventListener('click', () => {
   showModal('Add a New Activity');
 });
 
-
-// ❌ Close Modal
+// Close Modal
 function closeModalHandler() {
   modal.style.display = 'none';
   activityForm.reset();
@@ -74,8 +72,7 @@ window.addEventListener('click', (e) => {
   }
 });
 
-
-// 🚀 Save and Go Back to Trip Page
+// Save and Go Back to Trip Page
 saveGoBackBtn.addEventListener('click', () => {
   console.log('💾 Saving Activities and Redirecting to Trip Page');
 
@@ -86,7 +83,7 @@ saveGoBackBtn.addEventListener('click', () => {
   window.location.href = 'trip.html';
 });
 
-// 🛠️ Add or Edit Activity
+// Add or Edit Activity
 activityForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
@@ -130,7 +127,7 @@ activityForm.addEventListener('submit', (e) => {
 });
 
 
-// 📋 Display Activities
+// Display Activities
 function displayActivities() {
   activityList.innerHTML = ''; // Clear list before repopulating
 
@@ -166,9 +163,7 @@ function displayActivities() {
   });
 }
 
-
-
-
+// Open Activity Modal
 function openActivityModal(isEdit = false, index = null) {
   const modalTitle = document.getElementById('activity-modal-title');
   const saveActivityBtn = document.getElementById('save-activity-btn');
@@ -200,9 +195,7 @@ function openActivityModal(isEdit = false, index = null) {
   modal.style.display = 'flex';
 }
 
-
-
-// 📝 Edit Activity
+// Edit Activity
 function editActivity(id) {
   const activity = activities.find(a => a.id === id);
   if (activity) {
@@ -217,7 +210,7 @@ function editActivity(id) {
   }
 }
 
-// 🗑️ Delete Activity
+// Delete Activity
 function deleteActivity(id) {
     console.log(`🗑️ Deleting Activity with ID: ${id}`);
 
@@ -253,9 +246,7 @@ function deleteActivity(id) {
     console.log('✅ Activity list refreshed in UI.');
 }
 
-
-
-// 🗑️ Handle Delete Button in Modal
+// Handle Delete Button in Modal
 document.getElementById('delete-activity-btn').addEventListener('click', () => {
   const editingId = activityForm.dataset.editingId;
   if (editingId) {
@@ -266,14 +257,12 @@ document.getElementById('delete-activity-btn').addEventListener('click', () => {
   }
 });
 
-
-
-// 💾 Save Activities to LocalStorage
+// Save Activities to LocalStorage
 function saveActivities() {
   localStorage.setItem('activities', JSON.stringify(activities));
 }
 
-// 📦 Load Activities from LocalStorage
+// Load Activities from LocalStorage
 function loadActivities() {
   const savedActivities = localStorage.getItem('activities');
   if (savedActivities) {
@@ -281,11 +270,7 @@ function loadActivities() {
   }
 }
 
-// 🚀 Initialize
-loadActivities();
-displayActivities();
-
-// 🚀 Update Activity and Reflect Changes Everywhere
+// Update Activity and Reflect Changes Everywhere
 function saveActivityChanges(activityId, updatedActivity) {
   console.log(`🔄 Updating Activity ID: ${activityId}`);
 
@@ -321,6 +306,7 @@ function saveActivityChanges(activityId, updatedActivity) {
   }
 }
 
+// Update Activities Everywhere Using ID
 function updateActivityEverywhere(activityId, updatedActivity) {
   console.log(`🔄 Updating Activity ID: ${activityId} across Day Plans`);
 
@@ -347,4 +333,9 @@ function updateActivityEverywhere(activityId, updatedActivity) {
       console.log('✅ Activity updated across all Day Plans');
   }
 }
+
+
+// Initialize
+loadActivities();
+displayActivities();
 

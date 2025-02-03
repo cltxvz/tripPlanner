@@ -1,67 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TripPlanner</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-
 <body>
 
-  <!-- 📌 Header -->
+  <!-- Header -->
   <header>
     <h1>TripPlanner</h1>
     <p class="tagline">Your personal vacation itinerary assistant.</p>
   </header>
 
-  <!-- 🚀 Main Section -->
+  <!-- Main Section -->
   <main>
     <section id="trip-setup">
       <h2>Let's Get Started:</h2>
       <div class="form-container">
         <form id="trip-form">
-          <!-- 🌍 Destination with Autocomplete Dropdown -->
+          <!-- Destination with Autocomplete Dropdown -->
           <div class="form-group">
             <label for="destination">Destination:</label>
             <input type="text" id="destination" placeholder="Start typing a location..." autocomplete="off" required>
             <ul id="destination-suggestions"></ul>
           </div>
 
-          <!-- 📅 Number of Days -->
+          <!-- Number of Days -->
           <div class="form-group">
             <label for="days">Number of Days:</label>
             <input type="number" id="days" min="1" required>
           </div>
 
-          <!-- 👥 Number of People -->
+          <!-- Number of People -->
           <div class="form-group">
             <label for="people">Number of Travelers:</label>
             <input type="number" id="people" min="1" required>
           </div>
 
-          <!-- 🚀 Start Planning Button -->
+          <!-- Start Planning Button -->
           <button type="submit">📝 Start Planning</button>
         </form>
 
-        <!-- 📥 Import Trip Button -->
+        <!-- Import Trip Button -->
         <input type="file" id="import-trip-input" accept="application/json" style="display: none;">
         <button id="import-trip-btn">📥 Import Trip</button>
-
       </div>
     </section>
   </main>
 
-  <!-- 📝 Footer -->
+  <!-- Footer -->
   <footer>
     <p>Created by <a href="https://github.com/cltxvz" target="_blank">Carlos A. Cárdenas</a></p>
   </footer>
 
-  <!-- 📦 JavaScript Files -->
+  <!-- JavaScript Files -->
   <script src="assets/js/main.js"></script>
-  
 
 </body>
-
 </html>
+

@@ -1,4 +1,4 @@
-// 📌 DOM Elements
+// DOM Elements
 const dayPlanContainer = document.getElementById('day-plan');
 const activityPool = document.getElementById('activity-pool');
 const activityTimeModal = document.getElementById('activity-time-modal');
@@ -10,8 +10,7 @@ const finishPlanningBtn = document.getElementById('finish-planning');
 const activityStartTimeInput = document.getElementById('activity-time-start');
 const activityEndTimeInput = document.getElementById('activity-time-end');
 
-
-// 🚀 Load Trip Details into Header
+// Load Trip Details into Header
 function loadTripDetailsInHeader() {
     const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
 
@@ -28,13 +27,13 @@ function loadTripDetailsInHeader() {
     }
 }
 
-// 🚀 Navigate to Activities Page
+// Navigate to Activities Page
 manageActivitiesBtn.addEventListener('click', () => {
     console.log('📋 Redirecting to Manage Activities Page...');
     window.location.href = 'activities.html';
 });
 
-// 🗓️ Day Plan Data
+// Day Plan Data
 let dayPlan = [];
 let draggedActivity = null;
 const activities = JSON.parse(localStorage.getItem('activities')) || [];
@@ -42,23 +41,23 @@ const activities = JSON.parse(localStorage.getItem('activities')) || [];
 window.addEventListener('DOMContentLoaded', () => {
     console.log('🔄 Page Loaded: Initializing day planner...');
 
-    // 🚨 Check if a selected day exists in localStorage
+    // Check if a selected day exists in localStorage
     if (!localStorage.getItem('selectedDay')) {
         console.warn('⚠️ No selectedDay found in localStorage. Redirecting to trip overview...');
         window.location.href = 'trip.html';
         return;
     }
 
-    // 📝 Display Trip Details in Header
+    // Display Trip Details in Header
     loadTripDetailsInHeader();
 
-    // 🛑 Hide activity modal initially
+    // Hide activity modal initially
     if (activityTimeModal) activityTimeModal.style.display = 'none';
 
-    // 🗓️ Generate Day Block
+    // Generate Day Block
     generateDayBlock();
 
-    // 📥 Load Existing Day Plan or Start Fresh
+    // Load Existing Day Plan or Start Fresh
     const currentDayPlan = JSON.parse(localStorage.getItem('currentDayPlan'));
 
     if (currentDayPlan && currentDayPlan.dayPlan) {
@@ -75,14 +74,11 @@ window.addEventListener('DOMContentLoaded', () => {
         organizeDayPlan();
     }
 
-    // 📦 Load Activities
+    // Load Activities
     loadActivities();
 });
 
-
-
-
-// 🚀 Generate Fixed Day Block (12:00 AM - 12:00 AM)
+// Generate Fixed Day Block
 function generateDayBlock() {
     console.log(`✅ Generating Day Block: 12:00 AM - 12:00 AM`);
 
@@ -100,7 +96,7 @@ function generateDayBlock() {
     dropZone.addEventListener('drop', handleDrop);
 }
 
-// 📦 Load Activities into Pool (Exclude Scheduled Activities)
+// Load Activities into Pool (Exclude Scheduled Activities)
 function loadActivities() {
     console.log('📦 Loading Activities into Pool');
     activityPool.innerHTML = ''; // Clear the pool before repopulating
@@ -152,8 +148,7 @@ function loadActivities() {
     console.log('✅ Activities Loaded into Pool Successfully');
 }
 
-
-// 🚀 Add Activity to Day Plan
+// Add Activity to Day Plan
 function addActivityToDayPlan(activity, startTime, endTime) {
     console.log(`📌 Adding Activity: ${activity.title} (${startTime} - ${endTime})`);
 
@@ -170,8 +165,7 @@ function addActivityToDayPlan(activity, startTime, endTime) {
     hideActivityFromPool(activity.id);
 }
 
-
-// ✅ Check Time Slot Availability
+// Check Time Slot Availability
 function canBookActivity(startTime, endTime) {
     console.log(`🔍 Checking if time slot (${startTime} - ${endTime}) is available`);
 
@@ -180,7 +174,7 @@ function canBookActivity(startTime, endTime) {
     });
 }
 
-// 💾 Save Day Plan to localStorage
+// Save Day Plan to localStorage
 function saveDayPlan() {
     let tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || { dayPlans: {} };
     const selectedDay = localStorage.getItem('selectedDay');
@@ -212,9 +206,7 @@ function saveDayPlan() {
     console.log(`✅ Day Plan Saved for Day ${selectedDay}:`, tripDetails.dayPlans[selectedDay]);
 }
 
-
-
-// 📥 Load Day Plan from localStorage
+// Load Day Plan from localStorage
 function loadDayPlan() {
     const storedDayPlan = localStorage.getItem('dayPlan');
     console.log('📥 Raw Day Plan from LocalStorage:', storedDayPlan);
@@ -225,8 +217,7 @@ function loadDayPlan() {
     organizeDayPlan();
 }
 
-
-// 🚀 Handle Drop
+// Handle Drop
 function handleDrop(e) {
     e.preventDefault();
 
@@ -249,8 +240,7 @@ function handleDrop(e) {
     console.log('✅ Activity Time Modal displayed successfully.');
 }
 
-
-// 🚀 Confirm Activity Time
+// Confirm Activity Time
 confirmTimeBtn.addEventListener('click', () => {
     const startTime = activityStartTimeInput.value.trim();
     const endTime = activityEndTimeInput.value.trim();
@@ -284,7 +274,7 @@ confirmTimeBtn.addEventListener('click', () => {
     console.log('✅ Activity added with Start and End Times.');
 });
 
-// ✅ Handle Cancel Button in Add Activity Modal
+// Handle Cancel Button in Add Activity Modal
 closeModalBtn.addEventListener('click', () => {
     console.log('❌ Cancelling Activity Time Modal');
 
@@ -295,7 +285,6 @@ closeModalBtn.addEventListener('click', () => {
 
     console.log('🔄 Modal reset and hidden successfully.');
 });
-
 
 
 finishPlanningBtn.addEventListener('click', () => {
@@ -344,10 +333,7 @@ finishPlanningBtn.addEventListener('click', () => {
     window.location.href = 'trip.html';
 });
 
-
-
-
-// 📋 Create Individual Activity Item
+// Create Individual Activity Item
 function createActivityItem(activity) {
     console.log(`🎯 Creating Activity Item: ${activity.title}`);
 
@@ -364,9 +350,7 @@ function createActivityItem(activity) {
     activityPool.appendChild(activityItem);
 }
 
-
-
-// 🕒 Format Time to 12-Hour Format (AM/PM)
+// Format Time to 12-Hour Format (AM/PM)
 function formatTimeTo12Hour(time) {
     const [hours, minutes] = time.split(':').map(Number);
     const suffix = hours >= 12 ? 'PM' : 'AM';
@@ -374,8 +358,7 @@ function formatTimeTo12Hour(time) {
     return `${formattedHours}:${String(minutes).padStart(2, '0')} ${suffix}`;
 }
 
-
-// 🌟 Organize Day Plan with Costs Displayed
+// Organize Day Plan with Costs Displayed
 function organizeDayPlan() {
     console.log('🔄 Organizing Day Plan...');
     const dropZone = document.getElementById('activity-drop-zone');
@@ -415,9 +398,7 @@ function organizeDayPlan() {
     updateTotalCost();
 }
 
-
-
-// 💰 Calculate and Display Total Cost
+// Calculate and Display Total Cost
 function updateTotalCost() {
     console.log('💰 Updating Total Cost...');
 
@@ -449,9 +430,7 @@ function updateTotalCost() {
     }
 }
 
-
-
-// 🚀 Handle Drag Start
+// Handle Drag Start
 function handleDragStart(e) {
     const activityId = e.target.dataset.id;
     draggedActivity = activities.find(activity => String(activity.id) === activityId);
@@ -460,15 +439,13 @@ function handleDragStart(e) {
     e.target.classList.add('dragging');
 }
 
-
-// 🚀 Handle Drag End
+// Handle Drag End
 function handleDragEnd(e) {
     e.target.classList.remove('dragging');
     console.log('🛑 Dragging Ended');
 }
 
-
-// 🧮 Calculate End Time
+// Calculate End Time
 function calculateEndTime(startTime, duration) {
     console.log(`🧮 Calculating End Time from Start Time: ${startTime} and Duration: ${duration}`);
 
@@ -487,7 +464,7 @@ function calculateEndTime(startTime, duration) {
     return endTime;
 }
 
-// 🗑️ Hide Activity from Pool (Do NOT Remove from Data)
+// Hide Activity from Pool (Do NOT Remove from Data)
 function hideActivityFromPool(activityId) {
     console.log(`👀 Hiding Activity from Pool: ${activityId}`);
     const activityItem = activityPool.querySelector(`[data-id="${activityId}"]`);
@@ -499,7 +476,7 @@ function hideActivityFromPool(activityId) {
     }
 }
 
-// 🗑️ Delete Activity from Day Plan
+// Delete Activity from Day Plan
 function deleteActivityFromDayPlan(activityId) {
     console.log(`🗑️ Deleting Activity ID: ${activityId} from Day Plan`);
 
@@ -537,7 +514,7 @@ function refreshDayPlanActivities() {
     }
 }
 
-// Call this on page load
+// Initialize
 refreshDayPlanActivities();
 organizeDayPlan();
 

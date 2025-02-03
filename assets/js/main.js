@@ -1,12 +1,12 @@
-// 📌 DOM Elements
+// DOM Elements
 const destinationInput = document.getElementById('destination');
 const destinationSuggestions = document.getElementById('destination-suggestions');
 
-// 🌍 OpenCage API Key (Replace YOUR_API_KEY)
+// OpenCage API Key (Replace YOUR_API_KEY)
 const API_KEY = 'f71bc728a85d40a692e5d5d7b62bd559';
 const API_URL = 'https://api.opencagedata.com/geocode/v1/json';
 
-// 🚀 Fetch Location Suggestions
+// Fetch Location Suggestions
 async function fetchLocationSuggestions(query) {
     if (!query || query.length < 3) {
         console.warn('⚠️ Query is too short for API request:', query);
@@ -34,7 +34,7 @@ async function fetchLocationSuggestions(query) {
     }
 }
 
-// 🚀 Debounce Function
+// Debounce Function
 function debounce(func, delay) {
     let timeoutId;
     return (...args) => {
@@ -43,13 +43,13 @@ function debounce(func, delay) {
     };
 }
 
-// 🚀 Event Listener with Debounce
+// Event Listener with Debounce
 destinationInput.addEventListener('input', debounce((e) => {
     const query = e.target.value.trim();
     fetchLocationSuggestions(query);
 }, 300)); // 300ms delay
 
-// 📋 Display Suggestions
+// Display Suggestions
 function displaySuggestions(suggestions) {
     destinationSuggestions.innerHTML = '';
 
@@ -67,20 +67,20 @@ function displaySuggestions(suggestions) {
     });
 }
 
-// ✅ Select Suggestion
+// Select Suggestion
 function selectSuggestion(placeName) {
     destinationInput.value = placeName;
     destinationSuggestions.innerHTML = '';
 }
 
-// ❌ Close Dropdown on Outside Click
+// Close Dropdown on Outside Click
 document.addEventListener('click', (e) => {
     if (!destinationInput.contains(e.target) && !destinationSuggestions.contains(e.target)) {
         destinationSuggestions.innerHTML = '';
     }
 });
 
-// 🚀 Trip Form Submission
+// Trip Form Submission
 document.getElementById('trip-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const destination = document.getElementById('destination').value;
@@ -95,7 +95,7 @@ document.getElementById('trip-form').addEventListener('submit', (e) => {
     }
 });
 
-// 📥 Import Trip Data from JSON File
+// Import Trip Data from JSON File
 function importTripData(event, redirectToTrip = false) {
     const file = event.target.files[0];
   
@@ -109,14 +109,14 @@ function importTripData(event, redirectToTrip = false) {
         try {
             const tripData = JSON.parse(event.target.result);
   
-            // ✅ Validate JSON structure
+            // Validate JSON structure
             if (!tripData.tripDetails || !tripData.dayPlans || !tripData.activities) {
                 throw new Error("Invalid trip data format.");
             }
   
             console.log("📥 Valid Trip Data Loaded:", tripData);
   
-            // 📝 Store everything in localStorage
+            // Store everything in localStorage
             localStorage.setItem("tripDetails", JSON.stringify(tripData.tripDetails));
             localStorage.setItem("flights", JSON.stringify(tripData.flights || []));
             localStorage.setItem("stays", JSON.stringify(tripData.stays || []));
@@ -127,7 +127,7 @@ function importTripData(event, redirectToTrip = false) {
   
             console.log("✅ Trip data imported and saved in localStorage.");
   
-            // 🔄 Redirect to trip page after import (for index.html)
+            // Redirect to trip page after import (for index.html)
             if (redirectToTrip) {
                 window.location.href = "trip.html";
             } else {
@@ -144,7 +144,7 @@ function importTripData(event, redirectToTrip = false) {
     reader.readAsText(file);
   }
 
-// 📥 Import Trip Functionality
+// Import Trip Functionality
 const importTripBtnIndex = document.getElementById("import-trip-btn");
 const importTripInputIndex = document.getElementById("import-trip-input");
 

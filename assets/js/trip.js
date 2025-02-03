@@ -1,4 +1,4 @@
-// 📌 DOM Elements
+// DOM Elements
 const daysGrid = document.getElementById('days-grid');
 const goBackBtn = document.getElementById('go-back-btn');
 const manageActivitiesBtn = document.getElementById('manage-activities-btn');
@@ -18,9 +18,8 @@ const budgetModal = document.getElementById('budget-modal');
 const budgetForm = document.getElementById('budget-form');
 const totalBudgetDisplay = document.getElementById('total-budget');
 const closeBudgetModal = document.getElementById('close-budget-modal');
-/*const totalBudgetAllTravelersDisplay = document.getElementById('total-budget-all-travelers');*/
 
-// ✈️ Flight DOM Elements
+// Flight DOM Elements
 const flightsList = document.getElementById('flights-list'); // List container for flights
 const flightsTotalCost = document.getElementById('flights-total-cost'); // Total cost display
 const flightsModal = document.getElementById('flight-modal'); // Flight modal
@@ -36,7 +35,7 @@ const flightType = document.getElementById('flight-type');
 const closeFlightModal = document.getElementById('close-flight-modal');
 
 
-// 🏨 Stay DOM Elements
+// Stay DOM Elements
 const stayList = document.getElementById('stay-list');
 const stayTotalCost = document.getElementById('stay-total-cost');
 const stayModal = document.getElementById('stay-modal');
@@ -51,7 +50,7 @@ const saveStayBtn = document.getElementById('save-stay-btn');
 const deleteStayBtn = document.getElementById('delete-stay-btn');
 const stayModalTitle = document.getElementById('stay-modal-title');
 
-// 📌 Additional Expenses DOM Elements
+// Additional Expenses DOM Elements
 const additionalExpensesList = document.getElementById('additional-expenses-list');
 const additionalExpensesTotal = document.getElementById('additional-expenses-total');
 const addExpenseBtn = document.getElementById('add-expense-btn');
@@ -63,7 +62,7 @@ const saveExpenseBtn = document.getElementById('save-expense-btn');
 const deleteExpenseBtn = document.getElementById('delete-expense-btn');
 const closeExpenseModal = document.getElementById('close-expense-modal');
 
-// ✅ To-Do List DOM Elements
+// To-Do List DOM Elements
 const todoListContainer = document.getElementById('todo-list');
 const addTodoBtn = document.getElementById('add-todo-btn');
 const todoModal = document.getElementById('todo-modal');
@@ -74,7 +73,7 @@ const deleteTodoBtn = document.getElementById('delete-todo-btn');
 const closeTodoModal = document.getElementById('close-todo-modal');
 
 
-// 🚀 Initialize Sections
+// Initialize Sections
 document.addEventListener('DOMContentLoaded', () => {
   console.log('✅ DOM Loaded: Initializing trip details...');
   refreshDayPlanActivities();
@@ -88,15 +87,15 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateTotalCost();
 });
 
-// 📌 DOM Elements for Edit Modal
+// DOM Elements for Edit Modal
 const editDestinationInput = document.getElementById('edit-destination');
 const editDestinationSuggestions = document.getElementById('edit-destination-suggestions');
 
-// 🌍 OpenCage API Key
+// OpenCage API Key
 const API_KEY = 'f71bc728a85d40a692e5d5d7b62bd559';
 const API_URL = 'https://api.opencagedata.com/geocode/v1/json';
 
-// 🚀 Fetch Location Suggestions for Edit Modal
+// Fetch Location Suggestions for Edit Modal
 async function fetchEditLocationSuggestions(query) {
     if (!query || query.length < 3) {
         console.warn('⚠️ Query is too short for API request:', query);
@@ -124,7 +123,7 @@ async function fetchEditLocationSuggestions(query) {
     }
 }
 
-// 🚀 Debounce Function
+// Debounce Function
 function debounce(func, delay) {
     let timeoutId;
     return (...args) => {
@@ -133,7 +132,7 @@ function debounce(func, delay) {
     };
 }
 
-// 🚀 Event Listener with Debounce
+// Event Listener with Debounce
 if (editDestinationInput) {
     editDestinationInput.addEventListener('input', debounce((e) => {
         const query = e.target.value.trim();
@@ -141,7 +140,7 @@ if (editDestinationInput) {
     }, 300)); // 300ms delay
 }
 
-// 📋 Display Suggestions in Edit Modal
+// Display Suggestions in Edit Modal
 function displayEditSuggestions(suggestions) {
     editDestinationSuggestions.innerHTML = '';
 
@@ -159,13 +158,13 @@ function displayEditSuggestions(suggestions) {
     });
 }
 
-// ✅ Select Suggestion in Edit Modal
+// Select Suggestion in Edit Modal
 function selectEditSuggestion(placeName) {
     editDestinationInput.value = placeName;
     editDestinationSuggestions.innerHTML = '';
 }
 
-// ❌ Close Dropdown on Outside Click in Edit Modal
+// Close Dropdown on Outside Click in Edit Modal
 document.addEventListener('click', (e) => {
     if (!editDestinationInput.contains(e.target) && !editDestinationSuggestions.contains(e.target)) {
         editDestinationSuggestions.innerHTML = '';
@@ -173,12 +172,11 @@ document.addEventListener('click', (e) => {
 });
 
 
-
-// 🏨 Stay Data
+// Stay Data
 let stays = JSON.parse(localStorage.getItem('stays')) || [];
 let editingStayIndex = null;
 
-// 🚀 Open Stay Modal for Adding/Editing
+// Open Stay Modal for Adding/Editing
 addStayBtn.addEventListener('click', () => {
   openStayModal(false);
 });
@@ -189,7 +187,7 @@ closeStayModal.addEventListener('click', () => {
   editingStayIndex = null;
 });
 
-// 🚀 Open Modal for Adding/Editing Stay
+// Open Modal for Adding/Editing Stay
 function openStayModal(isEdit = false, index = null) {
   console.log(`📝 Opening Stay Modal | isEdit: ${isEdit}, index: ${index}`);
   if (isEdit) {
@@ -218,7 +216,7 @@ function openStayModal(isEdit = false, index = null) {
   stayModal.style.display = 'flex';
 }
 
-// 🚀 Close Stay Modal
+// Close Stay Modal
 function closeStayModalHandler() {
   console.log('❌ Closing Stay Modal');
   stayModal.style.display = 'none';
@@ -226,7 +224,7 @@ function closeStayModalHandler() {
   editingStayIndex = null;
 }
 
-// ✅ Handle Add/Edit Stay
+// Handle Add/Edit Stay
 stayForm.addEventListener('submit', (e) => {
   e.preventDefault();
   console.log('🏨 Stay Form Submitted');
@@ -276,7 +274,7 @@ stayForm.addEventListener('submit', (e) => {
   closeStayModalHandler();
 });
 
-// 🗑️ Handle Stay Deletion
+// Handle Stay Deletion
 deleteStayBtn.addEventListener('click', () => {
   if (editingStayIndex !== null) {
     console.log(`🗑️ Deleting Stay at Index: ${editingStayIndex}`);
@@ -290,7 +288,7 @@ deleteStayBtn.addEventListener('click', () => {
   }
 });
 
-// 🚀 Display Stays
+// Display Stays
 function displayStays() {
   stayList.innerHTML = '';
   let totalCost = 0;
@@ -324,24 +322,13 @@ function displayStays() {
   });
 }
 
-
-// 🚀 Initialize Add Stay Button
+// Initialize Add Stay Button
 addStayBtn.addEventListener('click', () => openStayModal(false));
-
-
-
-
-
-
-
-
-
 
 // Track currently edited flight index
 let editingFlightIndex = null;
 
-
-// 🚀 Open Edit Trip Modal
+// Open Edit Trip Modal
 editTripBtn.addEventListener('click', () => {
     console.log('✏️ Editing Trip Details');
     const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
@@ -351,13 +338,13 @@ editTripBtn.addEventListener('click', () => {
     editTripModal.style.display = 'flex';
 });
 
-// ❌ Close Edit Trip Modal
+// Close Edit Trip Modal
 closeEditModal.addEventListener('click', () => {
     editTripModal.style.display = 'none';
     console.log('❌ Edit Trip Modal Closed');
 });
 
-// ❌ Close Edit Trip Modal on Outside Click
+// Close Edit Trip Modal on Outside Click
 window.addEventListener('click', (e) => {
   if (e.target === editTripModal) {
       editTripModal.style.display = 'none';
@@ -365,7 +352,7 @@ window.addEventListener('click', (e) => {
   }
 });
 
-// ✅ Save Edited Trip Details
+// Save Edited Trip Details
 editTripForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
@@ -412,9 +399,7 @@ editTripForm.addEventListener('submit', (e) => {
   console.log('✅ Trip Details and Day Plans Updated Successfully');
 });
 
-
-
-// 🛠️ Load Trip Details
+// Load Trip Details
 function loadTripDetails() {
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
 
@@ -425,10 +410,7 @@ function loadTripDetails() {
   tripInfo.textContent = `Destination: ${destination} | Days: ${days} | Travelers: ${people}`;
 }
 
-
-
-
-// 🗓️ Load Trip Days into Grid
+// Load Trip Days into Grid
 function loadTripDays() {
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
   const daysGrid = document.getElementById('days-grid'); // Ensure correct container reference
@@ -482,10 +464,7 @@ function loadTripDays() {
   console.log('✅ Day Plans Loaded Successfully');
 }
 
-
-
-
-// 🛡️ Load Initial Budget
+// Load Initial Budget
 function loadBudget() {
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
   const budget = tripDetails.budget || 0;
@@ -493,7 +472,7 @@ function loadBudget() {
   console.log('💰 Budget Loaded:', budget);
 }
 
-// 📦 Open Budget Modal and Load Current Budget
+// Open Budget Modal and Load Current Budget
 editBudgetBtn.addEventListener('click', () => {
   console.log('📝 Opening Budget Modal...');
 
@@ -509,13 +488,13 @@ editBudgetBtn.addEventListener('click', () => {
 });
 
 
-// ❌ Close Budget Modal on X Button Click
+// Close Budget Modal on X Button Click
 closeBudgetModal.addEventListener('click', () => {
   console.log('❌ Closing Budget Modal via Close Button');
   budgetModal.style.display = 'none';
 });
 
-// ❌ Close Budget Modal on Outside Click
+// Close Budget Modal on Outside Click
 window.addEventListener('click', (e) => {
   if (e.target === budgetModal) {
       console.log('❌ Closing Budget Modal via Outside Click');
@@ -523,33 +502,31 @@ window.addEventListener('click', (e) => {
   }
 });
 
-
-
-// 📥 Save Budget
+// Save Budget
 budgetForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const newBudget = parseFloat(document.getElementById('budget-input').value);
 
-  // 🛡️ Validate Budget Input
+  // Validate Budget Input
   if (isNaN(newBudget) || newBudget < 0) {
     alert('❌ Please enter a valid budget amount.');
     return;
   }
 
-  // 📦 Update LocalStorage
+  // Update LocalStorage
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
   tripDetails.budget = newBudget;
 
   const numberOfTravelers = parseInt(tripDetails.people) || 1;
 
-  // 🧮 Dynamically Calculate Budget for All Travelers
+  // Dynamically Calculate Budget for All Travelers
   tripDetails.totalBudgetPerPerson = parseFloat(newBudget).toFixed(2);
   tripDetails.totalBudgetAllTravelers = (newBudget * numberOfTravelers).toFixed(2);
 
   // Save Updated Trip Details
   localStorage.setItem('tripDetails', JSON.stringify(tripDetails));
 
-  // 🖥️ Update UI
+  // Update UI
   totalBudgetDisplay.textContent = newBudget.toFixed(2);
   document.getElementById('total-budget').textContent = `$${tripDetails.totalBudgetPerPerson}`;
   document.getElementById('total-budget-all-travelers').textContent = `$${tripDetails.totalBudgetAllTravelers}`;
@@ -560,17 +537,14 @@ budgetForm.addEventListener('submit', (e) => {
     totalBudgetAllTravelers: tripDetails.totalBudgetAllTravelers,
   });
 
-  // 🧠 Recalculate Total Costs
+  // Recalculate Total Costs
   calculateTotalCost();
 
   // Close Modal
   budgetModal.style.display = 'none';
 });
 
-
-
-
-// 💰 Calculate Total Trip Cost
+// Calculate Total Trip Cost
 function calculateTotalCost() {
   console.log('🔄 Starting Total Trip Cost Calculation...');
 
@@ -625,24 +599,17 @@ function calculateTotalCost() {
   });
 }
 
-
-// 🏠 Navigate Back to Home Page
+// Navigate Back to Home Page
 goBackBtn.addEventListener('click', () => {
   window.location.href = 'index.html';
 });
 
-// 📋 Navigate to Activities Page
+// Navigate to Activities Page
 manageActivitiesBtn.addEventListener('click', () => {
   window.location.href = 'activities.html';
 });
 
-
-
-
-
-
-
-// 📤 Export Trip Data as JSON
+// Export Trip Data as JSON
 function exportTripData() {
   console.log("📤 Exporting trip data...");
 
@@ -667,13 +634,12 @@ function exportTripData() {
   console.log("✅ Trip data exported successfully.");
 }
 
-// 📤 Attach Export Button Event Listener
+// Attach Export Button Event Listener
 if (exportTripBtn) {
   exportTripBtn.addEventListener("click", exportTripData);
 }
 
-
-// 📥 Import Trip Data from JSON File
+// Import Trip Data from JSON File
 function importTripData(event, redirectToTrip = false) {
   const file = event.target.files[0];
 
@@ -687,14 +653,14 @@ function importTripData(event, redirectToTrip = false) {
       try {
           const tripData = JSON.parse(event.target.result);
 
-          // ✅ Validate JSON structure
+          // Validate JSON structure
           if (!tripData.tripDetails || !tripData.dayPlans || !tripData.activities) {
               throw new Error("Invalid trip data format.");
           }
 
           console.log("📥 Valid Trip Data Loaded:", tripData);
 
-          // 📝 Store everything in localStorage
+          // Store everything in localStorage
           localStorage.setItem("tripDetails", JSON.stringify(tripData.tripDetails));
           localStorage.setItem("flights", JSON.stringify(tripData.flights || []));
           localStorage.setItem("stays", JSON.stringify(tripData.stays || []));
@@ -705,7 +671,7 @@ function importTripData(event, redirectToTrip = false) {
 
           console.log("✅ Trip data imported and saved in localStorage.");
 
-          // 🔄 Redirect to trip page after import (for index.html)
+          // Redirect to trip page after import (for index.html)
           if (redirectToTrip) {
               window.location.href = "trip.html";
           } else {
@@ -730,11 +696,7 @@ if (importTripBtnTrip && importTripInputTrip) {
     importTripInputTrip.addEventListener("change", (event) => importTripData(event, false));
 }
 
-
-
-
-
-// 📅 Navigate to Calendar Page for a Specific Day
+// Navigate to Calendar Page for a Specific Day
 function goToDay(dayNumber) {
   const tripDetails = JSON.parse(localStorage.getItem('tripDetails')) || {};
   const dayDetails = tripDetails.dayPlans?.[dayNumber] || null;
@@ -752,33 +714,29 @@ function goToDay(dayNumber) {
   window.location.href = 'calendar.html';
 }
 
-
-
-
-// ✈️ Flight Data
+// Flight Data
 let flights = JSON.parse(localStorage.getItem('flights')) || [];
 console.log('✈️ Loaded Flights from localStorage:', flights);
 
-// 🚀 Show Flights Modal for Adding Flight
+// Show Flights Modal for Adding Flight
 addFlightsBtn.addEventListener('click', () => {
   console.log('📝 Add Flights button clicked.');
   openFlightModal(false); // Open modal in "Add" mode
 });
 
-
-// ❌ Close Flights Modal
+// Close Flights Modal
 closeFlightModal.addEventListener('click', () => {
   console.log('❌ Flights Modal closed.');
   flightsModal.style.display = 'none';
   flightsForm.reset();
 });
 
-// ✅ Handle Add/Edit Flight (Single Event Listener)
+// Handle Add/Edit Flight (Single Event Listener)
 flightsForm.addEventListener('submit', (e) => {
   e.preventDefault();
   console.log('✈️ Flight Form Submitted');
 
-  // 📝 Fetch Input Values
+  // Fetch Input Values
   const departure = flightDeparture.value.trim();
   const arrival = flightArrival.value.trim();
   const cost = parseFloat(flightCost.value);
@@ -787,7 +745,7 @@ flightsForm.addEventListener('submit', (e) => {
   console.log('📝 Flight Details:', { departure, arrival, cost, tripType });
   console.log('🛠️ Editing Flight Index:', editingFlightIndex);
 
-  // 🛡️ Validation Logic
+  // Validation Logic
   if (!departure) {
       console.warn('❌ Invalid departure location:', departure);
       alert('❌ Please enter a valid departure location.');
@@ -806,7 +764,7 @@ flightsForm.addEventListener('submit', (e) => {
       return;
   }
 
-  // 🚀 Add or Edit Flight Based on `editingFlightIndex`
+  // Add or Edit Flight Based on `editingFlightIndex`
   if (editingFlightIndex !== null && flights[editingFlightIndex]) {
       console.log(`🛠️ Editing Existing Flight at Index: ${editingFlightIndex}`);
       flights[editingFlightIndex] = {
@@ -830,16 +788,16 @@ flightsForm.addEventListener('submit', (e) => {
       console.log('✅ New Flight Added:', newFlight);
   }
 
-  // 💾 Save Flights to LocalStorage
+  // Save Flights to LocalStorage
   localStorage.setItem('flights', JSON.stringify(flights));
   console.log('💾 Flights saved to localStorage:', flights);
 
-  // 📝 Refresh Display
+  // Refresh Display
   displayFlights();
 
   calculateTotalCost();
 
-  // ✅ Properly Reset and Close Modal
+  // Properly Reset and Close Modal
   flightsForm.reset();
   flightsModal.style.display = 'none';
   editingFlightIndex = null;
@@ -847,8 +805,7 @@ flightsForm.addEventListener('submit', (e) => {
   console.log('✅ Flight Form Handling Complete');
 });
 
-
-// 📝 Display Flights with Edit/Delete Button
+// Display Flights with Edit/Delete Button
 function displayFlights() {
   flightsList.innerHTML = '';
   let totalCost = 0;
@@ -882,12 +839,8 @@ function displayFlights() {
   });
 }
 
-
-// 🚀 Initialize Add Flight Button
+// Initialize Add Flight Button
 addFlightsBtn.addEventListener('click', () => openFlightModal(false));
-
-
-
 
 document.querySelectorAll('.edit-flight-btn').forEach(button => {
   button.addEventListener('click', (e) => {
@@ -903,12 +856,7 @@ document.querySelectorAll('.edit-stay-btn').forEach(button => {
   });
 });
 
-
-
-
-
-
-// 🚀 Update Total Trip Cost (Including Flights)
+// Update Total Trip Cost (Including Flights)
 function updateTotalTripCost() {
   let totalTripCost = 0;
 
@@ -930,10 +878,7 @@ function updateTotalTripCost() {
   console.log('💵 Total Trip Cost Updated:', totalTripCost);
 }
 
-
-
-
-// 🚀 Open Modal for Adding/Editing Flight
+// Open Modal for Adding/Editing Flight
 function openFlightModal(isEdit = false, index = null) {
   console.log(`📝 Opening Flight Modal | isEdit: ${isEdit}, index: ${index}`);
   if (isEdit) {
@@ -963,7 +908,7 @@ function openFlightModal(isEdit = false, index = null) {
   flightsModal.style.display = 'flex';
 }
 
-// 🚀 Close Modal
+// Close Modal
 closeFlightModal.addEventListener('click', () => {
   console.log('❌ Closing Flight Modal');
   flightsModal.style.display = 'none';
@@ -971,7 +916,7 @@ closeFlightModal.addEventListener('click', () => {
   editingFlightIndex = null;
 });
 
-// 🗑️ Handle Flight Deletion
+// Handle Flight Deletion
 deleteFlightBtn.addEventListener('click', () => {
   if (editingFlightIndex !== null) {
     flights.splice(editingFlightIndex, 1);
@@ -986,18 +931,10 @@ deleteFlightBtn.addEventListener('click', () => {
   }
 });
 
-
-
-
-
-
-
-
-
 let additionalExpenses = JSON.parse(localStorage.getItem('additionalExpenses')) || [];
 let editingExpenseIndex = null;
 
-// 🚀 Display Expenses
+// Display Expenses
 function displayExpenses() {
   additionalExpensesList.innerHTML = '';
   let total = 0;
@@ -1032,15 +969,13 @@ function displayExpenses() {
   calculateTotalCost();
 }
 
-
-
 expenseForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
   const title = expenseTitle.value.trim();
   const cost = parseFloat(expenseCost.value);
 
-  // 🛡️ Validation
+  // Validation
   if (!title || isNaN(cost) || cost < 0) {
     alert('❌ Please enter valid expense details.');
     return;
@@ -1066,14 +1001,10 @@ expenseForm.addEventListener('submit', (e) => {
   expenseForm.reset();
 });
 
-
-
-
-// 🚀 Initialize Add Expense Button
+// Initialize Add Expense Button
 document.getElementById('add-expense-btn').addEventListener('click', () => openExpenseModal(false));
 
-
-// 🚀 Open Expense Modal
+// Open Expense Modal
 function openExpenseModal(isEdit = false, index = null) {
     const modalTitle = document.getElementById('expense-modal-title');
     const saveBtn = document.getElementById('save-expense-btn');
@@ -1097,7 +1028,7 @@ function openExpenseModal(isEdit = false, index = null) {
     document.getElementById('expense-modal').style.display = 'flex';
 }
 
-// 🚀 Save or Edit Expense
+// Save or Edit Expense
 document.getElementById('expense-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const title = document.getElementById('expense-title').value.trim();
@@ -1114,7 +1045,7 @@ document.getElementById('expense-form').addEventListener('submit', (e) => {
     document.getElementById('expense-modal').style.display = 'none';
 });
 
-// 🚀 Delete Expense
+// Delete Expense
 document.getElementById('delete-expense-btn').addEventListener('click', () => {
     if (editingExpenseIndex !== null) {
         additionalExpenses.splice(editingExpenseIndex, 1);
@@ -1124,23 +1055,17 @@ document.getElementById('delete-expense-btn').addEventListener('click', () => {
     }
 });
 
-// 🚀 Reset Modal State for Expenses
+// Reset Modal State for Expenses
 document.getElementById('close-expense-modal').addEventListener('click', () => {
   document.getElementById('expense-modal').style.display = 'none';
   document.getElementById('expense-form').reset();
   editingExpenseIndex = null;
 });
 
-
-
-
-
-
-
 let todoList = JSON.parse(localStorage.getItem('todoList')) || [];
 let editingTodoIndex = null;
 
-// 🚀 Display To-Do List
+// Display To-Do List
 function displayTodoList() {
   const todoListContainer = document.getElementById("todo-list");
   if (!todoListContainer) {
@@ -1148,21 +1073,21 @@ function displayTodoList() {
       return;
   }
 
-  // ✅ Load the To-Do list from localStorage
+  // Load the To-Do list from localStorage
   let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
 
   console.log("📥 Loaded To-Do List from localStorage:", todoList);
 
-  // ✅ Clear previous list
+  // Clear previous list
   todoListContainer.innerHTML = '';
 
-  // ✅ Handle empty To-Do list scenario
+  // Handle empty To-Do list scenario
   if (todoList.length === 0) {
       todoListContainer.innerHTML = `<p>No to-dos yet.</p>`;
       return;
   }
 
-  // ✅ Populate the list with To-Do items
+  // Populate the list with To-Do items
   todoList.forEach((item, index) => {
       const li = document.createElement('li');
       li.innerHTML = `
@@ -1173,21 +1098,21 @@ function displayTodoList() {
       todoListContainer.appendChild(li);
   });
 
-  // ✅ Add Event Listener for Checkboxes (Save Completion Status)
+  // Add Event Listener for Checkboxes (Save Completion Status)
   document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
       checkbox.addEventListener('change', (e) => {
           let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
           const index = e.target.dataset.index;
           todoList[index].completed = e.target.checked;
 
-          // ✅ Save updated To-Do list to localStorage
+          // Save updated To-Do list to localStorage
           localStorage.setItem("todoList", JSON.stringify(todoList));
 
           console.log(`✅ To-Do ${index} checked state updated:`, todoList[index].completed);
       });
   });
 
-  // ✅ Add Event Listener for Edit/Delete Buttons
+  // Add Event Listener for Edit/Delete Buttons
   document.querySelectorAll('.edit-todo-btn').forEach(button => {
       button.addEventListener('click', (e) => {
           editingTodoIndex = e.target.dataset.index;
@@ -1196,20 +1121,16 @@ function displayTodoList() {
   });
 }
 
-
-
-
-// 🚀 Initialize Add To-Do Button
+// Initialize Add To-Do Button
 document.getElementById('add-todo-btn').addEventListener('click', () => openTodoModal(false));
 
-
-// 🚀 Open To-Do Modal
+// Open To-Do Modal
 function openTodoModal(isEdit = false, index = null) {
   const modalTitle = document.getElementById('todo-modal-title');
   const saveBtn = document.getElementById('save-todo-btn');
   const deleteBtn = document.getElementById('delete-todo-btn');
 
-  // ✅ Load the existing todoList from localStorage before opening modal
+  // Load the existing todoList from localStorage before opening modal
   let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
 
   if (isEdit) {
@@ -1217,7 +1138,7 @@ function openTodoModal(isEdit = false, index = null) {
       saveBtn.textContent = 'Save Changes';
       deleteBtn.style.display = 'inline-block';
 
-      // ✅ Make sure `index` is within bounds
+      // Make sure `index` is within bounds
       if (index !== null && todoList[index]) {
           document.getElementById('todo-title').value = todoList[index].title;
       }
@@ -1231,7 +1152,7 @@ function openTodoModal(isEdit = false, index = null) {
   document.getElementById('todo-modal').style.display = 'flex';
 }
 
-// 🚀 Save To-Do
+// Save To-Do
 document.getElementById('todo-form').addEventListener('submit', (e) => {
   e.preventDefault();
 
@@ -1241,57 +1162,55 @@ document.getElementById('todo-form').addEventListener('submit', (e) => {
       return;
   }
 
-  // ✅ Retrieve and update the todoList from localStorage
+  // Retrieve and update the todoList from localStorage
   let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
 
   if (editingTodoIndex !== null) {
-      // ✅ Editing an existing item
+      // Editing an existing item
       todoList[editingTodoIndex].title = title;
       editingTodoIndex = null;
   } else {
-      // ✅ Adding a new item
+      // Adding a new item
       todoList.push({ title, completed: false });
   }
 
-  // ✅ Save updated todoList to localStorage
+  // Save updated todoList to localStorage
   localStorage.setItem("todoList", JSON.stringify(todoList));
 
-  // ✅ Refresh the list in UI
+  // Refresh the list in UI
   displayTodoList();
 
-  // ✅ Close modal
+  // Close modal
   document.getElementById('todo-modal').style.display = 'none';
   document.getElementById('todo-form').reset();
 });
 
-// 🚀 Delete To-Do
+// Delete To-Do
 document.getElementById('delete-todo-btn').addEventListener('click', () => {
   if (editingTodoIndex !== null) {
       let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
 
-      // ✅ Remove the item
+      // Remove the item
       todoList.splice(editingTodoIndex, 1);
       editingTodoIndex = null;
 
-      // ✅ Save updated list to localStorage
+      // Save updated list to localStorage
       localStorage.setItem("todoList", JSON.stringify(todoList));
 
-      // ✅ Refresh the list in UI
+      // Refresh the list in UI
       displayTodoList();
 
-      // ✅ Close modal
+      // Close modal
       document.getElementById('todo-modal').style.display = 'none';
   }
 });
 
-// 🚀 Reset Modal State for To-Do
+// Reset Modal State for To-Do
 document.getElementById('close-todo-modal').addEventListener('click', () => {
   document.getElementById('todo-modal').style.display = 'none';
   document.getElementById('todo-form').reset();
   editingTodoIndex = null;
 });
-
-
 
 function refreshDayPlanActivities() {
   console.log('🔄 Refreshing Day Plan Activities in Trip Overview');
@@ -1316,7 +1235,7 @@ function refreshDayPlanActivities() {
               });
           }
 
-          // 🧮 Recalculate total cost for the day
+          // Recalculate total cost for the day
           const people = tripDetails.people || 1;
           const totalCostPerPerson = dayPlan.dayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0);
           dayPlan.totalCost = totalCostPerPerson * people;
@@ -1330,8 +1249,7 @@ function refreshDayPlanActivities() {
 
 
 
-// Call this before rendering days
+// Initialize
 refreshDayPlanActivities();
 loadTripDays();
-
 

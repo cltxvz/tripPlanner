@@ -6,7 +6,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-import Header from "../components/Header";
+import Header from "../components/Home/Header";
 import Footer from "../components/Footer";
 
 function Home() {

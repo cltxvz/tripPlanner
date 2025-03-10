@@ -1,128 +1,99 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { DndProvider, useDrag, useDrop } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import ListGroup from "react-bootstrap/ListGroup";
-
-const ITEM_TYPE = "ACTIVITY";
+import DaySchedule from "../components/Planner/DaySchedule";
+import AvailableActivities from "../components/Planner/AvailableActivities";
+import TotalCost from "../components/Planner/TotalCost";
+import PlannerHeader from "../components/Planner/PlannerHeader"; // ✅ New header
+import Footer from "../components/Footer";
 
 function Planner() {
-    const navigate = useNavigate();
-    const [trip, setTrip] = useState(null);
-    const [activities, setActivities] = useState([]);
-    const [days, setDays] = useState([]);
+  const navigate = useNavigate();
+  const [dayPlan, setDayPlan] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [numberOfTravelers, setNumberOfTravelers] = useState(1);
 
-    // Load trip data from localStorage
-    useEffect(() => {
-        const storedTrip = localStorage.getItem("tripData");
-        if (storedTrip) {
-            const tripData = JSON.parse(storedTrip);
-            setTrip(tripData);
-            setActivities(tripData.activities || []);
-            setDays(tripData.days || Array.from({ length: tripData.daysCount || 3 }, () => []));
-        } else {
-            navigate("/");
-        }
-    }, [navigate]);
+  useEffect(() => {
+    // Ensure a trip and a selected day exist, otherwise navigate back
+    const storedTrip = JSON.parse(localStorage.getItem("tripDetails"));
+    const selectedDay = localStorage.getItem("selectedDay");
 
-    // Save planner data to localStorage
-    const savePlanner = () => {
-        if (trip) {
-            const updatedTrip = { ...trip, days };
-            localStorage.setItem("tripData", JSON.stringify(updatedTrip));
-            alert("Planner saved!");
-        }
-    };
+    if (!storedTrip || !selectedDay) {
+      navigate("/");
+      return;
+    }
 
-    return (
-        <DndProvider backend={HTML5Backend}>
-            <Container className="mt-5">
-                <Row className="justify-content-md-center">
-                    <Col md={10}>
-                        <h1 className="text-center">Daily Planner</h1>
+    // Load the number of travelers
+    setNumberOfTravelers(storedTrip.people || 1);
 
-                        <Row>
-                            <Col md={4}>
-                                <h4>Available Activities</h4>
-                                <ListGroup>
-                                    {activities.map((activity, index) => (
-                                        <DraggableActivity key={index} activity={activity} index={index} />
-                                    ))}
-                                </ListGroup>
-                            </Col>
+    // Load the current day's plan from localStorage
+    const tripDetails = JSON.parse(localStorage.getItem("tripDetails")) || {};
+    const currentDayPlan = tripDetails.dayPlans?.[selectedDay]?.dayPlan || [];
 
-                            <Col md={8}>
-                                <h4>Plan Your Days</h4>
-                                <Row>
-                                    {days.map((dayActivities, dayIndex) => (
-                                        <DayColumn key={dayIndex} dayIndex={dayIndex} dayActivities={dayActivities} setDays={setDays} />
-                                    ))}
-                                </Row>
-                            </Col>
-                        </Row>
+    setDayPlan(currentDayPlan);
 
-                        <div className="text-center mt-4">
-                            <Button variant="success" onClick={savePlanner}>
-                                💾 Save Plan
-                            </Button>
-                            <Button variant="secondary" className="ms-3" onClick={() => navigate("/trip")}>
-                                🔙 Back to Trip Overview
-                            </Button>
-                        </div>
-                    </Col>
-                </Row>
-            </Container>
-        </DndProvider>
-    );
-}
+    // Load activities from localStorage
+    const savedActivities = JSON.parse(localStorage.getItem("activities")) || [];
+    setActivities(savedActivities);
+  }, [navigate]);
 
-// Component to Drag Activities
-function DraggableActivity({ activity, index }) {
-    const [{ isDragging }, drag] = useDrag(() => ({
-        type: ITEM_TYPE,
-        item: { activity, index },
-        collect: (monitor) => ({
-            isDragging: !!monitor.isDragging(),
-        }),
-    }));
+  // 🔹 Function to update the day plan
+  const updateDayPlan = (newDayPlan) => {
+    setDayPlan(newDayPlan);
 
-    return (
-        <ListGroup.Item ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className="mb-2">
-            <strong>{activity.title}</strong> - ${activity.cost}
-        </ListGroup.Item>
-    );
-}
+    // Save updated plan in localStorage
+    const tripDetails = JSON.parse(localStorage.getItem("tripDetails")) || {};
+    const selectedDay = localStorage.getItem("selectedDay");
 
-// Component for Each Day's Drop Zone
-function DayColumn({ dayIndex, dayActivities, setDays }) {
-    const [{ isOver }, drop] = useDrop(() => ({
-        accept: ITEM_TYPE,
-        drop: (item) => addActivityToDay(item.activity, dayIndex),
-        collect: (monitor) => ({
-            isOver: !!monitor.isOver(),
-        }),
-    }));
+    if (tripDetails.dayPlans) {
+      tripDetails.dayPlans[selectedDay] = {
+        dayPlan: newDayPlan,
+        totalCost: newDayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0) * numberOfTravelers,
+      };
+    } else {
+      tripDetails.dayPlans = {
+        [selectedDay]: {
+          dayPlan: newDayPlan,
+          totalCost: newDayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0) * numberOfTravelers,
+        },
+      };
+    }
 
-    const addActivityToDay = (activity, dayIndex) => {
-        setDays((prevDays) => {
-            const newDays = [...prevDays];
-            newDays[dayIndex] = [...newDays[dayIndex], activity];
-            return newDays;
-        });
-    };
+    localStorage.setItem("tripDetails", JSON.stringify(tripDetails));
+  };
 
-    return (
-        <Col md={4} ref={drop} className={`border p-3 text-center ${isOver ? "bg-light" : ""}`}>
-            <h5>Day {dayIndex + 1}</h5>
-            <ListGroup>
-                {dayActivities.length === 0 ? <p>No activities</p> : dayActivities.map((act, i) => <ListGroup.Item key={i}>{act.title}</ListGroup.Item>)}
-            </ListGroup>
-        </Col>
-    );
+  return (
+    <>
+      {/* 🌟 Header */}
+      <PlannerHeader />
+
+      <Container className="mt-4">
+        {/* 💰 Total Cost Section */}
+        <Row className="mt-4">
+          <Col md={12}>
+            <TotalCost dayPlan={dayPlan} numberOfTravelers={numberOfTravelers} />
+          </Col>
+        </Row>
+
+        <Row>
+          {/* 🗓 Day Schedule Section (Drop Zone) */}
+          <Col md={6} className="mb-4">
+            <DaySchedule dayPlan={dayPlan} updateDayPlan={updateDayPlan} />
+          </Col>
+
+          {/* 📌 Available Activities Section */}
+          <Col md={6} className="mb-4">
+            <AvailableActivities activities={activities} dayPlan={dayPlan} updateDayPlan={updateDayPlan} />
+          </Col>
+        </Row>
+      </Container>
+
+      {/* 🔻 Footer */}
+      <Footer />
+    </>
+  );
 }
 
 export default Planner;

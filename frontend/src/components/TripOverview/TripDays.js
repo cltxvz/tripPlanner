@@ -10,31 +10,38 @@ import Col from "react-bootstrap/Col";
 function TripDays() {
     const navigate = useNavigate();
     const [tripDetails, setTripDetails] = useState(() => {
-        // ✅ Ensure `tripDetails` is loaded on mount to avoid undefined errors
+        // ✅ Load trip details on mount to prevent undefined errors
         return JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, dayPlans: {} };
     });
 
     const [days, setDays] = useState([]);
 
-    // ✅ Load and update days when tripDetails change
+    // ✅ Load trip days when `tripDetails` updates
     useEffect(() => {
         if (tripDetails.days) {
             setDays(new Array(Number(tripDetails.days)).fill(null));
         }
     }, [tripDetails.days]);
 
-    // ✅ Ensure tripDetails updates if changes are made elsewhere
+    // ✅ Sync `tripDetails` with localStorage changes
     useEffect(() => {
-        const storedTrip = JSON.parse(localStorage.getItem("tripDetails"));
-        if (storedTrip) {
-            setTripDetails(storedTrip);
-        }
+        const handleStorageChange = () => {
+            const updatedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, dayPlans: {} };
+            setTripDetails(updatedTrip);
+        };
+
+        // Listen for changes in localStorage
+        window.addEventListener("storage", handleStorageChange);
+
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+        };
     }, []);
 
-    // Function to navigate to the selected day's plan
+    // ✅ Navigate to planner for selected day
     const goToDay = (dayNumber) => {
         localStorage.setItem("selectedDay", dayNumber);
-        navigate("/day-planner");
+        navigate("/planner");
     };
 
     return (
@@ -56,7 +63,8 @@ function TripDays() {
                                                     tripDetails.dayPlans[index + 1].dayPlan ? (
                                                         tripDetails.dayPlans[index + 1].dayPlan.map((activity, i) => (
                                                             <ListGroup.Item key={i}>
-                                                                {activity.title} - ${activity.cost.toFixed(2)}
+                                                                {activity.title} - $
+                                                                {Number(activity.cost || 0).toFixed(2)} {/* ✅ Fix NaN error */}
                                                             </ListGroup.Item>
                                                         ))
                                                     ) : (

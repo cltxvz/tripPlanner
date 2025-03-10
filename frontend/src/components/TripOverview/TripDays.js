@@ -9,15 +9,25 @@ import Col from "react-bootstrap/Col";
 
 function TripDays() {
     const navigate = useNavigate();
-    const [tripDetails, setTripDetails] = useState(null);
+    const [tripDetails, setTripDetails] = useState(() => {
+        // ✅ Ensure `tripDetails` is loaded on mount to avoid undefined errors
+        return JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, dayPlans: {} };
+    });
+
     const [days, setDays] = useState([]);
 
+    // ✅ Load and update days when tripDetails change
     useEffect(() => {
-        // Load trip details from localStorage
+        if (tripDetails.days) {
+            setDays(new Array(Number(tripDetails.days)).fill(null));
+        }
+    }, [tripDetails.days]);
+
+    // ✅ Ensure tripDetails updates if changes are made elsewhere
+    useEffect(() => {
         const storedTrip = JSON.parse(localStorage.getItem("tripDetails"));
         if (storedTrip) {
             setTripDetails(storedTrip);
-            setDays(new Array(storedTrip.days).fill(null));
         }
     }, []);
 
@@ -35,40 +45,36 @@ function TripDays() {
                         <Card.Body>
                             <Card.Title>📅 Trip Days</Card.Title>
                             <div className="d-flex flex-wrap justify-content-center">
-                                {tripDetails ? (
-                                    days.length > 0 ? (
-                                        days.map((_, index) => (
-                                            <Card key={index} className="m-2 shadow-sm" style={{ width: "18rem" }}>
-                                                <Card.Body>
-                                                    <Card.Title>Day {index + 1}</Card.Title>
-                                                    <ListGroup variant="flush">
-                                                        {tripDetails.dayPlans &&
-                                                        tripDetails.dayPlans[index + 1] &&
-                                                        tripDetails.dayPlans[index + 1].dayPlan ? (
-                                                            tripDetails.dayPlans[index + 1].dayPlan.map((activity, i) => (
-                                                                <ListGroup.Item key={i}>
-                                                                    {activity.title} - ${activity.cost.toFixed(2)}
-                                                                </ListGroup.Item>
-                                                            ))
-                                                        ) : (
-                                                            <ListGroup.Item>No activities planned</ListGroup.Item>
-                                                        )}
-                                                    </ListGroup>
-                                                    <Button
-                                                        variant="primary"
-                                                        className="mt-2"
-                                                        onClick={() => goToDay(index + 1)}
-                                                    >
-                                                        📝 Plan/Edit Day
-                                                    </Button>
-                                                </Card.Body>
-                                            </Card>
-                                        ))
-                                    ) : (
-                                        <p>No trip days available.</p>
-                                    )
+                                {days.length > 0 ? (
+                                    days.map((_, index) => (
+                                        <Card key={index} className="m-2 shadow-sm" style={{ width: "18rem" }}>
+                                            <Card.Body>
+                                                <Card.Title>Day {index + 1}</Card.Title>
+                                                <ListGroup variant="flush">
+                                                    {tripDetails.dayPlans &&
+                                                    tripDetails.dayPlans[index + 1] &&
+                                                    tripDetails.dayPlans[index + 1].dayPlan ? (
+                                                        tripDetails.dayPlans[index + 1].dayPlan.map((activity, i) => (
+                                                            <ListGroup.Item key={i}>
+                                                                {activity.title} - ${activity.cost.toFixed(2)}
+                                                            </ListGroup.Item>
+                                                        ))
+                                                    ) : (
+                                                        <ListGroup.Item>No activities planned</ListGroup.Item>
+                                                    )}
+                                                </ListGroup>
+                                                <Button
+                                                    variant="primary"
+                                                    className="mt-2"
+                                                    onClick={() => goToDay(index + 1)}
+                                                >
+                                                    📝 Plan/Edit Day
+                                                </Button>
+                                            </Card.Body>
+                                        </Card>
+                                    ))
                                 ) : (
-                                    <p>Loading trip details...</p>
+                                    <p>No trip days available.</p>
                                 )}
                             </div>
                         </Card.Body>

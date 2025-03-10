@@ -7,13 +7,13 @@ import Form from "react-bootstrap/Form";
 function ActionButtons({ refreshTripDetails }) {
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
-  const [trip, setTrip] = useState({ destination: "", days: 1, people: 1 });
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [trip, setTrip] = useState(() => {
+    return JSON.parse(localStorage.getItem("tripDetails")) || { destination: "", days: "1", people: "1" };
+  });
 
-  // 🟢 Load trip details when the component mounts
-  useEffect(() => {
-    const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { destination: "", days: 1, people: 1 };
-    setTrip(storedTrip);
-  }, []);
+  // Validation states
+  const [errors, setErrors] = useState({ destination: false, days: false, people: false });
 
   // ✅ Function to safely trigger trip refresh
   const safeRefreshTripDetails = useCallback(() => {
@@ -22,17 +22,43 @@ function ActionButtons({ refreshTripDetails }) {
     }, 0);
   }, [refreshTripDetails]);
 
+  // ✅ Ensure trip data is loaded & avoid undefined values
+  useEffect(() => {
+    const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { destination: "", days: "1", people: "1" };
+    setTrip(storedTrip);
+  }, []);
+
   // 🔹 Open Edit Trip Modal and Load Data from LocalStorage
   const handleEditTrip = () => {
-    const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { destination: "", days: 1, people: 1 };
+    const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { destination: "", days: "1", people: "1" };
     setTrip(storedTrip);
+    setErrors({ destination: false, days: false, people: false }); // Reset validation on open
     setShowEditModal(true);
   };
 
-  // 🔹 Save Edited Trip Details
+  // 🔹 Handle input change and clear validation errors
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setTrip({ ...trip, [name]: value });
+
+    // Remove error message when user types a valid input
+    if (value.trim()) {
+      setErrors((prev) => ({ ...prev, [name]: false }));
+    }
+  };
+
+  // 🔹 Save Edited Trip Details with Inline Validation
   const handleSaveChanges = () => {
-    if (!trip.destination.trim() || trip.days < 1 || trip.people < 1) {
-      alert("❌ Please enter valid trip details.");
+    const newErrors = {
+      destination: !trip.destination.trim(),
+      days: trip.days < 1 || isNaN(trip.days),
+      people: trip.people < 1 || isNaN(trip.people),
+    };
+
+    setErrors(newErrors);
+
+    // If any validation errors exist, do not proceed
+    if (Object.values(newErrors).some((err) => err)) {
       return;
     }
 
@@ -41,12 +67,26 @@ function ActionButtons({ refreshTripDetails }) {
     safeRefreshTripDetails(); // ✅ Refresh trip details after saving
   };
 
+  // 🔹 Handle Start Over (Show Confirmation Modal)
+  const handleStartOver = () => {
+    setShowConfirmModal(true);
+  };
+
+  // 🔹 Confirm Start Over (Clear LocalStorage)
+  const confirmStartOver = () => {
+    localStorage.clear(); // 🗑️ Completely clears LocalStorage
+    setTrip({ destination: "", days: "1", people: "1" }); // ✅ Reset state immediately
+    setShowConfirmModal(false);
+    safeRefreshTripDetails(); // ✅ Ensure UI updates immediately
+    navigate("/"); // 🚀 Redirect to Home page
+  };
+
   // 🔹 Handle Importing Trip Data
   const handleImportTrip = (event) => {
     const file = event.target.files[0];
 
     if (!file) {
-      alert("❌ No file selected.");
+      setShowConfirmModal(true);
       return;
     }
 
@@ -62,9 +102,8 @@ function ActionButtons({ refreshTripDetails }) {
         localStorage.setItem("tripDetails", JSON.stringify(importedTrip));
         setTrip(importedTrip); // ✅ Immediately update state
         safeRefreshTripDetails(); // ✅ Ensure header & days update
-        alert("✅ Trip imported successfully!");
       } catch (error) {
-        alert("❌ Failed to import trip. Please upload a valid JSON file.");
+        setShowConfirmModal(true);
       }
     };
     reader.readAsText(file);
@@ -85,8 +124,8 @@ function ActionButtons({ refreshTripDetails }) {
   return (
     <div className="text-center mt-4">
       {/* 🚀 Action Buttons */}
-      <Button variant="secondary" onClick={() => navigate("/")} className="m-2">
-        🏠 Start Over
+      <Button variant="danger" onClick={handleStartOver} className="m-2">
+        🗑️ Start Over
       </Button>
       <Button variant="warning" onClick={handleEditTrip} className="m-2">
         ✏️ Edit Trip
@@ -108,35 +147,53 @@ function ActionButtons({ refreshTripDetails }) {
           <Modal.Title>Edit Trip Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form noValidate>
             <Form.Group className="mb-3">
               <Form.Label>Destination</Form.Label>
               <Form.Control
                 type="text"
+                name="destination"
+                minLength="1"
                 value={trip.destination}
-                onChange={(e) => setTrip({ ...trip, destination: e.target.value })}
+                onChange={handleChange}
+                isInvalid={errors.destination}
                 required
               />
+              <Form.Control.Feedback type="invalid">
+                Destination is required.
+              </Form.Control.Feedback>
             </Form.Group>
+
             <Form.Group className="mb-3">
               <Form.Label>Number of Days</Form.Label>
               <Form.Control
                 type="number"
+                name="days"
                 min="1"
                 value={trip.days}
-                onChange={(e) => setTrip({ ...trip, days: Number(e.target.value) })}
+                onChange={handleChange}
+                isInvalid={errors.days}
                 required
               />
+              <Form.Control.Feedback type="invalid">
+                Please enter a valid number of days (1 or more).
+              </Form.Control.Feedback>
             </Form.Group>
+
             <Form.Group className="mb-3">
               <Form.Label>Number of Travelers</Form.Label>
               <Form.Control
                 type="number"
+                name="people"
                 min="1"
                 value={trip.people}
-                onChange={(e) => setTrip({ ...trip, people: Number(e.target.value) })}
+                onChange={handleChange}
+                isInvalid={errors.people}
                 required
               />
+              <Form.Control.Feedback type="invalid">
+                Please enter at least 1 traveler.
+              </Form.Control.Feedback>
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -146,6 +203,24 @@ function ActionButtons({ refreshTripDetails }) {
           </Button>
           <Button variant="primary" onClick={handleSaveChanges}>
             Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* ⚠️ Confirmation Modal for Start Over */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>⚠️ Confirm Reset</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to start over? This will erase all trip data!
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmStartOver}>
+            Yes, Start Over
           </Button>
         </Modal.Footer>
       </Modal>

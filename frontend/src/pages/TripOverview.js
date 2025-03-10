@@ -20,8 +20,8 @@ function TripOverview() {
   // ✅ Ensure a trip exists; otherwise, navigate back to home page
   useEffect(() => {
     const storedTrip = JSON.parse(localStorage.getItem("tripDetails"));
-    if (!storedTrip) {
-      navigate("/");
+    if (!storedTrip || !storedTrip.destination) {
+      navigate("/"); // ⏪ Redirect to home if no trip data exists
     } else {
       setTripDetails(storedTrip);
     }
@@ -49,13 +49,17 @@ function TripOverview() {
       <ActionButtons refreshTripDetails={refreshTripDetails} />
 
       <div className="container mt-4">
-        {/* ✈️ Flights & 🏨 Stays Section (Fixed Layout) */}
-        <div className="row">
-          <div className="col-md-6">
-            <Flights onBudgetUpdate={handleExpensesUpdate} />
+        {/* ✈️ Flights & 🏨 Stays Section */}
+        <div className="row gx-4">
+          <div className="col-md-6 d-flex flex-column">
+            <div className="h-100">
+              <Flights onBudgetUpdate={handleExpensesUpdate} />
+            </div>
           </div>
-          <div className="col-md-6">
-            <Stay onBudgetUpdate={handleExpensesUpdate} />
+          <div className="col-md-6 d-flex flex-column">
+            <div className="h-100">
+              <Stay onBudgetUpdate={handleExpensesUpdate} />
+            </div>
           </div>
         </div>
 
@@ -67,15 +71,21 @@ function TripOverview() {
         </div>
 
         {/* 💰 Expenses, Budget & To-Do (Same Row) */}
-        <div className="row mt-4">
-          <div className="col-md-4">
-            <AdditionalExpenses onExpensesUpdate={handleExpensesUpdate} />
+        <div className="row mt-4 gx-4">
+          <div className="col-md-4 d-flex flex-column">
+            <div className="h-100">
+              <AdditionalExpenses onExpensesUpdate={handleExpensesUpdate} />
+            </div>
           </div>
-          <div className="col-md-4">
-            <BudgetAndCosts updateTrigger={updateBudget} />
+          <div className="col-md-4 d-flex flex-column">
+            <div className="h-100">
+              <BudgetAndCosts updateTrigger={updateBudget} />
+            </div>
           </div>
-          <div className="col-md-4">
-            <ToDoList />
+          <div className="col-md-4 d-flex flex-column">
+            <div className="h-100">
+              <ToDoList />
+            </div>
           </div>
         </div>
       </div>

@@ -14,11 +14,13 @@ function TripHeader() {
 
   return (
     <header className="text-center py-4 bg-primary text-white shadow">
-      <h1 className="fw-bold">TripPlanner</h1>
-      <p className="lead mt-2">
-        <strong>Destination:</strong> {trip.destination || "Unknown"} |
-        <strong> Days:</strong> {trip.days || 0} |
-        <strong> Travelers:</strong> {trip.people || 0}
+      <h1 className="fw-bold">Trip Overview</h1>
+      <p className="lead mt-3">
+        <strong>🌆 Destination:</strong> {trip.destination || "Unknown"}
+        <span className="mx-3">|</span> 
+        <strong>📅 Days:</strong> {trip.days || 0}
+        <span className="mx-3">|</span> 
+        <strong>👥 Travelers:</strong> {trip.people || 0}
       </p>
     </header>
   );

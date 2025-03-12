@@ -22,7 +22,7 @@ function ToDoList() {
   // 🔹 Handle Checkbox Toggle (Mark as Completed)
   const toggleCompletion = (index) => {
     const updatedList = [...todoList];
-    updatedList[index].completed = !updatedList[index].completed;
+    updatedList[index].completed = !updatedList[index].completed; // ✅ Toggle checked state
     saveToLocalStorage(updatedList);
   };
 

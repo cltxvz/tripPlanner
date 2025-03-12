@@ -10,8 +10,7 @@ import Col from "react-bootstrap/Col";
 function TripDays() {
     const navigate = useNavigate();
     const [tripDetails, setTripDetails] = useState(() => {
-        // ✅ Load trip details on mount to prevent undefined errors
-        return JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, dayPlans: {} };
+        return JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, people: 1, dayPlans: {} };
     });
 
     const [days, setDays] = useState([]);
@@ -23,20 +22,44 @@ function TripDays() {
         }
     }, [tripDetails.days]);
 
-    // ✅ Sync `tripDetails` with localStorage changes
+    // ✅ Recalculate total cost for each day when `tripDetails` changes
+    useEffect(() => {
+        updateDayPlanCosts();
+    }, [tripDetails.people]); // ✅ Trigger when number of travelers changes
+
+    // ✅ Ensure trip details stay synced with localStorage
     useEffect(() => {
         const handleStorageChange = () => {
-            const updatedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, dayPlans: {} };
+            const updatedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, people: 1, dayPlans: {} };
             setTripDetails(updatedTrip);
         };
 
-        // Listen for changes in localStorage
         window.addEventListener("storage", handleStorageChange);
 
         return () => {
             window.removeEventListener("storage", handleStorageChange);
         };
     }, []);
+
+    // ✅ Recalculate and update trip day costs when the number of travelers changes
+    const updateDayPlanCosts = () => {
+        const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, people: 1, dayPlans: {} };
+        const updatedTrip = { ...storedTrip };
+
+        if (updatedTrip.dayPlans) {
+            Object.keys(updatedTrip.dayPlans).forEach((day) => {
+                let dayPlan = updatedTrip.dayPlans[day];
+
+                if (dayPlan.dayPlan) {
+                    const totalCostPerPerson = dayPlan.dayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0);
+                    dayPlan.totalCost = totalCostPerPerson * (updatedTrip.people || 1); // ✅ Update cost for all travelers
+                }
+            });
+        }
+
+        localStorage.setItem("tripDetails", JSON.stringify(updatedTrip));
+        setTripDetails(updatedTrip);
+    };
 
     // ✅ Navigate to planner for selected day
     const goToDay = (dayNumber) => {
@@ -61,12 +84,18 @@ function TripDays() {
                                                     {tripDetails.dayPlans &&
                                                     tripDetails.dayPlans[index + 1] &&
                                                     tripDetails.dayPlans[index + 1].dayPlan ? (
-                                                        tripDetails.dayPlans[index + 1].dayPlan.map((activity, i) => (
-                                                            <ListGroup.Item key={i}>
-                                                                {activity.title} - $
-                                                                {Number(activity.cost || 0).toFixed(2)} {/* ✅ Fix NaN error */}
+                                                        <>
+                                                            {tripDetails.dayPlans[index + 1].dayPlan.map((activity, i) => (
+                                                                <ListGroup.Item key={i}>
+                                                                    {activity.title} - $
+                                                                    {Number(activity.cost || 0).toFixed(2)} {/* ✅ Fix NaN error */}
+                                                                </ListGroup.Item>
+                                                            ))}
+                                                            <ListGroup.Item className="text-muted">
+                                                                <strong>Total Cost for All Travelers:</strong> $
+                                                                {Number(tripDetails.dayPlans[index + 1].totalCost || 0).toFixed(2)}
                                                             </ListGroup.Item>
-                                                        ))
+                                                        </>
                                                     ) : (
                                                         <ListGroup.Item>No activities planned</ListGroup.Item>
                                                     )}

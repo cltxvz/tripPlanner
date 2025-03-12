@@ -6,12 +6,24 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
+import Alert from "react-bootstrap/Alert"; // ✅ Import Bootstrap Alert
 import Header from "../components/Home/Header";
 import Footer from "../components/Footer";
 
 function Home() {
     const navigate = useNavigate();
     const [tripDetails, setTripDetails] = useState({ destination: "", days: "", people: "" });
+    const [alertMessage, setAlertMessage] = useState(null);
+    const [alertVariant, setAlertVariant] = useState("danger");
+
+    // 🔹 Show an Alert with auto-hide
+    const showAlert = (message, variant = "danger") => {
+        setAlertMessage(message);
+        setAlertVariant(variant);
+
+        // Auto-hide after 3 seconds
+        setTimeout(() => setAlertMessage(null), 3000);
+    };
 
     // Handle Input Change
     const handleChange = (e) => {
@@ -22,10 +34,13 @@ function Home() {
     // Create New Trip
     const handleCreateTrip = (e) => {
         e.preventDefault();
+        localStorage.clear(); // ✅ Clears any previous trip
+
         if (!tripDetails.destination.trim() || tripDetails.days <= 0 || tripDetails.people <= 0) {
-            alert("❌ Please fill in all fields correctly.");
+            showAlert("❌ Please fill in all fields correctly.", "danger");
             return;
         }
+
         localStorage.setItem("tripDetails", JSON.stringify(tripDetails));
         navigate("/trip");
     };
@@ -33,24 +48,37 @@ function Home() {
     // Handle Trip File Import
     const handleImportTrip = (event) => {
         const file = event.target.files[0];
+
         if (!file) {
-            alert("❌ No file selected.");
+            showAlert("❌ No file selected.", "danger");
             return;
         }
 
         const reader = new FileReader();
         reader.onload = (event) => {
             try {
-                const tripData = JSON.parse(event.target.result);
-                if (!tripData.destination || !tripData.days || !tripData.people) {
+                const importedData = JSON.parse(event.target.result);
+
+                // ✅ Ensure imported data contains the necessary fields
+                if (!importedData.tripDetails || !importedData.tripDetails.destination || !importedData.tripDetails.days || !importedData.tripDetails.people) {
                     throw new Error("Invalid trip data format.");
                 }
-                localStorage.setItem("tripDetails", JSON.stringify(tripData));
-                navigate("/trip");
+
+                // ✅ Clear existing data before importing
+                localStorage.clear();
+
+                // ✅ Load all imported data into LocalStorage
+                Object.keys(importedData).forEach((key) => {
+                    localStorage.setItem(key, JSON.stringify(importedData[key]));
+                });
+
+                showAlert("✅ Trip imported successfully!", "success");
+                setTimeout(() => navigate("/trip"), 1500); // ✅ Redirect after success
             } catch (error) {
-                alert("❌ Failed to import trip. Please upload a valid JSON file.");
+                showAlert("❌ Failed to import trip. Please upload a valid JSON file.", "danger");
             }
         };
+
         reader.readAsText(file);
     };
 
@@ -66,6 +94,13 @@ function Home() {
                             <Card.Body className="text-center">
                                 <h1 className="mb-3">🌍 Ready for takeoff?</h1>
                                 <p className="lead">Start by creating a new trip or importing an existing one!</p>
+
+                                {/* 🚨 Styled Alert Message */}
+                                {alertMessage && (
+                                    <Alert variant={alertVariant} className="text-center">
+                                        {alertMessage}
+                                    </Alert>
+                                )}
 
                                 {/* Create Trip Form */}
                                 <Form onSubmit={handleCreateTrip} className="mb-4">

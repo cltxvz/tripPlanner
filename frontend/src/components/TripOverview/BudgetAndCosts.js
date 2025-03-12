@@ -12,7 +12,7 @@ function BudgetAndCosts({ updateTrigger }) {
   // 🟢 Load Budget & Costs from LocalStorage
   useEffect(() => {
     updateBudgetAndCosts();
-  }, [updateTrigger]); // Refresh when updateTrigger changes
+  }, [updateTrigger]); // ✅ Refresh when updateTrigger changes
 
   // 🔹 Function to Update Costs
   const updateBudgetAndCosts = () => {
@@ -28,10 +28,17 @@ function BudgetAndCosts({ updateTrigger }) {
     // 🏨 Stays Total Cost
     const staysTotalCost = stays.reduce((sum, stay) => sum + parseFloat(stay.cost || 0), 0);
 
-    // 📅 Trip Days Total Cost
-    const tripDaysTotalCost = tripDetails.dayPlans
-      ? Object.values(tripDetails.dayPlans).reduce((sum, day) => sum + (day.totalCost || 0), 0)
-      : 0;
+    // 📅 Trip Days Total Cost (Ensures updated cost after editing an activity)
+    let tripDaysTotalCost = 0;
+    if (tripDetails.dayPlans) {
+      tripDaysTotalCost = Object.values(tripDetails.dayPlans).reduce((sum, day) => {
+        const dailyTotal = day.dayPlan ? 
+          day.dayPlan.reduce((daySum, activity) => daySum + parseFloat(activity.cost || 0), 0) 
+          : 0;
+        
+        return sum + (dailyTotal * numberOfTravelers); // ✅ Multiply each day by number of travelers
+      }, 0);
+    }
 
     // 💸 Additional Expenses Total
     const additionalExpensesTotal = additionalExpenses.reduce((sum, expense) => sum + parseFloat(expense.cost || 0), 0);

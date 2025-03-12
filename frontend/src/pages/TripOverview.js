@@ -1,3 +1,4 @@
+import { Alert } from "react-bootstrap"; // ✅ Import Alert
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import TripHeader from "../components/TripOverview/TripHeader";
@@ -15,38 +16,59 @@ function TripOverview() {
   const navigate = useNavigate();
   const [updateBudget, setUpdateBudget] = useState(false);
   const [tripDetails, setTripDetails] = useState(null);
-  const [forceRender, setForceRender] = useState(false); // 🔄 New state to force UI updates
-
-  // ✅ Ensure a trip exists; otherwise, navigate back to home page
-  useEffect(() => {
-    const storedTrip = JSON.parse(localStorage.getItem("tripDetails"));
-    if (!storedTrip || !storedTrip.destination) {
-      navigate("/"); // ⏪ Redirect to home if no trip data exists
-    } else {
-      setTripDetails(storedTrip);
-    }
-  }, [navigate]);
+  const [forceRender, setForceRender] = useState(false);
+  
+  // 🚀 ✅ Move alert state here
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [alertVariant, setAlertVariant] = useState("danger");
 
   // ✅ Function to trigger budget update
   const handleExpensesUpdate = () => {
-    setUpdateBudget((prev) => !prev); // Toggle state to re-render BudgetAndCosts
+    setUpdateBudget((prev) => !prev);
   };
 
   // ✅ Function to refresh trip details when edited
   const refreshTripDetails = useCallback(() => {
     const updatedTrip = JSON.parse(localStorage.getItem("tripDetails")) || {};
     setTripDetails(updatedTrip);
-    setForceRender((prev) => !prev); // 🔄 Force a re-render to update components
+    setForceRender((prev) => !prev);
     handleExpensesUpdate();
   }, []);
 
+  // ✅ Function to show alerts
+  const showAlert = (message, variant = "danger") => {
+    setAlertMessage(message);
+    setAlertVariant(variant);
+
+    setTimeout(() => {
+      setAlertMessage(null);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    const storedTrip = JSON.parse(localStorage.getItem("tripDetails"));
+    if (!storedTrip || !storedTrip.destination) {
+      navigate("/");
+    } else {
+      setTripDetails(storedTrip);
+    }
+  }, [navigate]);
+
   return (
-    <div key={forceRender}> {/* 🔄 Forces re-render */}
-      {/* 🌟 Header */}
+    <div key={forceRender}>
       <TripHeader tripDetails={tripDetails} />
 
-      {/* 🚀 Action Buttons */}
-      <ActionButtons refreshTripDetails={refreshTripDetails} />
+      {/* 🚀 Pass showAlert to ActionButtons */}
+      <ActionButtons refreshTripDetails={refreshTripDetails} showAlert={showAlert} />
+
+      {/* 🌟 Show alert BELOW action buttons */}
+      {alertMessage && (
+        <div className="container mt-3">
+          <Alert variant={alertVariant} className="text-center">
+            {alertMessage}
+          </Alert>
+        </div>
+      )}
 
       <div className="container mt-4">
         {/* ✈️ Flights & 🏨 Stays Section */}
@@ -66,11 +88,11 @@ function TripOverview() {
         {/* 📅 Trip Days Section */}
         <div className="row mt-4">
           <div className="col-12">
-            <TripDays key={forceRender} /> {/* 🔄 Forces re-render */}
+            <TripDays key={forceRender} />
           </div>
         </div>
 
-        {/* 💰 Expenses, Budget & To-Do (Same Row) */}
+        {/* 💰 Expenses, Budget & To-Do */}
         <div className="row mt-4 gx-4">
           <div className="col-md-4 d-flex flex-column">
             <div className="h-100">
@@ -90,7 +112,6 @@ function TripOverview() {
         </div>
       </div>
 
-      {/* 🔻 Footer */}
       <Footer />
     </div>
   );

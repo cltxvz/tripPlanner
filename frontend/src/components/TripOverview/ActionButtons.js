@@ -4,10 +4,14 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 
-function ActionButtons({ refreshTripDetails }) {
+function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showAlert as a prop
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [fileName, setFileName] = useState(""); // Default filename
+  const [fileNameError, setFileNameError] = useState(false); // Handle empty input
+  
   const [trip, setTrip] = useState(() => {
     return JSON.parse(localStorage.getItem("tripDetails")) || { destination: "", days: "1", people: "1" };
   });
@@ -57,14 +61,13 @@ function ActionButtons({ refreshTripDetails }) {
 
     setErrors(newErrors);
 
-    // If any validation errors exist, do not proceed
     if (Object.values(newErrors).some((err) => err)) {
       return;
     }
 
     localStorage.setItem("tripDetails", JSON.stringify(trip));
     setShowEditModal(false);
-    safeRefreshTripDetails(); // ✅ Refresh trip details after saving
+    safeRefreshTripDetails();
   };
 
   // 🔹 Handle Start Over (Show Confirmation Modal)
@@ -74,11 +77,11 @@ function ActionButtons({ refreshTripDetails }) {
 
   // 🔹 Confirm Start Over (Clear LocalStorage)
   const confirmStartOver = () => {
-    localStorage.clear(); // 🗑️ Completely clears LocalStorage
-    setTrip({ destination: "", days: "1", people: "1" }); // ✅ Reset state immediately
+    localStorage.clear();
+    setTrip({ destination: "", days: "1", people: "1" });
     setShowConfirmModal(false);
-    safeRefreshTripDetails(); // ✅ Ensure UI updates immediately
-    navigate("/"); // 🚀 Redirect to Home page
+    safeRefreshTripDetails();
+    navigate("/");
   };
 
   // 🔹 Handle Importing Trip Data
@@ -86,40 +89,75 @@ function ActionButtons({ refreshTripDetails }) {
     const file = event.target.files[0];
 
     if (!file) {
-      setShowConfirmModal(true);
+      showAlert("❌ No file selected.", "danger");
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const importedTrip = JSON.parse(e.target.result);
-
-        if (!importedTrip.destination || !importedTrip.days || !importedTrip.people) {
-          throw new Error("Invalid trip data format.");
+        const importedData = JSON.parse(e.target.result);
+        if (typeof importedData !== "object" || importedData === null) {
+          throw new Error("Invalid file structure.");
         }
+    
+        localStorage.clear();
+        Object.keys(importedData).forEach((key) => {
+          localStorage.setItem(key, JSON.stringify(importedData[key]));
+        });
 
-        localStorage.setItem("tripDetails", JSON.stringify(importedTrip));
-        setTrip(importedTrip); // ✅ Immediately update state
-        safeRefreshTripDetails(); // ✅ Ensure header & days update
+        safeRefreshTripDetails();
+        showAlert("✅ Trip imported successfully!", "success");
+        setTimeout(() => navigate("/trip"), 1500);
       } catch (error) {
-        setShowConfirmModal(true);
+        console.error("File import error:", error);
+        showAlert("❌ Failed to import trip. Please upload a valid JSON file.", "danger");
       }
     };
+
     reader.readAsText(file);
   };
 
-  // 🔹 Handle Exporting Trip Data
+  // Handle Exporting Trip Data
   const handleExportTrip = () => {
-    const tripData = localStorage.getItem("tripDetails") || "{}";
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(tripData);
+    setFileName("");
+    setFileNameError(false);
+    setShowExportModal(true); // Open modal
+  };
+  
+
+  const confirmExport = () => {
+    if(!fileName.trim()) {
+      setFileNameError(true);
+      return;
+    }
+    
+    const tripData = {
+      tripDetails: JSON.parse(localStorage.getItem("tripDetails")) || {},
+      dayPlans: JSON.parse(localStorage.getItem("dayPlans")) || {},
+      flights: JSON.parse(localStorage.getItem("flights")) || [],
+      stays: JSON.parse(localStorage.getItem("stays")) || [],
+      additionalExpenses: JSON.parse(localStorage.getItem("additionalExpenses")) || [],
+      budget: JSON.parse(localStorage.getItem("budget")) || 0,
+      activities: JSON.parse(localStorage.getItem("activities")) || [],
+      todoList: JSON.parse(localStorage.getItem("todoList")) || [],
+    };
+  
+    // 🔹 Convert data to JSON
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tripData, null, 2));
+  
+    // 🔹 Create download link
     const downloadAnchor = document.createElement("a");
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "trip-plan.json");
+    downloadAnchor.setAttribute("download", `${fileName}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);
+  
+    setShowExportModal(false); // Close modal after download
   };
+  
+  
 
   return (
     <div className="text-center mt-4">
@@ -153,7 +191,6 @@ function ActionButtons({ refreshTripDetails }) {
               <Form.Control
                 type="text"
                 name="destination"
-                minLength="1"
                 value={trip.destination}
                 onChange={handleChange}
                 isInvalid={errors.destination}
@@ -224,6 +261,36 @@ function ActionButtons({ refreshTripDetails }) {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* 📤 Export Trip Modal */}
+      <Modal show={showExportModal} onHide={() => setShowExportModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>📤 Export Trip</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Enter a name for your exported trip file:</p>
+          <Form.Control
+            type="text"
+            value={fileName}
+            onChange={(e) => {
+              setFileName(e.target.value);
+              setFileNameError(false); // Remove error on user input
+            }}
+            placeholder="Enter filename"
+            isInvalid={fileNameError} // Apply error state
+          />
+          {fileNameError && (
+            <Form.Control.Feedback type="invalid">
+              Please enter a file name.
+            </Form.Control.Feedback>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowExportModal(false)}>Cancel</Button>
+          <Button variant="success" onClick={confirmExport}>Download</Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -6,7 +6,7 @@ import Col from "react-bootstrap/Col";
 import DaySchedule from "../components/Planner/DaySchedule";
 import AvailableActivities from "../components/Planner/AvailableActivities";
 import TotalCost from "../components/Planner/TotalCost";
-import PlannerHeader from "../components/Planner/PlannerHeader"; // ✅ New header
+import PlannerHeader from "../components/Planner/PlannerHeader";
 import Footer from "../components/Footer";
 
 function Planner() {
@@ -15,51 +15,63 @@ function Planner() {
   const [activities, setActivities] = useState([]);
   const [numberOfTravelers, setNumberOfTravelers] = useState(1);
 
+  // 🔹 Refresh Activities and Update Day Plans
+  const refreshActivities = useCallback(() => {
+    const storedActivities = JSON.parse(localStorage.getItem("activities")) || [];
+    const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
+
+    if (!storedTrip.dayPlans) {
+      storedTrip.dayPlans = {};
+    }
+
+    Object.keys(storedTrip.dayPlans).forEach((day) => {
+      storedTrip.dayPlans[day].dayPlan = storedTrip.dayPlans[day].dayPlan.map((activity) => {
+        const updatedActivity = storedActivities.find((act) => act.id === activity.id);
+        return updatedActivity ? { ...activity, cost: updatedActivity.cost } : activity;
+      });
+    });
+
+    setActivities(storedActivities);
+    localStorage.setItem("tripDetails", JSON.stringify(storedTrip)); // ✅ Save updated trip details
+  }, []);
+
+  // ✅ Ensures a trip exists and loads necessary details
   useEffect(() => {
-    // Ensure a trip and a selected day exist, otherwise navigate back
-    const storedTrip = JSON.parse(localStorage.getItem("tripDetails"));
+    const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
     const selectedDay = localStorage.getItem("selectedDay");
 
     if (!storedTrip || !selectedDay) {
-      navigate("/");
+      navigate("/"); // ⏪ Redirect if trip or selected day is missing
       return;
     }
 
-    // Load the number of travelers
+    if (!storedTrip.dayPlans) {
+      storedTrip.dayPlans = {};
+    }
+
     setNumberOfTravelers(storedTrip.people || 1);
 
-    // Load the current day's plan from localStorage
-    const tripDetails = JSON.parse(localStorage.getItem("tripDetails")) || {};
-    const currentDayPlan = tripDetails.dayPlans?.[selectedDay]?.dayPlan || [];
-
+    const currentDayPlan = storedTrip.dayPlans[selectedDay]?.dayPlan || [];
     setDayPlan(currentDayPlan);
 
-    // Load activities from localStorage
-    const savedActivities = JSON.parse(localStorage.getItem("activities")) || [];
-    setActivities(savedActivities);
-  }, [navigate]);
+    refreshActivities(); // ✅ Now safe to include in dependencies
+  }, [navigate, refreshActivities]); // ✅ FIX: Added `refreshActivities`
 
   // 🔹 Function to update the day plan
   const updateDayPlan = (newDayPlan) => {
     setDayPlan(newDayPlan);
 
-    // Save updated plan in localStorage
-    const tripDetails = JSON.parse(localStorage.getItem("tripDetails")) || {};
+    const tripDetails = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
     const selectedDay = localStorage.getItem("selectedDay");
 
-    if (tripDetails.dayPlans) {
-      tripDetails.dayPlans[selectedDay] = {
-        dayPlan: newDayPlan,
-        totalCost: newDayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0) * numberOfTravelers,
-      };
-    } else {
-      tripDetails.dayPlans = {
-        [selectedDay]: {
-          dayPlan: newDayPlan,
-          totalCost: newDayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0) * numberOfTravelers,
-        },
-      };
+    if (!tripDetails.dayPlans) {
+      tripDetails.dayPlans = {};
     }
+
+    tripDetails.dayPlans[selectedDay] = {
+      dayPlan: newDayPlan,
+      totalCost: newDayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0) * numberOfTravelers,
+    };
 
     localStorage.setItem("tripDetails", JSON.stringify(tripDetails));
   };
@@ -76,14 +88,12 @@ function Planner() {
             <TotalCost dayPlan={dayPlan} numberOfTravelers={numberOfTravelers} />
           </Col>
         </Row>
-
+        {/* 🗓 Day Schedule & Available Activities */}
         <Row>
-          {/* 🗓 Day Schedule Section (Drop Zone) */}
           <Col md={6} className="mb-4">
             <DaySchedule dayPlan={dayPlan} updateDayPlan={updateDayPlan} />
           </Col>
 
-          {/* 📌 Available Activities Section */}
           <Col md={6} className="mb-4">
             <AvailableActivities activities={activities} dayPlan={dayPlan} updateDayPlan={updateDayPlan} />
           </Col>

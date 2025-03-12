@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -32,6 +32,12 @@ function Activities() {
     setActivities(storedActivities);
   }, [navigate]);
 
+  // ✅ Function to refresh trip details everywhere
+  const refreshTripDetails = useCallback(() => {
+    const updatedTrip = JSON.parse(localStorage.getItem("tripDetails")) || {};
+    setTripDetails(updatedTrip);
+  }, []);
+
   // 🔹 Handle Input Change
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +56,7 @@ function Activities() {
     setShowModal(true);
   };
 
-  // 🔹 Handle Save Activity
+  // 🔹 Handle Save Activity with **Global Updates**
   const handleSaveActivity = () => {
     if (!activityData.title.trim() || isNaN(activityData.cost) || activityData.cost < 0) {
       alert("❌ Please enter a valid title and cost.");
@@ -60,18 +66,35 @@ function Activities() {
     let updatedActivities = [...activities];
 
     if (editingActivity) {
-      // Edit existing activity
+      // ✅ Edit existing activity & update everywhere
       updatedActivities = updatedActivities.map((act) =>
-        act.id === editingActivity ? { ...act, ...activityData } : act
+        act.id === editingActivity ? { ...act, ...activityData, cost: parseFloat(activityData.cost) } : act
       );
+
+      // ✅ Update `tripDetails.dayPlans` where the activity exists
+      let updatedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
+      if (updatedTrip.dayPlans) {
+        Object.keys(updatedTrip.dayPlans).forEach((day) => {
+          let dayPlan = updatedTrip.dayPlans[day];
+          if (dayPlan.dayPlan) {
+            dayPlan.dayPlan = dayPlan.dayPlan.map((act) =>
+              act.id === editingActivity ? { ...act, title: activityData.title, cost: parseFloat(activityData.cost) } : act
+            );
+          }
+        });
+
+        localStorage.setItem("tripDetails", JSON.stringify(updatedTrip));
+      }
     } else {
-      // Add new activity
-      updatedActivities.push({ id: Date.now(), ...activityData });
+      // ✅ Add new activity
+      updatedActivities.push({ id: Date.now(), ...activityData, cost: parseFloat(activityData.cost) });
     }
 
     setActivities(updatedActivities);
     localStorage.setItem("activities", JSON.stringify(updatedActivities));
     setShowModal(false);
+
+    refreshTripDetails(); // ✅ Ensure cost updates reflect everywhere
   };
 
   // 🔹 Handle Delete Activity
@@ -79,6 +102,21 @@ function Activities() {
     const updatedActivities = activities.filter((act) => act.id !== id);
     setActivities(updatedActivities);
     localStorage.setItem("activities", JSON.stringify(updatedActivities));
+
+    // ✅ Remove from tripDetails.dayPlans as well
+    let updatedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
+    if (updatedTrip.dayPlans) {
+      Object.keys(updatedTrip.dayPlans).forEach((day) => {
+        let dayPlan = updatedTrip.dayPlans[day];
+        if (dayPlan.dayPlan) {
+          dayPlan.dayPlan = dayPlan.dayPlan.filter((act) => act.id !== id);
+        }
+      });
+
+      localStorage.setItem("tripDetails", JSON.stringify(updatedTrip));
+    }
+
+    refreshTripDetails(); // ✅ Ensure UI updates
   };
 
   return (
@@ -142,44 +180,21 @@ function Activities() {
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>Activity Title</Form.Label>
-              <Form.Control
-                type="text"
-                name="title"
-                value={activityData.title}
-                onChange={handleChange}
-                required
-              />
+              <Form.Control type="text" name="title" value={activityData.title} onChange={handleChange} required />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
-              <Form.Control
-                type="text"
-                name="description"
-                value={activityData.description}
-                onChange={handleChange}
-              />
+              <Form.Control type="text" name="description" value={activityData.description} onChange={handleChange} />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Cost Per Person ($)</Form.Label>
-              <Form.Control
-                type="number"
-                name="cost"
-                min="0"
-                step="0.01"
-                value={activityData.cost}
-                onChange={handleChange}
-                required
-              />
+              <Form.Control type="number" name="cost" min="0" step="0.01" value={activityData.cost} onChange={handleChange} required />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSaveActivity}>
-            {editingActivity ? "Save Changes" : "Add Activity"}
-          </Button>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+          <Button variant="primary" onClick={handleSaveActivity}>{editingActivity ? "Save Changes" : "Add Activity"}</Button>
         </Modal.Footer>
       </Modal>
 

@@ -6,94 +6,127 @@ function AdditionalExpenses({ onExpensesUpdate }) {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [expenseData, setExpenseData] = useState({ title: "", cost: "" });
+  const [errors, setErrors] = useState({ title: "", cost: "" });
   const [editingIndex, setEditingIndex] = useState(null);
 
-  // 🔹 Function to Calculate Total Expenses
+  // Function to Calculate Total Expenses
   const calculateTotal = useCallback((updatedExpenses) => {
     const total = updatedExpenses.reduce((sum, expense) => sum + parseFloat(expense.cost || 0), 0);
     setTotalExpenses(total.toFixed(2));
 
-    // ✅ Save total to localStorage for BudgetAndCosts.js
+    // Save total to localStorage for BudgetAndCosts.js
     localStorage.setItem("totalAdditionalExpenses", total.toFixed(2));
   }, []);
 
-  // 🟢 Load Expenses from LocalStorage on Mount
+  // Load Expenses from LocalStorage on Mount
   useEffect(() => {
     const storedExpenses = JSON.parse(localStorage.getItem("additionalExpenses")) || [];
     setExpenses(storedExpenses);
-    calculateTotal(storedExpenses); // ✅ Run once on mount
+    calculateTotal(storedExpenses);
   }, [calculateTotal]);
 
-  // 🔹 Handle Save (Add/Edit) Expense
-  const handleSaveExpense = () => {
-    if (!expenseData.title || isNaN(expenseData.cost) || parseFloat(expenseData.cost) < 0) {
-      alert("❌ Please enter valid expense details.");
-      return;
+  // Validate Inputs (Real-time)
+  const validateForm = () => {
+    let valid = true;
+    let newErrors = { title: "", cost: "" };
+
+    if (!expenseData.title.trim()) {
+      newErrors.title = "Title is required.";
+      valid = false;
+    } else if (expenseData.title.length < 3) {
+      newErrors.title = "Title must be at least 3 characters.";
+      valid = false;
     }
+
+    if (expenseData.cost === "" || isNaN(expenseData.cost)) {
+      newErrors.cost = "Cost must be a valid number.";
+      valid = false;
+    } else if (parseFloat(expenseData.cost) < 0) {
+      newErrors.cost = "Cost cannot be negative.";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  // Handle Input Change & Live Validation
+  const handleInputChange = (field, value) => {
+    setExpenseData((prev) => ({ ...prev, [field]: value }));
+
+    // Live validation
+    let newErrors = { ...errors };
+    if (field === "title") {
+      newErrors.title = value.trim().length < 3 ? "Title must be at least 3 characters." : "";
+    } else if (field === "cost") {
+      newErrors.cost =
+        value === "" || isNaN(value) ? "Cost must be a valid number." :
+        parseFloat(value) < 0 ? "Cost cannot be negative." :
+        "";
+    }
+    setErrors(newErrors);
+  };
+
+  // Handle Save (Add/Edit) Expense
+  const handleSaveExpense = () => {
+    if (!validateForm()) return;
 
     let updatedExpenses = [...expenses];
 
     if (editingIndex !== null) {
-      // Edit existing expense
       updatedExpenses[editingIndex] = { ...expenseData, cost: parseFloat(expenseData.cost) };
     } else {
-      // Add new expense
       updatedExpenses.push({ ...expenseData, cost: parseFloat(expenseData.cost) });
     }
 
-    // ✅ Update localStorage first
+    // Update localStorage first
     localStorage.setItem("additionalExpenses", JSON.stringify(updatedExpenses));
 
-    // ✅ Update state & budget
+    // Update state & budget
     setExpenses(updatedExpenses);
-    calculateTotal(updatedExpenses); // ✅ Immediately update budget
+    calculateTotal(updatedExpenses); // Immediately update budget
 
-    // ✅ Notify TripOverview SAFELY after re-render
+    // Notify TripOverview
     setTimeout(() => {
       if (onExpensesUpdate) onExpensesUpdate();
     }, 0);
 
-    // Reset form & close modal
     resetForm();
   };
 
-  // 🔹 Handle Edit Expense
+  // Handle Edit Expense
   const handleEditExpense = (index) => {
     setExpenseData(expenses[index]);
     setEditingIndex(index);
+    setErrors({ title: "", cost: "" }); // Reset errors when opening modal
     setShowExpenseModal(true);
   };
 
-  // 🔹 Handle Delete Expense
+  // Handle Delete Expense
   const handleDeleteExpense = (index) => {
     let updatedExpenses = expenses.filter((_, i) => i !== index);
-
-    // ✅ Update localStorage first
     localStorage.setItem("additionalExpenses", JSON.stringify(updatedExpenses));
-
-    // ✅ Update state & budget
     setExpenses(updatedExpenses);
-    calculateTotal(updatedExpenses); // ✅ Immediately update budget
-
-    // ✅ Notify TripOverview SAFELY after re-render
+    calculateTotal(updatedExpenses);
     setTimeout(() => {
       if (onExpensesUpdate) onExpensesUpdate();
     }, 0);
   };
 
-  // 🔹 Reset Form Fields
+  // Reset Form Fields
   const resetForm = () => {
     setExpenseData({ title: "", cost: "" });
     setEditingIndex(null);
+    setErrors({ title: "", cost: "" }); // Reset errors when closing modal
     setShowExpenseModal(false);
   };
 
   return (
     <>
-      {/* 💸 Additional Expenses Card */}
-      <Card className="shadow-sm">
+      {/* Additional Expenses Card */}
+      <Card className="border-0">
         <Card.Body>
-          <Card.Title>💸 Additional Expenses</Card.Title>
+          <Card.Title className="text-center mb-3">💸 Additional Expenses</Card.Title>
           <ListGroup variant="flush">
             {expenses.length > 0 ? (
               expenses.map((expense, index) => (
@@ -124,7 +157,8 @@ function AdditionalExpenses({ onExpensesUpdate }) {
           </ListGroup>
           <p className="mt-2"><strong>Total Additional Expenses:</strong> ${totalExpenses}</p>
           <Button
-            variant="outline-danger"
+            variant="danger"
+            className="mt-3 w-100"
             onClick={() => {
               resetForm();
               setShowExpenseModal(true);
@@ -135,7 +169,7 @@ function AdditionalExpenses({ onExpensesUpdate }) {
         </Card.Body>
       </Card>
 
-      {/* 🔹 Expense Modal */}
+      {/* Expense Modal */}
       <Modal show={showExpenseModal} onHide={() => setShowExpenseModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>{editingIndex !== null ? "Edit Expense" : "Add Expense"}</Modal.Title>
@@ -147,18 +181,27 @@ function AdditionalExpenses({ onExpensesUpdate }) {
               <Form.Control
                 type="text"
                 value={expenseData.title}
-                onChange={(e) => setExpenseData({ ...expenseData, title: e.target.value })}
+                isInvalid={!!errors.title}
+                onChange={(e) => handleInputChange("title", e.target.value)}
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.title}
+              </Form.Control.Feedback>
             </Form.Group>
+
             <Form.Group className="mb-3">
               <Form.Label>Cost ($)</Form.Label>
               <Form.Control
                 type="number"
                 value={expenseData.cost}
-                onChange={(e) => setExpenseData({ ...expenseData, cost: e.target.value })}
+                isInvalid={!!errors.cost}
+                onChange={(e) => handleInputChange("cost", e.target.value)}
                 min="0"
                 step="0.01"
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.cost}
+              </Form.Control.Feedback>
             </Form.Group>
           </Form>
         </Modal.Body>

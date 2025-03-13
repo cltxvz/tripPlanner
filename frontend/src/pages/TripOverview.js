@@ -1,4 +1,4 @@
-import { Alert } from "react-bootstrap"; // ✅ Import Alert
+import { Alert } from "react-bootstrap";
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import TripHeader from "../components/TripOverview/TripHeader";
@@ -11,23 +11,22 @@ import BudgetAndCosts from "../components/TripOverview/BudgetAndCosts";
 import ToDoList from "../components/TripOverview/ToDoList";
 import Footer from "../components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Card } from "react-bootstrap";
 
 function TripOverview() {
   const navigate = useNavigate();
   const [updateBudget, setUpdateBudget] = useState(false);
   const [tripDetails, setTripDetails] = useState(null);
   const [forceRender, setForceRender] = useState(false);
-  
-  // 🚀 ✅ Move alert state here
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertVariant, setAlertVariant] = useState("danger");
 
-  // ✅ Function to trigger budget update
+  // Function to trigger budget update
   const handleExpensesUpdate = () => {
     setUpdateBudget((prev) => !prev);
   };
 
-  // ✅ Function to refresh trip details when edited
+  // Function to refresh trip details when edited
   const refreshTripDetails = useCallback(() => {
     const updatedTrip = JSON.parse(localStorage.getItem("tripDetails")) || {};
     setTripDetails(updatedTrip);
@@ -35,7 +34,7 @@ function TripOverview() {
     handleExpensesUpdate();
   }, []);
 
-  // ✅ Function to show alerts
+  // Function to show alerts
   const showAlert = (message, variant = "danger") => {
     setAlertMessage(message);
     setAlertVariant(variant);
@@ -58,10 +57,10 @@ function TripOverview() {
     <div key={forceRender}>
       <TripHeader tripDetails={tripDetails} />
 
-      {/* 🚀 Pass showAlert to ActionButtons */}
+      {/* Pass showAlert to ActionButtons */}
       <ActionButtons refreshTripDetails={refreshTripDetails} showAlert={showAlert} />
 
-      {/* 🌟 Show alert BELOW action buttons */}
+      {/* Show alert below action buttons */}
       {alertMessage && (
         <div className="container mt-3">
           <Alert variant={alertVariant} className="text-center">
@@ -70,44 +69,50 @@ function TripOverview() {
         </div>
       )}
 
-      <div className="container mt-4">
-        {/* ✈️ Flights & 🏨 Stays Section */}
-        <div className="row gx-4">
-          <div className="col-md-6 d-flex flex-column">
-            <div className="h-100">
+      <div className="container mt-4 mb-4">
+        {/* Flights & Stays Section */}
+        <div className="row gx-4 align-items-stretch">
+          <div className="col-md-6 d-flex">
+            <div className="w-100 h-100">
               <Flights onBudgetUpdate={handleExpensesUpdate} />
             </div>
           </div>
-          <div className="col-md-6 d-flex flex-column">
-            <div className="h-100">
+          <div className="col-md-6 d-flex">
+            <div className="w-100 h-100">
               <Stay onBudgetUpdate={handleExpensesUpdate} />
             </div>
           </div>
         </div>
 
-        {/* 📅 Trip Days Section */}
+        {/* Trip Days Section */}
         <div className="row mt-4">
           <div className="col-12">
             <TripDays key={forceRender} />
           </div>
         </div>
 
-        {/* 💰 Expenses, Budget & To-Do */}
-        <div className="row mt-4 gx-4">
-          <div className="col-md-4 d-flex flex-column">
-            <div className="h-100">
-              <AdditionalExpenses onExpensesUpdate={handleExpensesUpdate} />
-            </div>
+        {/* Expenses, Budget & To-Do */}
+        <div className="row mt-4 gx-4 align-items-stretch">
+          <div className="col-md-4 d-flex">
+            <Card className="shadow-sm w-100 h-100 d-flex flex-column">
+              <Card.Body className="d-flex flex-column justify-content-between">
+                <AdditionalExpenses onExpensesUpdate={handleExpensesUpdate} />
+              </Card.Body>
+            </Card>
           </div>
-          <div className="col-md-4 d-flex flex-column">
-            <div className="h-100">
-              <BudgetAndCosts updateTrigger={updateBudget} />
-            </div>
+          <div className="col-md-4 d-flex">
+            <Card className="shadow-sm w-100 h-100 d-flex flex-column">
+              <Card.Body className="d-flex flex-column justify-content-between">
+                <BudgetAndCosts updateTrigger={updateBudget} />
+              </Card.Body>
+            </Card>
           </div>
-          <div className="col-md-4 d-flex flex-column">
-            <div className="h-100">
-              <ToDoList />
-            </div>
+          <div className="col-md-4 d-flex">
+            <Card className="shadow-sm w-100 h-100 d-flex flex-column">
+              <Card.Body className="d-flex flex-column justify-content-between">
+                <ToDoList />
+              </Card.Body>
+            </Card>
           </div>
         </div>
       </div>

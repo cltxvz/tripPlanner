@@ -4,7 +4,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 
-function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showAlert as a prop
+function ActionButtons({ refreshTripDetails, showAlert }) { // Receive showAlert as a prop
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -19,20 +19,20 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
   // Validation states
   const [errors, setErrors] = useState({ destination: false, days: false, people: false });
 
-  // ✅ Function to safely trigger trip refresh
+  // Function to safely trigger trip refresh
   const safeRefreshTripDetails = useCallback(() => {
     setTimeout(() => {
       if (refreshTripDetails) refreshTripDetails();
     }, 0);
   }, [refreshTripDetails]);
 
-  // ✅ Ensure trip data is loaded & avoid undefined values
+  // Ensure trip data is loaded & avoid undefined values
   useEffect(() => {
     const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { destination: "", days: "1", people: "1" };
     setTrip(storedTrip);
   }, []);
 
-  // 🔹 Open Edit Trip Modal and Load Data from LocalStorage
+  // Open Edit Trip Modal and Load Data from LocalStorage
   const handleEditTrip = () => {
     const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { destination: "", days: "1", people: "1" };
     setTrip(storedTrip);
@@ -40,7 +40,7 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
     setShowEditModal(true);
   };
 
-  // 🔹 Handle input change and clear validation errors
+  // Handle input change and clear validation errors
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTrip({ ...trip, [name]: value });
@@ -51,7 +51,7 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
     }
   };
 
-  // 🔹 Save Edited Trip Details with Inline Validation
+  // Save Edited Trip Details with Inline Validation
   const handleSaveChanges = () => {
     const newErrors = {
       destination: !trip.destination.trim(),
@@ -70,12 +70,12 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
     safeRefreshTripDetails();
   };
 
-  // 🔹 Handle Start Over (Show Confirmation Modal)
+  // Handle Start Over (Show Confirmation Modal)
   const handleStartOver = () => {
     setShowConfirmModal(true);
   };
 
-  // 🔹 Confirm Start Over (Clear LocalStorage)
+  // Confirm Start Over (Clear LocalStorage)
   const confirmStartOver = () => {
     localStorage.clear();
     setTrip({ destination: "", days: "1", people: "1" });
@@ -84,7 +84,7 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
     navigate("/");
   };
 
-  // 🔹 Handle Importing Trip Data
+  // Handle Importing Trip Data
   const handleImportTrip = (event) => {
     const file = event.target.files[0];
 
@@ -143,10 +143,10 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
       todoList: JSON.parse(localStorage.getItem("todoList")) || [],
     };
   
-    // 🔹 Convert data to JSON
+    // Convert data to JSON
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tripData, null, 2));
   
-    // 🔹 Create download link
+    // Create download link
     const downloadAnchor = document.createElement("a");
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", `${fileName}.json`);
@@ -161,7 +161,7 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
 
   return (
     <div className="text-center mt-4">
-      {/* 🚀 Action Buttons */}
+      {/* Action Buttons */}
       <Button variant="danger" onClick={handleStartOver} className="m-2">
         🗑️ Start Over
       </Button>
@@ -179,7 +179,7 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
         📤 Export Trip
       </Button>
 
-      {/* 📝 Edit Trip Modal */}
+      {/* Edit Trip Modal */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Trip Details</Modal.Title>
@@ -244,7 +244,7 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
         </Modal.Footer>
       </Modal>
 
-      {/* ⚠️ Confirmation Modal for Start Over */}
+      {/* Confirmation Modal for Start Over */}
       <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>⚠️ Confirm Reset</Modal.Title>
@@ -262,7 +262,7 @@ function ActionButtons({ refreshTripDetails, showAlert }) { // ✅ Receive showA
         </Modal.Footer>
       </Modal>
 
-      {/* 📤 Export Trip Modal */}
+      {/* Export Trip Modal */}
       <Modal show={showExportModal} onHide={() => setShowExportModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>📤 Export Trip</Modal.Title>

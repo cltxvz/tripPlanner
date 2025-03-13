@@ -15,19 +15,19 @@ function TripDays() {
 
     const [days, setDays] = useState([]);
 
-    // ✅ Load trip days when `tripDetails` updates
+    // Load trip days when `tripDetails` updates
     useEffect(() => {
         if (tripDetails.days) {
             setDays(new Array(Number(tripDetails.days)).fill(null));
         }
     }, [tripDetails.days]);
 
-    // ✅ Recalculate total cost for each day when `tripDetails` changes
+    // Recalculate total cost for each day when `tripDetails` changes
     useEffect(() => {
         updateDayPlanCosts();
-    }, [tripDetails.people]); // ✅ Trigger when number of travelers changes
+    }, [tripDetails.people]); // Trigger when number of travelers changes
 
-    // ✅ Ensure trip details stay synced with localStorage
+    // Ensure trip details stay synced with localStorage
     useEffect(() => {
         const handleStorageChange = () => {
             const updatedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, people: 1, dayPlans: {} };
@@ -41,7 +41,7 @@ function TripDays() {
         };
     }, []);
 
-    // ✅ Recalculate and update trip day costs when the number of travelers changes
+    // Recalculate and update trip day costs when the number of travelers changes
     const updateDayPlanCosts = () => {
         const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, people: 1, dayPlans: {} };
         const updatedTrip = { ...storedTrip };
@@ -52,7 +52,7 @@ function TripDays() {
 
                 if (dayPlan.dayPlan) {
                     const totalCostPerPerson = dayPlan.dayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0);
-                    dayPlan.totalCost = totalCostPerPerson * (updatedTrip.people || 1); // ✅ Update cost for all travelers
+                    dayPlan.totalCost = totalCostPerPerson * (updatedTrip.people || 1); // Update cost for all travelers
                 }
             });
         }
@@ -61,34 +61,34 @@ function TripDays() {
         setTripDetails(updatedTrip);
     };
 
-    // ✅ Navigate to planner for selected day
+    // Navigate to planner for selected day
     const goToDay = (dayNumber) => {
         localStorage.setItem("selectedDay", dayNumber);
         navigate("/planner");
     };
 
     return (
-        <Container className="mt-4">
+        <Container className="mt-0">
             <Row>
                 <Col md={12}>
                     <Card className="shadow-sm">
                         <Card.Body>
-                            <Card.Title>📅 Trip Days</Card.Title>
-                            <div className="d-flex flex-wrap justify-content-center">
+                            <Card.Title className="text-center mb-3">📅 Trip Days</Card.Title>
+                            <div className="d-flex flex-wrap justify-content-start">
                                 {days.length > 0 ? (
                                     days.map((_, index) => (
                                         <Card key={index} className="m-2 shadow-sm" style={{ width: "18rem" }}>
                                             <Card.Body>
-                                                <Card.Title>Day {index + 1}</Card.Title>
+                                                <Card.Title className="text-center">Day {index + 1}</Card.Title>
                                                 <ListGroup variant="flush">
                                                     {tripDetails.dayPlans &&
                                                     tripDetails.dayPlans[index + 1] &&
-                                                    tripDetails.dayPlans[index + 1].dayPlan ? (
+                                                    Array.isArray(tripDetails.dayPlans[index + 1].dayPlan) &&
+                                                    tripDetails.dayPlans[index + 1].dayPlan.length > 0 ? (
                                                         <>
                                                             {tripDetails.dayPlans[index + 1].dayPlan.map((activity, i) => (
                                                                 <ListGroup.Item key={i}>
-                                                                    {activity.title} - $
-                                                                    {Number(activity.cost || 0).toFixed(2)} {/* ✅ Fix NaN error */}
+                                                                    {activity.title} - ${Number(activity.cost || 0).toFixed(2)}
                                                                 </ListGroup.Item>
                                                             ))}
                                                             <ListGroup.Item className="text-muted">
@@ -102,7 +102,7 @@ function TripDays() {
                                                 </ListGroup>
                                                 <Button
                                                     variant="primary"
-                                                    className="mt-2"
+                                                    className="mt-2 w-100"
                                                     onClick={() => goToDay(index + 1)}
                                                 >
                                                     📝 Plan/Edit Day

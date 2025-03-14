@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Card from "react-bootstrap/Card";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import DayTable from "./DayTable"; // ✅ Using the new table component
 
 function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
   const [showModal, setShowModal] = useState(false);
@@ -10,52 +10,69 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-  // 🔹 Handle Drag Over
-  const handleDragOver = (e) => {
+  // 🔹 Open Modal After Drop
+  const handleDropActivity = (e, hour) => {
     e.preventDefault();
-  };
-
-  // 🔹 Handle Drop (Open Modal)
-  const handleDrop = (e) => {
-    e.preventDefault();
-
+  
+    // ✅ Extract activity from the drag event
     const activityData = e.dataTransfer.getData("activity");
-    if (!activityData) return;
-
+    if (!activityData) {
+      console.error("❌ No activity data found in drag event.");
+      return;
+    }
+  
     const activity = JSON.parse(activityData);
+  
     setSelectedActivity(activity);
-    setShowModal(true); // ✅ Open modal on drop
+    setStartTime("");
+    setEndTime("");
+    setShowModal(true);
   };
+  
+  
 
-  // 🔹 Handle Activity Save
+  // 🔹 Handle Saving Activity
   const handleSaveActivity = () => {
     if (!startTime || !endTime || endTime <= startTime) {
       alert("❌ Please enter valid start and end times.");
       return;
     }
-
+  
+    console.log("🔍 Selected Activity Before Save:", selectedActivity); // ✅ Debug log
+  
     const newActivity = {
-      ...selectedActivity,
+      id: selectedActivity?.id || "❌ Missing ID",
+      title: selectedActivity?.title || "❌ Missing Title",
       startTime,
       endTime,
-      cost: Number(selectedActivity.cost) || 0, // ✅ Ensure cost is a valid number
+      cost: Number(selectedActivity?.cost) || 0,
     };
-
-    updateDayPlan([...dayPlan, newActivity]); // ✅ Update state & save
+  
+    console.log("✅ Adding Activity to DayPlan:", newActivity); // ✅ Debug log
+    console.log("📅 Current Day Plan:", dayPlan); // ✅ Log before update
+  
+    if (!Array.isArray(dayPlan)) {
+      console.error("❌ dayPlan is not an array:", dayPlan);
+      return;
+    }
+  
+    updateDayPlan([...dayPlan, newActivity]); // ✅ Ensure it's always an array
+  
     setShowModal(false);
     setStartTime("");
     setEndTime("");
   };
+  
+  
+  
+  
+  
 
-  // 🔹 Handle Deleting Activity (Move Back to Available Activities)
+  // 🔹 Handle Deleting Activity
   const handleDeleteActivity = (index) => {
     const removedActivity = dayPlan[index];
+    updateDayPlan(dayPlan.filter((_, i) => i !== index));
 
-    // ✅ Remove from day schedule
-    const updatedDayPlan = dayPlan.filter((_, i) => i !== index);
-    updateDayPlan(updatedDayPlan);
-
-    // ✅ Move activity back to available activities (only if function exists)
     if (typeof updateAvailableActivities === "function") {
       updateAvailableActivities((prev) => [...prev, removedActivity]);
     }
@@ -63,49 +80,18 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
 
   return (
     <>
-      {/* 🗓 Day Schedule Section */}
-      <Card className="shadow-sm">
-        <Card.Body>
-          <Card.Title>🗓 Day Schedule</Card.Title>
-          <div
-            className="drop-zone p-4 border rounded text-center"
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            style={{ minHeight: "200px", backgroundColor: "#f8f9fa" }}
-          >
-            {dayPlan.length === 0 ? (
-              <p className="text-muted">Drag activities here to plan your day</p>
-            ) : (
-              dayPlan.map((activity, index) => (
-                <div key={index} className="border p-2 mb-2 bg-light d-flex justify-content-between align-items-center">
-                  <span>
-                    <strong>{activity.title}</strong> ({activity.startTime} - {activity.endTime})
-                  </span>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDeleteActivity(index)}
-                  >
-                    🗑️ Remove
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
-        </Card.Body>
-      </Card>
+      {/* 🔹 Activity Table */}
+      <DayTable dayPlan={dayPlan} onDeleteActivity={handleDeleteActivity} onDropActivity={handleDropActivity} />
 
       {/* 🔹 Activity Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title>Set Activity Time</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedActivity && (
             <>
-              <p>
-                <strong>Activity:</strong> {selectedActivity.title}
-              </p>
+              <p><strong>Activity:</strong> {selectedActivity.title}</p>
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>Start Time</Form.Label>
@@ -130,12 +116,8 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSaveActivity}>
-            Add to Schedule
-          </Button>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+          <Button variant="primary" onClick={handleSaveActivity}>Add to Schedule</Button>
         </Modal.Footer>
       </Modal>
     </>

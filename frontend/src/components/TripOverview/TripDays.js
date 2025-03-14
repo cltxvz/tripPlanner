@@ -9,6 +9,7 @@ import Col from "react-bootstrap/Col";
 
 function TripDays() {
     const navigate = useNavigate();
+    const numberOfTravelers = JSON.parse(localStorage.getItem("tripDetails"))?.people || 1;
     const [tripDetails, setTripDetails] = useState(() => {
         return JSON.parse(localStorage.getItem("tripDetails")) || { days: 1, people: 1, dayPlans: {} };
     });
@@ -88,7 +89,7 @@ function TripDays() {
                                                         <>
                                                             {tripDetails.dayPlans[index + 1].dayPlan.map((activity, i) => (
                                                                 <ListGroup.Item key={i}>
-                                                                    {activity.title} - ${Number(activity.cost || 0).toFixed(2)}
+                                                                    {activity.title} - ${Number((activity.cost || 0) * numberOfTravelers).toFixed(2)}
                                                                 </ListGroup.Item>
                                                             ))}
                                                             <ListGroup.Item className="text-muted">

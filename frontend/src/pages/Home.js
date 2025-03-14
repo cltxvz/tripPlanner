@@ -6,7 +6,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-import Alert from "react-bootstrap/Alert"; // ✅ Import Bootstrap Alert
+import Alert from "react-bootstrap/Alert";
 import Header from "../components/Home/Header";
 import Footer from "../components/Footer";
 
@@ -16,7 +16,7 @@ function Home() {
     const [alertMessage, setAlertMessage] = useState(null);
     const [alertVariant, setAlertVariant] = useState("danger");
 
-    // 🔹 Show an Alert with auto-hide
+    // Show an Alert with auto-hide
     const showAlert = (message, variant = "danger") => {
         setAlertMessage(message);
         setAlertVariant(variant);
@@ -34,7 +34,7 @@ function Home() {
     // Create New Trip
     const handleCreateTrip = (e) => {
         e.preventDefault();
-        localStorage.clear(); // ✅ Clears any previous trip
+        localStorage.clear(); // Clears any previous trip
 
         if (!tripDetails.destination.trim() || tripDetails.days <= 0 || tripDetails.people <= 0) {
             showAlert("❌ Please fill in all fields correctly.", "danger");
@@ -59,21 +59,21 @@ function Home() {
             try {
                 const importedData = JSON.parse(event.target.result);
 
-                // ✅ Ensure imported data contains the necessary fields
+                // Ensure imported data contains the necessary fields
                 if (!importedData.tripDetails || !importedData.tripDetails.destination || !importedData.tripDetails.days || !importedData.tripDetails.people) {
                     throw new Error("Invalid trip data format.");
                 }
 
-                // ✅ Clear existing data before importing
+                // Clear existing data before importing
                 localStorage.clear();
 
-                // ✅ Load all imported data into LocalStorage
+                // Load all imported data into LocalStorage
                 Object.keys(importedData).forEach((key) => {
                     localStorage.setItem(key, JSON.stringify(importedData[key]));
                 });
 
                 showAlert("✅ Trip imported successfully!", "success");
-                setTimeout(() => navigate("/trip"), 1500); // ✅ Redirect after success
+                setTimeout(() => navigate("/trip"), 1500); // Redirect after success
             } catch (error) {
                 showAlert("❌ Failed to import trip. Please upload a valid JSON file.", "danger");
             }
@@ -84,7 +84,7 @@ function Home() {
 
     return (
         <>
-            {/* 🌟 Header */}
+            {/* Header */}
             <Header tripDetails={tripDetails} />
 
             <Container className="mt-5">
@@ -95,7 +95,7 @@ function Home() {
                                 <h1 className="mb-3">🌍 Ready for takeoff?</h1>
                                 <p className="lead">Start by creating a new trip or importing an existing one!</p>
 
-                                {/* 🚨 Styled Alert Message */}
+                                {/* Styled Alert Message */}
                                 {alertMessage && (
                                     <Alert variant={alertVariant} className="text-center">
                                         {alertMessage}
@@ -157,7 +157,7 @@ function Home() {
                 </Row>
             </Container>
 
-            {/* 🔻 Footer with spacing */}
+            {/* Footer */}
             <div className="mt-5"></div>
             <Footer />
         </>

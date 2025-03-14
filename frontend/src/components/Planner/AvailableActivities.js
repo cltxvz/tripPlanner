@@ -17,25 +17,28 @@ function AvailableActivities({ activities, dayPlan }) {
   }, [activities, dayPlan]);
 
   return (
-    <Card className="shadow-lg p-4">
+    <Card className="shadow-sm p-4">
       <Card.Body>
         <h4 className="text-center">🎯 Available Activities</h4>
         <ListGroup className="mt-3">
           {unscheduledActivities.length > 0 ? (
             unscheduledActivities.map((activity) => (
               <ListGroup.Item
-                key={activity.id}
-                className="d-flex justify-content-between align-items-center"
-                draggable
-                onDragStart={(e) => e.dataTransfer.setData("activity", JSON.stringify(activity))}
-              >
-                <div className="text-start">
-                  <strong>{activity.title}</strong>
-                  <p className="mb-1">{activity.description || "No description available"}</p>
-                  <span className="text-muted">💰 Cost Per Person: ${parseFloat(activity.cost).toFixed(2)}</span>
-                </div>
-                <span className="text-muted">📌 Drag to schedule</span>
-              </ListGroup.Item>
+  key={activity.id}
+  className="d-flex justify-content-between align-items-center"
+  draggable
+  onDragStart={(e) => {
+    e.dataTransfer.setData("activity", JSON.stringify(activity));
+  }}
+>
+  <div className="text-start">
+    <strong>{activity.title}</strong>
+    <p className="mb-1">{activity.description || "No description available"}</p>
+    <span className="text-muted">💰 Cost Per Person: ${parseFloat(activity.cost).toFixed(2)}</span>
+  </div>
+  <span className="text-muted">📌 Drag to schedule</span>
+</ListGroup.Item>
+
             ))
           ) : (
             <p className="text-muted text-center">No available activities.</p>

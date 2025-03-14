@@ -9,7 +9,7 @@ function TotalCost({ dayPlan, numberOfTravelers }) {
   const [totalCostForAll, setTotalCostForAll] = useState(0);
 
   useEffect(() => {
-    // Calculate total cost
+    // Calculate total cost but DO NOT save it to localStorage automatically
     const totalPerPerson = dayPlan.reduce((sum, activity) => sum + parseFloat(activity.cost || 0), 0);
     const totalAll = totalPerPerson * numberOfTravelers;
 
@@ -17,36 +17,41 @@ function TotalCost({ dayPlan, numberOfTravelers }) {
     setTotalCostForAll(totalAll);
   }, [dayPlan, numberOfTravelers]);
 
-  // ✅ Handle finishing planning and saving to localStorage
+  // ✅ Handle finishing planning and explicitly saving to localStorage
   const handleFinishPlanning = () => {
+    console.log("🛠 Saving Finalized Day Plan to Local Storage...");
+  
     const tripDetails = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
     const selectedDay = localStorage.getItem("selectedDay");
-
+  
     if (!selectedDay) {
-      console.error("❌ No day selected. Returning to trip overview.");
-      navigate("/trip");
+      console.error("❌ No selected day found. Cannot save.");
       return;
     }
-
-    if (!tripDetails.dayPlans) {
-      tripDetails.dayPlans = {};
-    }
-
-    // Save the total cost for the selected day
+  
+    const serializableDayPlan = dayPlan.map(({ id, title, startTime, endTime, cost }) => ({
+      id,
+      title,
+      startTime,
+      endTime,
+      cost,
+    }));
+  
     tripDetails.dayPlans[selectedDay] = {
-      dayPlan,
-      totalCost: totalCostForAll,
+      dayPlan: serializableDayPlan,
     };
-
+  
+    console.log("✅ Finalized Plan Saved:", tripDetails);
     localStorage.setItem("tripDetails", JSON.stringify(tripDetails));
-    console.log(`📅 Day ${selectedDay} successfully saved.`);
-
-    // ✅ Redirect back to Trip Overview
+  
     navigate("/trip");
   };
+  
+  
+  
 
   return (
-    <Card className="shadow-lg p-4 mt-4">
+    <Card className="shadow-sm p-4 mt-4">
       <Card.Body className="text-center">
         <h4>💰 Total Costs for the Day</h4>
         <p className="mt-3">
@@ -55,9 +60,15 @@ function TotalCost({ dayPlan, numberOfTravelers }) {
         <p>
           <strong>For All Travelers:</strong> ${totalCostForAll.toFixed(2)}
         </p>
-        <Button variant="success" className="mt-3 w-100" onClick={handleFinishPlanning}>
-          ✅ Finish Planning
-        </Button>
+        {/* Button group */}
+        <div className="d-flex flex-row gap-2">
+          <Button variant="secondary" className="mt-3 w-100" onClick={() => navigate("/trip")}>
+            🔙 Trip Overview
+          </Button>
+          <Button variant="success" className="mt-3 w-100" onClick={handleFinishPlanning}>
+            ✅ Save Changes
+          </Button>
+        </div>
       </Card.Body>
     </Card>
   );

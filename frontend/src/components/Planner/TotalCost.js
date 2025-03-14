@@ -29,12 +29,13 @@ function TotalCost({ dayPlan, numberOfTravelers }) {
       return;
     }
   
-    const serializableDayPlan = dayPlan.map(({ id, title, startTime, endTime, cost }) => ({
+    const serializableDayPlan = dayPlan.map(({ id, title, startTime, endTime, cost, color }) => ({
       id,
       title,
       startTime,
       endTime,
       cost,
+      color,
     }));
   
     tripDetails.dayPlans[selectedDay] = {

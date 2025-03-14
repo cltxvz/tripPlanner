@@ -9,6 +9,7 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [color, setColor] = useState("#007bff"); // Default color (Bootstrap primary)
 
   // 🔹 Open Modal After Drop
   const handleDropActivity = (e, hour) => {
@@ -46,6 +47,7 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
       startTime,
       endTime,
       cost: Number(selectedActivity?.cost) || 0,
+      color,
     };
   
     console.log("✅ Adding Activity to DayPlan:", newActivity); // ✅ Debug log
@@ -61,6 +63,7 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
     setShowModal(false);
     setStartTime("");
     setEndTime("");
+    setColor("#007bff");
   };
   
   
@@ -109,6 +112,14 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
                     required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Block Color</Form.Label>
+                  <Form.Control
+                    type="color"
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
                   />
                 </Form.Group>
               </Form>

@@ -1,115 +1,111 @@
-# 📚 TripPlanner
+# 🌍 **TripPlanner**  
 
-"Plan, organize, and enjoy your perfect vacation!"
-
----
-
-## 🚀 Description:
-
-**TripPlanner** is a comprehensive trip planning application designed to simplify the process of organizing your dream vacation. Whether you’re traveling solo or with a group, TripPlanner provides an intuitive interface to manage your flights, accommodations, daily activities, budgets, and itineraries. From creating day-by-day plans to managing costs and to-do lists, TripPlanner ensures a hassle-free planning experience.
+*"Plan, organize, and enjoy your perfect vacation!"*  
 
 ---
 
-## 🛠️ Technologies Used:
+## 🚀 **Description:**  
 
-- **Stack:** HTML, CSS, JavaScript.  
-- **Core Libraries/Tools:**  
-  - LocalStorage API for state management.
-  - JSON parsing for data handling.  
-  - DOM manipulation for dynamic UI updates.  
-  - OpenCage API for location auto-fill suggestions.
+**TripPlanner** is a powerful and user-friendly trip planning application built with **React**. Whether traveling solo or with a group, TripPlanner helps manage flights, accommodations, daily activities, budgets, and itineraries in a **seamless** and **interactive** way. With features like a **drag-and-drop itinerary builder**, **real-time budget tracking**, and **JSON-based import/export**, TripPlanner makes planning your dream vacation effortless.  
 
+---
+
+## 🛠️ **Technologies Used:**  
+
+### **Stack:**  
+- **Frontend:** React, Bootstrap, React Router.  
+- **State Management:** LocalStorage (for now, backend planned for the future).  
+- **Styling:** Bootstrap 5, CSS.  
 - **Version Control:** Git & GitHub.  
 
 ---
 
-## 📚 Skills & Concepts Applied:
+## 📚 **Skills & Concepts Applied**  
 
-- **Object-Oriented Programming (OOP):** Modularized functionality for trip details, activities, and day plans using reusable methods.  
-- **State Management:** Persistent trip and activity data with LocalStorage, ensuring the user’s progress is saved across sessions.  
-- **Data Structures:** Arrays for activity and day plan management.  
-- **Algorithms:** Implemented sorting and filtering for day plans and activity lists.  
-- **Event Handling:** Efficient use of JavaScript event listeners for user interactions (e.g., drag-and-drop functionality, modal triggers).  
-- **Error Handling:** Validation for user inputs in forms (e.g., cost inputs, missing fields) and error messages for incorrect data.  
-
----
-
-## 📖 Instructions on How to Use TripPlanner:
-
-### **Set Up Your Trip:**
-1. Add trip details, including destination, duration, and number of travelers.  
-2. Manage your trip details via the "Edit Trip" section.  
-
-### **Plan Activities:**
-1. Go to the **Plan Activities** page.  
-2. Add activities to your activity pool, including a title, description, and cost per person.  
-3. Edit or delete activities as needed.  
-
-### **Plan Your Days:**
-1. Navigate to the **Plan Your Day** page.  
-2. Drag and drop activities into the day schedule to create your itinerary.  
-3. Add time slots for each activity and ensure your schedule aligns with your trip. 
-
-### **Track Budgets:**
-1. The total costs (per person and for all travelers) are dynamically calculated and displayed.  
-2. Add and monitor flight, accommodation, and activity expenses in the **Trip Overview** page.  
-
-### **Save & Export Your Plan:**
-1. Your trip data is automatically saved in your browser via LocalStorage.  
-2. Export your trip as a JSON file for backup or sharing with your group.  
+- **React Component Architecture** → Modular, reusable components.  
+- **State Management** → LocalStorage for now, expandable to Backend DB.  
+- **React Hooks (useState, useEffect, useCallback)** for dynamic UI updates.  
+- **Event Handling** → Drag & Drop functionality for trip scheduling.  
+- **Data Persistence** → Saves trip data in browser storage for later retrieval.  
+- **Error Handling** → Improved UI feedback with alerts and validation.  
 
 ---
 
-## 📊 Features:
+## 📖 **How to Use TripPlanner**  
 
-- **Trip Overview:**  
-  Manage trip details, flights, accommodations, and overall costs in one place.  
+### **Set Up Your Trip**  
+1. Start by entering **destination, duration, and number of travelers**.  
+2. Edit trip details anytime via the **Edit Trip** section.  
 
-- **Activity Management:**  
-  Add, edit, and delete activities from the activity pool.  
+### **Manage Activities**  
+1. Add activities to your **Available Activities Pool** with details like cost and time.  
+2. Drag and drop activities into the **Daily Itinerary**.  
+3. Schedule activity times using the **calendar-style planner**.  
 
-- **Daily Itineraries:**  
-  Drag-and-drop functionality to create a day-by-day plan.  
+### **Track Budgets & Costs**  
+1. View **real-time calculations** of trip expenses for individuals and groups.  
+2. Add flights, stays, and additional expenses in the **Trip Overview**.  
 
-- **Cost Tracking:**  
-  Dynamic cost calculations for activities, flights, and stays.  
-
-- **LocalStorage Integration:**  
-  Persistent data storage to save progress across sessions.  
-
-- **Responsive Design:**  
-  Fully optimized layouts for desktop and mobile screens.  
-
----
-
-## 📈 Ideas for Future Improvements:
-
-- User authentication for personalized trip planning across devices.  
-- Integration with external APIs for flights, accommodations, and activity recommendations.  
-- Cloud-based storage for collaborative trip planning.  
-- Advanced analytics on trip costs and activity trends.  
+### **Save, Export & Share Your Trip**  
+1. Trip data **automatically saves** in the browser via LocalStorage.  
+2. Export your trip plan as a **JSON file** for easy sharing or backup.  
+3. Import saved trip files to **resume planning instantly**.  
 
 ---
 
-## 📜 How to Run the Project Locally:
+## 📊 **Features**  
 
-1. Clone the repository:  
+### 🔥 **Core Features**  
+✔ **Trip Overview** → Flights, stays, additional expenses, and budgets in one place.  
+✔ **Activity Management** → Add, edit, and remove activities dynamically.  
+✔ **Daily Itineraries** → **Calendar View** for structured trip scheduling.  
+✔ **Drag & Drop** → Schedule activities seamlessly with an interactive planner.  
+✔ **Budget Tracking** → **Automatic calculations for all travelers & per person**.  
+✔ **To-Do List** → Create and check off travel-related tasks.  
+✔ **Real-time Data Saving** → Ensures no progress is lost.  
+✔ **Import/Export** → Load and save trips as JSON files.  
+✔ **Mobile-Friendly** → Optimized UI for both **desktop & mobile**.  
+
+---
+
+## 🏗 **Future Enhancements**  
+
+### 🚀 **Backend Implementation (Planned)**  
+- **User Authentication** → Login system for personal trip storage.  
+- **Cloud Database (MongoDB, Firebase, PostgreSQL)** → Save trip data online.  
+- **Trip Collaboration Feature** → Share and edit trips with friends in real time.  
+- **Flight & Hotel API Integration** → Fetch real-time travel data.  
+- **AI-Powered Recommendations** → Suggest activities, budget optimizations, and schedules.  
+- **Expense Splitting** → Feature to split trip costs among travelers.  
+
+---
+
+## 🏃 **How to Run the Project Locally**  
+
+1. **Clone the repository:**  
    ```bash
-   git clone https://github.com/cltxvz/tripplanner.git
+   git clone https://github.com/cltxvz/tripPlanner.git
    ```  
-2. Navigate to the project folder:  
+2. **Navigate to the project folder:**  
    ```bash
-   cd tripplanner
+   cd tripPlanner
    ```  
-3. Open the `index.html` file in your browser to start planning your trip!  
+3. **Install dependencies:**  
+   ```bash
+   npm install
+   ```  
+4. **Start the development server:**  
+   ```bash
+   npm start
+   ```  
+5. Open `http://localhost:3000` in your browser to start planning your trip!  
 
 ---
 
-## 👤 Author:
+## 👤 **Author**  
 
 **Carlos A. Cárdenas**  
 
 Feel free to reach out for collaboration or feedback!  
 
-Thank you for using **TripPlanner**! 🌍✨ If you like this project, ⭐ star the repository and contribute to its growth. 🚀  
-
+Thank you for using **TripPlanner**! 🌍✨ If you like this project, **⭐ star the repository** and contribute to its growth. 🚀  

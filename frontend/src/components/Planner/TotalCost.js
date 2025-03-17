@@ -19,7 +19,6 @@ function TotalCost({ dayPlan, numberOfTravelers }) {
 
   // ✅ Handle finishing planning and explicitly saving to localStorage
   const handleFinishPlanning = () => {
-    console.log("🛠 Saving Finalized Day Plan to Local Storage...");
   
     const tripDetails = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
     const selectedDay = localStorage.getItem("selectedDay");
@@ -42,7 +41,6 @@ function TotalCost({ dayPlan, numberOfTravelers }) {
       dayPlan: serializableDayPlan,
     };
   
-    console.log("✅ Finalized Plan Saved:", tripDetails);
     localStorage.setItem("tripDetails", JSON.stringify(tripDetails));
   
     navigate("/trip");

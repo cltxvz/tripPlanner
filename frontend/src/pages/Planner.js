@@ -37,14 +37,10 @@ function Planner() {
 
   // ✅ Ensures a trip exists and loads necessary details
   useEffect(() => {
-    console.log("🛠 Loading Data from Local Storage...");
   
     const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
     const storedActivities = JSON.parse(localStorage.getItem("activities")) || [];
     const selectedDay = localStorage.getItem("selectedDay");
-  
-    console.log("📌 Loaded tripDetails:", storedTrip);
-    console.log("📌 Selected Day:", selectedDay);
   
     if (!storedTrip || !selectedDay) {
       navigate("/"); // ⏪ Redirect if trip or selected day is missing
@@ -61,7 +57,6 @@ function Planner() {
       ? storedTrip.dayPlans[selectedDay].dayPlan 
       : [];
   
-    console.log("✅ Loaded Day Plan:", currentDayPlan);
     setDayPlan(currentDayPlan);
   
     // ✅ Filter out activities already in `dayPlan`
@@ -78,7 +73,6 @@ function Planner() {
 
   // 🔹 Function to update the day plan
   const updateDayPlan = (newDayPlan) => {
-    console.log("🛠 Received newDayPlan:", newDayPlan); // ✅ Log the input
     
     if (!Array.isArray(newDayPlan)) {
       console.error("❌ newDayPlan is not an array:", newDayPlan);
@@ -86,8 +80,6 @@ function Planner() {
     }
   
     setDayPlan(newDayPlan);
-  
-    console.log("🛠 Updating Local Storage with New Day Plan...");
   
     const tripDetails = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
     const selectedDay = localStorage.getItem("selectedDay");

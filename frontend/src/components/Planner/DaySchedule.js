@@ -39,8 +39,6 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
       return;
     }
   
-    console.log("🔍 Selected Activity Before Save:", selectedActivity); // ✅ Debug log
-  
     const newActivity = {
       id: selectedActivity?.id || "❌ Missing ID",
       title: selectedActivity?.title || "❌ Missing Title",
@@ -49,9 +47,6 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
       cost: Number(selectedActivity?.cost) || 0,
       color,
     };
-  
-    console.log("✅ Adding Activity to DayPlan:", newActivity); // ✅ Debug log
-    console.log("📅 Current Day Plan:", dayPlan); // ✅ Log before update
   
     if (!Array.isArray(dayPlan)) {
       console.error("❌ dayPlan is not an array:", dayPlan);
@@ -84,7 +79,12 @@ function DaySchedule({ dayPlan, updateDayPlan, updateAvailableActivities }) {
   return (
     <>
       {/* 🔹 Activity Table */}
-      <DayTable dayPlan={dayPlan} onDeleteActivity={handleDeleteActivity} onDropActivity={handleDropActivity} />
+      <DayTable 
+        dayPlan={dayPlan} 
+        updateDayPlan={updateDayPlan}
+        onDeleteActivity={handleDeleteActivity} 
+        onDropActivity={handleDropActivity} 
+      />
 
       {/* 🔹 Activity Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static">

@@ -30,29 +30,51 @@ function DayTable({ dayPlan, onDeleteActivity, onDropActivity }) {
 
     // Map activities to row spans
     const activityMap = new Map();
+const columnTracker = new Map(); // ✅ Tracks active columns at each time slot
+const rowSpanTracker = new Map(); // ✅ Tracks row span for each activity
 
-    dayPlan.forEach((activity) => {
+dayPlan.forEach((activity) => {
     const startMinutes = timeToMinutes(activity.startTime);
     const endMinutes = timeToMinutes(activity.endTime);
     const startSlot = Math.floor(startMinutes / 60);
     const endSlot = Math.ceil(endMinutes / 60);
+    const rowSpan = endSlot - startSlot; // ✅ Calculate how many rows this activity should span
 
+    let columnIndex = 0;
+
+    // ✅ Ensure column is not already occupied
     for (let i = startSlot; i < endSlot; i++) {
-        if (!activityMap.has(i)) {
-        activityMap.set(i, []); // ✅ Ensures every slot starts as an array
+        if (!columnTracker.has(i)) {
+            columnTracker.set(i, new Set());
         }
-
-        const activityList = activityMap.get(i);
-        
-        if (Array.isArray(activityList)) { // ✅ Ensure it's an array before pushing
-        activityList.push(activity);
-        } else {
-        console.error(`❌ activityMap.get(${i}) is not an array:`, activityList);
+        while (columnTracker.get(i).has(columnIndex)) {
+            columnIndex++; // ✅ Move to next available column
         }
     }
-    });
 
-    
+    // ✅ Store used column index for all affected slots
+    for (let i = startSlot; i < endSlot; i++) {
+        columnTracker.get(i).add(columnIndex);
+        if (!activityMap.has(i)) {
+            activityMap.set(i, []);
+        }
+
+        const row = activityMap.get(i);
+        while (row.length <= columnIndex) {
+            row.push(null);
+        }
+
+        // ✅ Store row span only in the first slot of the activity
+        if (i === startSlot) {
+            row[columnIndex] = { activity, rowSpan };
+            rowSpanTracker.set(activity, rowSpan); // ✅ Save row span for reference
+        } else {
+            row[columnIndex] = null; // ✅ Empty slot (merged in table)
+        }
+    }
+});
+
+
 
     return (
         <Card className="shadow-sm">
@@ -66,60 +88,64 @@ function DayTable({ dayPlan, onDeleteActivity, onDropActivity }) {
                 </tr>
             </thead>
             <tbody>
-            {hours.map((hour, index) => {
-  const activities = activityMap.get(index) || [];
-  const columnCount = Math.max(...Array.from(activityMap.values(), (acts) => acts.length), 1);
-
-  return (
-    <tr key={index} onDragOver={(e) => e.preventDefault()} onDrop={(e) => onDropActivity(e, hour)}>
-      <td className="text-center">{hour}</td>
-
-      {Array.from({ length: columnCount }, (_, colIndex) => {
-        const activity = activities[colIndex];
+    {hours.map((hour, index) => {
+        const activities = activityMap.get(index) || [];
+        const columnCount = Math.max(...Array.from(activityMap.values(), (acts) => acts.length), 1); // ✅ Adjust dynamically
 
         return (
-          <td key={colIndex} className="text-center align-middle p-2"
-            style={{
-              minWidth: "150px",
-              backgroundColor: activity ? activity.color : "transparent", // ✅ Apply custom color only if activity exists
-              color: activity ? "white" : "black", // ✅ Keep text readable
-              border: "1px solid #dee2e6" // ✅ Ensure proper table structure
-            }}
-            onClick={() => setSelectedActivity(selectedActivity === activity ? null : activity)}
-          >
-            {activity ? (
-              <>
-                <strong>{activity.title}</strong>
-                <br />
-                💰 Cost Per Person: ${activity.cost.toFixed(2)}
-                <br />
-                ({formatTime12H(timeToMinutes(activity.startTime))} - 
-                {formatTime12H(timeToMinutes(activity.endTime))})
-                {selectedActivity === activity && (
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    className="ms-2 float-end"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteActivity(dayPlan.indexOf(activity));
-                      setSelectedActivity(null);
-                    }}
-                  >
-                    🗑️ Remove
-                  </Button>
-                )}
-              </>
-            ) : null}
-          </td>
+            <tr key={index} onDragOver={(e) => e.preventDefault()} onDrop={(e) => onDropActivity(e, hour)}>
+                <td className="text-center">{hour}</td>
+
+                {Array.from({ length: columnCount }, (_, colIndex) => {
+                    const activityEntry = activities[colIndex];
+
+                    // ✅ If activity is `null`, skip it (part of merged row)
+                    if (activityEntry === null) return null;
+
+                    // ✅ Extract activity and row span
+                    const { activity, rowSpan } = activityEntry || {};
+
+                    return activity ? (
+                        <td
+                            key={colIndex}
+                            rowSpan={rowSpan} // ✅ Merge rows
+                            className="text-center align-middle p-2"
+                            style={{
+                                minWidth: "150px",
+                                backgroundColor: activity.color,
+                                color: "white",
+                                border: "1px solid #dee2e6"
+                            }}
+                            onClick={() => setSelectedActivity(selectedActivity === activity ? null : activity)}
+                        >
+                            <strong>{activity.title}</strong>
+                            <br />
+                            💰 Cost Per Person: ${activity.cost.toFixed(2)}
+                            <br />
+                            ({formatTime12H(timeToMinutes(activity.startTime))} - 
+                            {formatTime12H(timeToMinutes(activity.endTime))})
+                            {selectedActivity === activity && (
+                                <Button
+                                    variant="danger"
+                                    size="sm"
+                                    className="ms-2 float-end"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onDeleteActivity(dayPlan.indexOf(activity));
+                                        setSelectedActivity(null);
+                                    }}
+                                >
+                                    🗑️ Remove
+                                </Button>
+                            )}
+                        </td>
+                    ) : <td key={colIndex}></td>; // ✅ Empty cell (keeps table structure)
+                })}
+            </tr>
         );
-      })}
-    </tr>
-  );
-})}
+    })}
+</tbody>
 
-
-            </tbody>
             </Table>
         </Card.Body>
         </Card>

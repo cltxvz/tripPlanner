@@ -9,11 +9,19 @@ function DayTable({ dayPlan, updateDayPlan, onDeleteActivity, onDropActivity }) 
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [editModalShow, setEditModalShow] = useState(false);
     const [editingActivity, setEditingActivity] = useState(null);
+    const [errors, setErrors] = useState({ startTime: "", endTime: "" });
 
     const onEditActivity = (activity) => {
         setEditingActivity(activity);
+        setErrors({ startTime: "", endTime: "" }); // Reset errors
         setEditModalShow(true);
     };
+   
+    // Handle Close Modal
+    const handleCloseModal = () => {
+        setEditModalShow(false);
+        setErrors({ startTime: "", endTime: "" }); // Reset errors
+    };    
 
     // Generate time slots in 12-hour format
     const hours = Array.from({ length: 24 }, (_, i) => {
@@ -127,7 +135,7 @@ function DayTable({ dayPlan, updateDayPlan, onDeleteActivity, onDropActivity }) 
                                                 ({formatTime12H(timeToMinutes(activity.startTime))} - 
                                                 {formatTime12H(timeToMinutes(activity.endTime))})
 
-                                                {/* ✅ Centered action buttons */}
+                                                {/* Edit/Delete Buttons */}
                                                 {selectedActivity === activity && (
                                                     <div className="mt-2 d-flex justify-content-center">
                                                         <Button
@@ -164,8 +172,8 @@ function DayTable({ dayPlan, updateDayPlan, onDeleteActivity, onDropActivity }) 
                 </Table>
             </Card.Body>
 
-            {/* 🔹 Edit Modal */}
-            <Modal show={editModalShow} onHide={() => setEditModalShow(false)} backdrop="static">
+            {/* Edit Modal */}
+            <Modal show={editModalShow} onHide={handleCloseModal} backdrop="static">
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Activity</Modal.Title>
                 </Modal.Header>
@@ -177,18 +185,30 @@ function DayTable({ dayPlan, updateDayPlan, onDeleteActivity, onDropActivity }) 
                                 <Form.Control
                                     type="time"
                                     value={editingActivity.startTime}
-                                    onChange={(e) => setEditingActivity({ ...editingActivity, startTime: e.target.value })}
-                                    required
+                                    isInvalid={!!errors.startTime}
+                                    onChange={(e) => {
+                                        setEditingActivity((prev) => ({ ...prev, startTime: e.target.value }));
+                                        setErrors({ ...errors, startTime: "" });
+                                    }}
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.startTime}
+                                </Form.Control.Feedback>
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>End Time</Form.Label>
                                 <Form.Control
                                     type="time"
                                     value={editingActivity.endTime}
-                                    onChange={(e) => setEditingActivity({ ...editingActivity, endTime: e.target.value })}
-                                    required
+                                    isInvalid={!!errors.endTime}
+                                    onChange={(e) => {
+                                        setEditingActivity({ ...editingActivity, endTime: e.target.value });
+                                        setErrors({ ...errors, endTime: "" });
+                                    }}
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.endTime}
+                                </Form.Control.Feedback>
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>Block Color</Form.Label>
@@ -207,10 +227,28 @@ function DayTable({ dayPlan, updateDayPlan, onDeleteActivity, onDropActivity }) 
                         variant="primary"
                         onClick={() => {
                             if (typeof updateDayPlan === "function") {
+
+                                if (!editingActivity) {
+                                    console.error("No activity selected for editing.");
+                                    return;
+                                }
+                                
+                                if (!editingActivity.startTime) {
+                                    setErrors({ ...errors, startTime: "Start time is required." });
+                                    return;
+                                }
+                                if (!editingActivity.endTime) {
+                                    setErrors({ ...errors, endTime: "End time is required." });
+                                    return;
+                                }
+                                if (editingActivity.endTime <= editingActivity.startTime) {
+                                    setErrors({ ...errors, endTime: "End time must be after start time." });
+                                    return;
+                                }                                
                                 updateDayPlan(dayPlan.map(act => act.id === editingActivity.id ? editingActivity : act));
                                 setEditModalShow(false);
                             } else {
-                                console.error("❌ updateDayPlan is not a function. Ensure it is passed as a prop.");
+                                console.error("updateDayPlan is not a function. Ensure it is passed as a prop.");
                             }
                         }}
                         

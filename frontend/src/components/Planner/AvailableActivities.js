@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Import for navigation
+import { useNavigate } from "react-router-dom";
 import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
-import Button from "react-bootstrap/Button"; // ✅ Import for button
+import Button from "react-bootstrap/Button";
 
 function AvailableActivities({ activities, dayPlan }) {
-  const navigate = useNavigate(); // ✅ Navigation Hook
+  const navigate = useNavigate();
   const [unscheduledActivities, setUnscheduledActivities] = useState([]);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ function AvailableActivities({ activities, dayPlan }) {
           )}
         </ListGroup>
 
-        {/* 🔹 Manage Activities Button */}
+        {/* Manage Activities Button */}
         <div className="text-center mt-4">
           <Button variant="primary" onClick={() => navigate("/activities")}>
             📋 Manage Activities

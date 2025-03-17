@@ -17,14 +17,14 @@ function TotalCost({ dayPlan, numberOfTravelers }) {
     setTotalCostForAll(totalAll);
   }, [dayPlan, numberOfTravelers]);
 
-  // ✅ Handle finishing planning and explicitly saving to localStorage
+  // Handle finishing planning and explicitly saving to localStorage
   const handleFinishPlanning = () => {
   
     const tripDetails = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
     const selectedDay = localStorage.getItem("selectedDay");
   
     if (!selectedDay) {
-      console.error("❌ No selected day found. Cannot save.");
+      console.error("No selected day found. Cannot save.");
       return;
     }
   
@@ -46,9 +46,6 @@ function TotalCost({ dayPlan, numberOfTravelers }) {
     navigate("/trip");
   };
   
-  
-  
-
   return (
     <Card className="shadow-sm p-4 mt-4">
       <Card.Body className="text-center">

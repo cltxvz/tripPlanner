@@ -15,7 +15,7 @@ function Planner() {
   const [activities, setActivities] = useState([]);
   const [numberOfTravelers, setNumberOfTravelers] = useState(1);
 
-  // 🔹 Refresh Activities and Update Day Plans
+  // Refresh Activities and Update Day Plans
   const refreshActivities = useCallback(() => {
     const storedActivities = JSON.parse(localStorage.getItem("activities")) || [];
     const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
@@ -32,10 +32,10 @@ function Planner() {
     });
 
     setActivities(storedActivities);
-    localStorage.setItem("tripDetails", JSON.stringify(storedTrip)); // ✅ Save updated trip details
+    localStorage.setItem("tripDetails", JSON.stringify(storedTrip)); // Save updated trip details
   }, []);
 
-  // ✅ Ensures a trip exists and loads necessary details
+  // Ensures a trip exists and loads necessary details
   useEffect(() => {
   
     const storedTrip = JSON.parse(localStorage.getItem("tripDetails")) || { dayPlans: {} };
@@ -43,7 +43,7 @@ function Planner() {
     const selectedDay = localStorage.getItem("selectedDay");
   
     if (!storedTrip || !selectedDay) {
-      navigate("/"); // ⏪ Redirect if trip or selected day is missing
+      navigate("/"); // Redirect if trip or selected day is missing
       return;
     }
   
@@ -59,23 +59,23 @@ function Planner() {
   
     setDayPlan(currentDayPlan);
   
-    // ✅ Filter out activities already in `dayPlan`
+    // Filter out activities already in `dayPlan`
     const availableActivities = storedActivities.filter(
       (act) => !currentDayPlan.some((scheduledAct) => scheduledAct.id === act.id)
     );
   
     setActivities(availableActivities);
   
-    refreshActivities(); // ✅ Now safe to include in dependencies
+    refreshActivities();
   }, [navigate, refreshActivities]);
   
   
 
-  // 🔹 Function to update the day plan
+  // Function to update the day plan
   const updateDayPlan = (newDayPlan) => {
     
     if (!Array.isArray(newDayPlan)) {
-      console.error("❌ newDayPlan is not an array:", newDayPlan);
+      console.error("newDayPlan is not an array:", newDayPlan);
       return;
     }
   
@@ -85,7 +85,7 @@ function Planner() {
     const selectedDay = localStorage.getItem("selectedDay");
   
     if (!selectedDay) {
-      console.error("❌ No selected day found. Cannot save.");
+      console.error("No selected day found. Cannot save.");
       return;
     }
   
@@ -103,21 +103,19 @@ function Planner() {
   
   };
   
-  
-  
   return (
     <>
-      {/* 🌟 Header */}
+      {/* Header */}
       <PlannerHeader />
 
       <Container className="mt-2 mb-2">
-        {/* 💰 Total Cost Section */}
+        {/* Total Cost Section */}
         <Row className="mt-0">
           <Col md={12}>
             <TotalCost dayPlan={dayPlan} numberOfTravelers={numberOfTravelers} />
           </Col>
         </Row>
-        {/* 🗓 Day Schedule & Available Activities */}
+        {/* Day Schedule & Available Activities */}
         <Row>
           <Col md={6} className="mt-3 mb-4">
             <DaySchedule dayPlan={dayPlan} updateDayPlan={updateDayPlan} />
@@ -129,7 +127,7 @@ function Planner() {
         </Row>
       </Container>
 
-      {/* 🔻 Footer */}
+      {/* Footer */}
       <Footer />
     </>
   );
